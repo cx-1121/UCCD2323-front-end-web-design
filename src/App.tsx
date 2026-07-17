@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useSearchParams } from 'react-router-dom';
 import LandingPage from './pages/LandingPage/LandingPage';
 import HomePage from './pages/HomePage/HomePage';
+import DebugConsole from './components/DebugConsole/DebugConsole';
 
 /**
  * Guard component for the root path "/".
@@ -24,15 +25,19 @@ function RootRouteGuard() {
  * Composition root, responsible for global configuration (routing, global context/state).
  */
 function App() {
+  const isDebug = new URLSearchParams(window.location.search).get('debug') === 'true';
+
   return (
     <Router>
       <Routes>
         <Route path="/" element={<RootRouteGuard />} />
         <Route path="/home" element={<HomePage />} />
       </Routes>
+      {isDebug && <DebugConsole />}
     </Router>
   );
 }
+
 
 
 export default App;

@@ -22,6 +22,7 @@ frontend_react/
 ├── public/                     # Static assets served directly from Web root
 └── src/
     ├── components/             # UI view components divided by features
+    │   ├── DebugConsole/       # Zero-intrusion developer control panel (activated by url query)
     │   ├── DevTimeDisplay/     # Time counter overlay for development/debugging
     │   ├── HudHeader/          # HUD top navigation bar
     │   ├── ProgressHud/        # Scroll position progress HUD
