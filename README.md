@@ -76,6 +76,7 @@ npm run lint
 
 ---
 
+
 ## 📐 Project Architecture & Conventions
 
 Before modifying any source code, please refer to [DISTRIBUTIONS.md](file:///d:/01_Workspace_Dev/01_Projects/frontend-clear/frontend_react/DISTRIBUTIONS.md) for strict guidelines on:

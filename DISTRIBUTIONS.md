@@ -82,3 +82,114 @@ To maintain directory cleanliness and avoid clutter, team members must strictly 
 
 ### ⚠️ Rule 4: CSS Framework Constraint
 * **Style System**: Rely strictly on **Vanilla CSS (CSS Modules)**. Do not introduce CSS-in-JS libraries, tailwind wrappers, or external UI frameworks without explicit team consensus.
+
+---
+
+## 5. Git Workflow Rules
+
+### 🚨 Core Rules
+
+> [!IMPORTANT]
+> **DO NOT:**
+> * ❌ Directly push commits to `main` or `dev` branches.
+> * ❌ Merge your own Pull Requests without peer review.
+> * ❌ Commit broken, unformatted, or untested code.
+> * ❌ Mix multiple unrelated features or bug fixes in a single PR.
+
+> [!TIP]
+> **DO:**
+> * Always develop on dedicated feature branches.
+> * Target your PRs to the `dev` branch.
+> * Keep Pull Requests small, cohesive, and focused.
+> * Rebase or resolve conflicts locally before requesting a review.
+> * Pull the latest changes from `dev` before starting new work.
+
+### 🌲 Branching Strategy
+
+#### Main Branches
+* **`main`**: Production-ready, stable, and fully functional. **Strictly read-only; direct commits are prohibited.**
+* **`dev`**: Active integration branch for feature convergence.
+
+#### Feature Branches
+All feature branches must branch off from `dev` and follow this naming format:
+`feature/<feature-name>`
+
+**Examples:**
+* `feature/task-assignment`
+* `feature/aco-optimization`
+* `feature/carbon-model`
+* `feature/realtime-dispatch`
+* `feature/frontend-map`
+
+### 🛠 Feature Development Flow
+
+All development must strictly adhere to the following workflow. **Direct pushes to `main` or `dev` are prohibited.**
+
+#### Step 1: Sync with `dev`
+Start with the latest upstream codebase:
+```bash
+git checkout dev
+git pull origin dev
+```
+
+#### Step 2: Create a Feature Branch
+Spawn a new local branch off `dev`:
+```bash
+git checkout -b feature/<feature-name>
+```
+
+#### Step 3: Develop & Commit
+* Keep commits modular and logical.
+* Write concise commit messages that conform to the conventional commits standard.
+```bash
+git add .
+git commit -m "feat: short and clear description"
+```
+
+#### Step 4: Push the Feature Branch
+Push your branch to the remote repository. **Never target main/dev directly with push.**
+```bash
+git push origin feature/<feature-name>
+```
+
+#### Step 5: Open a Pull Request (PR)
+* Open a PR when your feature is **completely finished** and tested.
+* Ensure your local branch is up-to-date with remote `dev` before submission:
+  ```bash
+  git fetch origin
+  git status
+  ```
+* Set the target base branch to `dev`.
+* Write a clear PR description outlining **what** was changed and **why**.
+
+#### Step 6: Review & Address Feedback
+Reviewers will evaluate the PR against:
+* Logic correctness & test coverage
+* Code readability & style compliance
+* Architectural consistency
+* Potential side-effects & performance red flags
+
+#### Step 7: Merge & Clean Up
+* Merging is allowed only after receiving required approvals.
+* Prefer **Squash and Merge** to maintain a clean git history.
+* Delete the feature branch from both local and remote repositories after merging.
+
+### 📝 Commit Message Convention
+
+We follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
+
+**Format:** `<type>: <short description>`
+
+#### Commit Types
+* `feat`: A new feature
+* `fix`: A bug fix
+* `refactor`: Code changes that neither fix a bug nor add a feature
+* `docs`: Documentation updates only
+* `test`: Adding missing tests or correcting existing tests
+* `chore`: Changes to the build process, auxiliary tools, or libraries
+
+#### Examples
+* `feat: add Voronoi-based task assignment`
+* `fix: correct carbon calculation for EV`
+* `refactor: simplify ACO path construction`
+* `docs: update PRD and diagrams`
