@@ -47,9 +47,51 @@
   will-change: transform, opacity;
 }
 
+.ctaContainer {
+  position: absolute;
+  bottom: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ctaButton {
+  padding: 0.9rem 2.2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: 0.1em;
+  color: #ef4444;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(185, 28, 28, 0.05) 100%);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.1);
+  transition: all 0.25s ease-in-out;
+  backdrop-filter: blur(10px);
+}
+
+.ctaButton:hover {
+  background: #ef4444;
+  color: #050202;
+  box-shadow: 0 0 25px rgba(239, 68, 68, 0.6);
+  transform: translateX(-50%) scale(1.05); /* keep center x aligned while scaling */
+}
+
+/* ensure scale works with left 50 translateX correctly */
+.ctaButton:hover {
+  transform: scale(1.05);
+}
+
 @media (max-width: 768px) {
   .svgViewport {
     height: 48%;
     top: 6%;
   }
 }
+

@@ -20,7 +20,7 @@ function HomePage() {
             You have successfully transited from the industrial smoke of the past into the active incubator of tomorrow's green technology.
           </p>
           <div className={styles.links}>
-            <Link to="/" className={styles.button}>
+            <Link to="/?replay=true" className={styles.button}>
               ← Replay Cinematic Landing Page
             </Link>
           </div>
