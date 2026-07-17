@@ -92,6 +92,12 @@ To maintain directory cleanliness and avoid clutter, team members must strictly 
 * **Context**: The `LandingPage` contains high-overhead animations (GSAP ScrollTriggers and Canvas render loops).
 * **Practice**: Ensure all animation timelines and Canvas render loops created inside page/scene components are registered for clean-up on unmount (e.g., returning a clean-up function in `useEffect` or using `ScrollTrigger.revert()`). Never persist page-specific tickers or global events unless they are properly garbage-collected.
 
+### ⚠️ Rule 6: Developer Debug Mode & Safety Boundaries
+* **Context**: We use a floating `<DebugConsole />` component to test LocalStorage journey flags and skip to specific revisit Easter egg attempts during development.
+* **Practice**: 
+  * **How to Activate**: Access the application locally using `http://localhost:5173/?debug=true`. The system will save a flag `debugModeActive = 'true'` in `sessionStorage` to keep the console visible across tab refreshes and internal route navigations.
+  * **Domain Constraint**: The debugging dashboard is **strictly prohibited** from rendering in production domain environments. Developers must never disable the `window.location.hostname === 'localhost' || '127.0.0.1'` guard inside `src/App.tsx`.
+  * **Purge State**: Clicking the `Reset All (Fresh UI)` button inside the console will automatically clean both LocalStorage states and Session flags, followed by a hard `window.location.reload()` to completely refresh the viewport.
 
 ---
 

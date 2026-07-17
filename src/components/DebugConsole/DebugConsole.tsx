@@ -34,9 +34,12 @@ function DebugConsole() {
   const handleResetAll = () => {
     localStorage.removeItem('greenTechJourneyStarted');
     localStorage.removeItem('landingRevisitCount');
+    sessionStorage.removeItem('debugModeActive');
     syncLocalStates();
-    // Route back to clean root to simulate a fresh user
+    setIsOpen(false);
+    // Route back to clean root, reload to completely purge all global caches & controllers
     navigate('/');
+    window.location.reload();
   };
 
   const handleSetRevisit = (count: number) => {

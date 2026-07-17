@@ -25,7 +25,18 @@ function RootRouteGuard() {
  * Composition root, responsible for global configuration (routing, global context/state).
  */
 function App() {
-  const isDebug = new URLSearchParams(window.location.search).get('debug') === 'true';
+  const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  const urlDebug = new URLSearchParams(window.location.search).get('debug') === 'true';
+
+  let isDebug = false;
+  if (isLocal) {
+    if (urlDebug) {
+      sessionStorage.setItem('debugModeActive', 'true');
+      isDebug = true;
+    } else {
+      isDebug = sessionStorage.getItem('debugModeActive') === 'true';
+    }
+  }
 
   return (
     <Router>
