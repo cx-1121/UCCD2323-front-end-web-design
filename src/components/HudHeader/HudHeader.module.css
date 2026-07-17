@@ -1,0 +1,111 @@
+/* Ported from past_landing_page.css: "Top navigation and indicator (Global HUD)" section */
+.hudHeader {
+  position: fixed;
+  top: clamp(1rem, 2vw, 2rem);
+  left: clamp(1rem, 2vw, 2rem);
+  right: clamp(1rem, 2vw, 2rem);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.3rem, 1vw, 0.5rem);
+  pointer-events: auto;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  position: relative;
+  background: none;
+  border: none;
+  font: inherit;
+  color: inherit;
+}
+
+.logo:hover {
+  transform: scale(1.03);
+}
+
+.logo svg {
+  width: clamp(20px, 4vw, 28px);
+  height: clamp(20px, 4vw, 28px);
+  fill: #10b981;
+  filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.6));
+  transform-origin: center;
+}
+
+.logoTextGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  will-change: transform, opacity;
+}
+
+.logoText {
+  font-size: clamp(0.9rem, 2.2vw, 1.3rem);
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #fff;
+  line-height: 1.1;
+}
+
+.logoSubtext {
+  font-size: 0.52rem;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-top: 1px;
+  line-height: 1;
+}
+
+.logoLine {
+  position: absolute;
+  left: clamp(28px, 5vw, 36px);
+  top: 50%;
+  transform: translateY(-50%);
+  height: 1px;
+  width: 0;
+  background: linear-gradient(90deg, #10b981, rgba(16, 185, 129, 0));
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
+  pointer-events: none;
+  will-change: width;
+}
+
+.globalNav {
+  position: absolute;
+  left: clamp(38px, 6vw, 46px);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: clamp(1rem, 2vw, 1.5rem);
+  pointer-events: none;
+}
+
+.navItem {
+  font-size: clamp(0.6rem, 1.5vw, 0.8rem);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.65);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0;
+  transform: translateX(-15px);
+  /* Independent scale property to avoid conflicts with GSAP inline transform (M2) */
+  transition: scale 0.25s ease, color 0.25s ease, text-shadow 0.25s ease;
+  scale: 1;
+  white-space: nowrap;
+  will-change: transform, opacity, scale;
+}
+
+.navItem:hover {
+  color: #10b981;
+  text-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+  scale: 1.1;
+}

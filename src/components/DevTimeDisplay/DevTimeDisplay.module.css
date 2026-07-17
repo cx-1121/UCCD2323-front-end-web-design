@@ -1,0 +1,19 @@
+/* Ported from past_landing_page.html inline style on
+   #dev-time-display (lines 962-965) — was always inline, no rule in
+   past_landing_page.css. */
+.devTimeDisplay {
+  display: none;
+  position: fixed;
+  bottom: 15px;
+  left: 15px;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.85);
+  color: #00ff00;
+  font-family: monospace;
+  font-size: 14px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: 1px solid #00ff00;
+  pointer-events: none;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}

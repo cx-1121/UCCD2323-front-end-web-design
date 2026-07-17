@@ -1,0 +1,138 @@
+/* ==========================================================================
+   Global styles: fonts, reset, shared layout primitives, keyframes,
+   reduced-motion. Ported from past_landing_page.css sections 1 & 5, plus
+   every @keyframes block that a component below still references.
+   ========================================================================== */
+
+/* Google Fonts: loaded via <link rel="stylesheet"> in index.html (ported
+   verbatim from past_landing_page.html's <head>), not @import here — avoids
+   the render-blocking double-fetch that `@import` inside a bundled CSS
+   Module would cause, and matches the legacy <head> loading strategy. */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Outfit', 'Montserrat', sans-serif;
+  background-color: #05070f;
+  color: #f8fafc;
+  overflow-x: hidden;
+}
+
+/* Shared "scene" base layout, reused verbatim by SceneIntro and
+   SceneTraditional (was legacy .scene class applied to both <section>s).
+   Kept here instead of duplicated in two CSS Modules files. */
+.scene {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  opacity: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  padding: 2rem;
+}
+
+@media (max-width: 768px) {
+  .scene {
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 1rem;
+  }
+}
+
+/* ==========================================================================
+   Keyframes (shared bucket per PRD; each is consumed by exactly one
+   component below but kept centralized for easy auditing).
+   ========================================================================== */
+@keyframes wheelScroll {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, 15px);
+  }
+}
+
+@keyframes cityFloat {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes flameFlicker {
+  0% {
+    transform: scaleY(1) scaleX(1) skewX(0deg);
+    filter: brightness(1);
+  }
+  25% {
+    transform: scaleY(1.18) scaleX(1.06) skewX(2.5deg);
+    filter: brightness(1.15);
+  }
+  50% {
+    transform: scaleY(0.88) scaleX(0.94) skewX(-1.5deg);
+    filter: brightness(0.92);
+  }
+  75% {
+    transform: scaleY(1.22) scaleX(1.12) skewX(3deg);
+    filter: brightness(1.22);
+  }
+  100% {
+    transform: scaleY(1) scaleX(1) skewX(0deg);
+    filter: brightness(1);
+  }
+}
+
+@keyframes pumpjackSwing {
+  0% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(7deg);
+  }
+  100% {
+    transform: rotate(-5deg);
+  }
+}
+
+/* ==========================================================================
+   prefers-reduced-motion (past_landing_page.css:1389) — preserved exactly.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  #particle-canvas {
+    display: none;
+  }
+}
+
+/* --- Fossil Energy Scene Animations --- */
+#fossil-flame {
+  transform-origin: bottom center;
+  animation: flameFlicker 0.15s ease-in-out infinite;
+}
+
+#fossil-pump-beam {
+  transform-origin: 805px 330px;
+  animation: pumpjackSwing 4s ease-in-out infinite;
+}

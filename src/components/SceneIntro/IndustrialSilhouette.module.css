@@ -1,0 +1,100 @@
+/* Ported from past_landing_page.css: "City Silhouette Styles" + the two
+   industrial containers' inline styles (past_landing_page.html lines 110-111,
+   883-886). The cls1-cls12 names mirror the exported SVG's original
+   `cls-N` classes (Illustrator/Figma export convention); scoped under this
+   module the same way the legacy stylesheet scoped them under the
+   #industrial-silhouette-container id. cls11 is defined (unused, as in the
+   legacy source) for 1:1 parity. */
+.container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 70%;
+  z-index: 2;
+  pointer-events: none;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.svg {
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  animation: cityFloat 3.5s ease-in-out infinite alternate;
+}
+
+.cls1,
+.cls2 {
+  opacity: 0.29;
+}
+
+.cls1,
+.cls3 {
+  fill: #658280;
+}
+
+.cls4,
+.cls2 {
+  fill: #b5c3c2;
+}
+
+.cls5 {
+  fill: #95a9a7;
+}
+
+.cls6,
+.cls7,
+.cls8,
+.cls9 {
+  fill: #fff;
+}
+
+.cls7 {
+  opacity: 0.5;
+}
+
+.cls10 {
+  opacity: 0.18;
+}
+
+.cls11 {
+  fill: #eff0ed;
+}
+
+.cls12 {
+  opacity: 0.52;
+}
+
+.cls8 {
+  opacity: 0.4;
+}
+
+.cls9 {
+  opacity: 0.33;
+}
+
+/* Dark/polluted overlay: fades in over the lit silhouette via GSAP (M2) */
+.darkContainer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 70%;
+  z-index: 3;
+  pointer-events: none;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  opacity: 0;
+}
+
+.darkImg {
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  object-fit: contain;
+  object-position: bottom center;
+  animation: cityFloat 3.5s ease-in-out infinite alternate;
+}

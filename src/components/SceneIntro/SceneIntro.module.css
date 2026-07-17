@@ -1,0 +1,18 @@
+/* #scene-intro background: past_landing_page.css:334-336.
+   .intro-bg-overlay had no CSS rule in the legacy stylesheet — it was fully
+   inline-styled (past_landing_page.html lines 87-89); ported verbatim here. */
+#scene-intro {
+  background: linear-gradient(180deg, #111827 0%, #030712 100%);
+}
+
+.introBgOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #423629;
+  opacity: 0;
+  z-index: 0;
+  pointer-events: none;
+}

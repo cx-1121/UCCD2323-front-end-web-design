@@ -1,0 +1,24 @@
+.scrollContainer {
+  width: 100%;
+  height: 350vh; /* PC scroll fuel length */
+  position: relative;
+}
+
+@media (max-width: 768px) {
+  .scrollContainer {
+    height: 220vh; /* Mobile scroll fuel length */
+  }
+}
+
+.stageContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh; /* viewport height compatibility fallback */
+  overflow: hidden;
+  background: radial-gradient(circle at center, #0e172a 0%, #05070f 100%);
+  z-index: 1;
+  pointer-events: none; /* pass-through to enable mobile native touch scrolling */
+}

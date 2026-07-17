@@ -1,0 +1,43 @@
+/* Ported from past_landing_page.css: "Scrolling indicator mouse animation" */
+.scrollIndicatorMouse {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 100;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  /* Legacy stylesheet sets pointer-events:none on the class, then overrides it
+     back to auto via the higher-specificity #scroll-hint ID selector. */
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+
+#scroll-hint {
+  pointer-events: auto;
+}
+
+.mouseFrame {
+  width: 24px;
+  height: 40px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  position: relative;
+}
+
+.mouseWheel {
+  width: 4px;
+  height: 8px;
+  background: #10b981;
+  border-radius: 2px;
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: wheelScroll 1.5s infinite;
+}
