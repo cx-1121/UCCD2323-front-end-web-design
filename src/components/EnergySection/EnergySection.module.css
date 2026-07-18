@@ -1,6 +1,6 @@
 .energySection {
   width: 100%;
-  margin: 0 auto 80px;
+  margin: 40px auto 0px;
   padding: 48px;
   background-color: #101c16;
   border: 1px solid #263a2f;
@@ -82,7 +82,7 @@
   color: #75d69a;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1000px) {
   .energySection {
     padding: 28px 20px;
     border-radius: 18px;

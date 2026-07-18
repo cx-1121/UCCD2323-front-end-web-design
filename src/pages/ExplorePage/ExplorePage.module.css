@@ -1,8 +1,17 @@
 .page {
   min-height: 100vh;
-  padding: 100px 32px 80px;
+  padding: 60px 32px 80px;
   background-color: #08110d;
   color: #f3f7f4;
+}
+
+.headerBar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100px;
+  background-color: #08110d;
 }
 
 .layout {
@@ -18,9 +27,15 @@
   min-width: 0;
 }
 
-.sidebar {
+.sidebarColumn {
   position: sticky;
   top: 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.sidebar {
   padding: 24px;
   background-color: #101c16;
   border: 1px solid #263a2f;
@@ -29,7 +44,7 @@
 }
 
 .sidebarLabel {
-  margin: 0 8px 18px;
+  margin: 0 8px 18px -1px;
   color: #75d69a;
   font-size: 0.8rem;
   font-weight: 700;
@@ -75,6 +90,38 @@
   transform: translateX(4px);
 }
 
+.sidebarText {
+  margin: 0;
+  color: #c5d2ca;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.sidebarLink {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 10px 16px;
+  color: #06110c;
+  font-weight: 600;
+  text-decoration: none;
+  background-color: #75d69a;
+  border-radius: 8px;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.sidebarLink:hover {
+  background-color: #99e9b5;
+  transform: translateY(-2px);
+}
+
+.sidebarLink:focus-visible,
+.sidebarList a:focus-visible {
+  outline: 3px solid rgba(117, 214, 154, 0.55);
+  outline-offset: 3px;
+}
+
 @media (max-width: 900px) {
   .page {
     padding: 100px 16px 60px;
@@ -87,6 +134,9 @@
   .sidebar {
     position: static;
     grid-row: 1;
+  }
+
+  .sidebar:nth-child(1) {
     display: none;
   }
 
@@ -98,5 +148,25 @@
 
   .sidebarList li + li {
     margin-top: 0;
+  }
+
+  .sidebarColumn .sidebar:last-child {
+    text-align: center;
+  }
+
+  .sidebarLabel {
+    font-size: 1.2rem;
+  }
+
+  .sidebarText {
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 1rem;
+  }
+
+  .sidebarLink {
+    display: inline-block;
+    margin-left: auto;
+    margin-right: auto;
   }
 }

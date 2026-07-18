@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
-import HudHeader from "../../components/HudHeader/HudHeader";
-import EnergySection from "../../components/EnergySection/EnergySection";
-import { energySources } from "../../data/EnergySources";
-import styles from "./ExplorePage.module.css";
+import { useEffect, useState } from 'react';
+import HudHeader from '../../components/HudHeader/HudHeader';
+import EnergySection from '../../components/EnergySection/EnergySection';
+import { energySources } from '../../data/EnergySources';
+import styles from './ExplorePage.module.css';
+import { Link } from 'react-router-dom';
 
 function ExplorePage() {
-  const [activeEnergy, setActiveEnergy] = useState(energySources[0].id);
+  const [activeEnergy, setActiveEnergy] = useState(energySources[0]?.id ?? '');
 
   useEffect(() => {
     const sections = energySources
@@ -14,26 +15,22 @@ function ExplorePage() {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        const visibleSections = entries.filter(
-          (entry) => entry.isIntersecting
-        );
+        const visibleSections = entries.filter((entry) => entry.isIntersecting);
 
         if (visibleSections.length === 0) {
           return;
         }
 
         const mostVisibleSection = visibleSections.reduce((current, entry) =>
-          entry.intersectionRatio > current.intersectionRatio
-            ? entry
-            : current
+          entry.intersectionRatio > current.intersectionRatio ? entry : current,
         );
 
         setActiveEnergy(mostVisibleSection.target.id);
       },
       {
-        rootMargin: "-120px 0px -45% 0px",
+        rootMargin: '-120px 0px -45% 0px',
         threshold: [0.1, 0.25, 0.5, 0.75],
-      }
+      },
     );
 
     sections.forEach((section) => observer.observe(section));
@@ -43,7 +40,9 @@ function ExplorePage() {
 
   return (
     <main className={styles.page}>
-      <HudHeader />
+      <div className={styles.headerBar}>
+        <HudHeader />
+      </div>
 
       <div className={styles.layout}>
         <div className={styles.energyContent}>
@@ -52,26 +51,36 @@ function ExplorePage() {
           ))}
         </div>
 
-        <aside className={styles.sidebar}>
-          <p className={styles.sidebarLabel}>Explore Energy</p>
+        <div className={styles.sidebarColumn}>
+          <aside className={styles.sidebar}>
+            <p className={styles.sidebarLabel}>Explore Energy</p>
 
-          <nav aria-label="Renewable energy navigation">
-            <ul className={styles.sidebarList}>
-              {energySources.map((source) => (
-                <li key={source.id}>
-                  <a
-                    href={`#${source.id}`}
-                    className={
-                      activeEnergy === source.id ? styles.activeLink : ""
-                    }
-                  >
-                    {source.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        </aside>
+            <nav aria-label="Renewable energy navigation">
+              <ul className={styles.sidebarList}>
+                {energySources.map((source) => (
+                  <li key={source.id}>
+                    <a
+                      href={`#${source.id}`}
+                      className={activeEnergy === source.id ? styles.activeLink : ''}
+                    >
+                      {source.name}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </aside>
+
+          <aside className={styles.sidebar}>
+            <p className={styles.sidebarLabel}>Learn more?</p>
+
+            <p className={styles.sidebarText}>Take a short quiz to learn more.</p>
+
+            <Link to="/quiz-challenge" className={styles.sidebarLink}>
+              Start Quiz
+            </Link>
+          </aside>
+        </div>
       </div>
     </main>
   );
