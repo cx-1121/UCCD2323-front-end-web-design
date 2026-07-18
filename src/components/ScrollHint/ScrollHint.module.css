@@ -41,3 +41,14 @@
   transform: translateX(-50%);
   animation: wheelScroll 1.5s infinite;
 }
+
+@keyframes wheelScroll {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, 15px);
+  }
+}

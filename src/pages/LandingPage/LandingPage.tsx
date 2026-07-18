@@ -20,19 +20,19 @@ function LandingPage() {
 
   const [revisitLevel] = useState<number>(() => {
     const isReplay = new URLSearchParams(window.location.search).get('replay') === 'true';
-    const hasStarted = localStorage.getItem('greenTechJourneyStarted') === 'true';
+    const hasStarted = localStorage.getItem('hasChosenFuture') === 'true';
     if (isReplay && hasStarted) {
-      const currentCount = parseInt(localStorage.getItem('landingRevisitCount') || '0', 10);
+      const currentCount = parseInt(localStorage.getItem('attemptsToReturnToPast') || '0', 10);
       return currentCount + 1;
     }
     return 0;
   });
 
   const handleLeaveLanding = (targetPath: string = '/home') => {
-    localStorage.setItem('greenTechJourneyStarted', 'true');
+    localStorage.setItem('hasChosenFuture', 'true');
     if (revisitLevel > 0) {
-      // Set the new revisit count upon successful journey exit (easter egg fully triggered/completed)
-      localStorage.setItem('landingRevisitCount', revisitLevel.toString());
+      // Set the new attempts to return to past upon successful journey exit (easter egg fully triggered/completed)
+      localStorage.setItem('attemptsToReturnToPast', revisitLevel.toString());
     }
     navigate(targetPath);
   };

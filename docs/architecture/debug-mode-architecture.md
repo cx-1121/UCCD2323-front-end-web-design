@@ -25,7 +25,7 @@ graph TD
     F -- Click --> G[Open Glassmorphic Panel]
 
     G -- Reset Actions --> H[Reset LocalStorage <br> Navigate to /]
-    G -- Stage Jumps --> I[Set landingRevisitCount <br> Navigate to /?replay=true]
+    G -- Stage Jumps --> I[Set attemptsToReturnToPast <br> Navigate to /?replay=true]
     G -- Route Jumps --> J[Navigate to /home]
 ```
 
@@ -36,21 +36,21 @@ graph TD
 The Debug Console consists of a floating dashboard positioned at the bottom-right corner.
 
 ### State Monitor Panel
-* **LocalStorage.greenTechJourneyStarted**: Display current boolean value.
-* **LocalStorage.landingRevisitCount**: Display current integer count.
+* **LocalStorage.hasChosenFuture**: Display current boolean value.
+* **LocalStorage.attemptsToReturnToPast**: Display current integer count.
 
 ### Quick Command Deck (Button Deck)
 1. **⚙️ Reset All (New Dev)**:
-   * Sets `greenTechJourneyStarted = false`, `landingRevisitCount = 0`.
+   * Sets `hasChosenFuture = false`, `attemptsToReturnToPast = 0`.
    * Navigates to `/` (without parameters) to trigger the full, first-time cinematic scrolling intro.
 2. **🎬 Play Revisit 1**:
-   * Sets `greenTechJourneyStarted = true`, `landingRevisitCount = 0` (so departure sets it to 1).
+   * Sets `hasChosenFuture = true`, `attemptsToReturnToPast = 0` (so departure sets it to 1).
    * Navigates to `/?replay=true` (loads Level 1 smoke overlay).
 3. **🌱 Play Revisit 2**:
-   * Sets `greenTechJourneyStarted = true`, `landingRevisitCount = 1` (so departure sets it to 2).
+   * Sets `hasChosenFuture = true`, `attemptsToReturnToPast = 1` (so departure sets it to 2).
    * Navigates to `/?replay=true` (loads Level 2 green city view).
 4. **🏙️ Play Revisit 3 (Secret Nav)**:
-   * Sets `greenTechJourneyStarted = true`, `landingRevisitCount = 2` (so departure sets it to 3).
+   * Sets `hasChosenFuture = true`, `attemptsToReturnToPast = 2` (so departure sets it to 3).
    * Navigates to `/?replay=true` (loads Level 3 navigation deck).
 5. **🏠 Go To Home**:
    * Navigates straight to `/home`.

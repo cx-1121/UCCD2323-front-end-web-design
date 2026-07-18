@@ -9,14 +9,14 @@ import styles from './DebugConsole.module.css';
  */
 function DebugConsole() {
   const [isOpen, setIsOpen] = useState(false);
-  const [journeyStarted, setJourneyStarted] = useState(() => localStorage.getItem('greenTechJourneyStarted') || 'false');
-  const [revisitCount, setRevisitCount] = useState(() => localStorage.getItem('landingRevisitCount') || '0');
+  const [hasChosenFuture, setHasChosenFuture] = useState(() => localStorage.getItem('hasChosenFuture') || 'false');
+  const [attemptsToReturnToPast, setAttemptsToReturnToPast] = useState(() => localStorage.getItem('attemptsToReturnToPast') || '0');
   const navigate = useNavigate();
 
   // Sync state values with LocalStorage
   const syncLocalStates = () => {
-    setJourneyStarted(localStorage.getItem('greenTechJourneyStarted') || 'false');
-    setRevisitCount(localStorage.getItem('landingRevisitCount') || '0');
+    setHasChosenFuture(localStorage.getItem('hasChosenFuture') || 'false');
+    setAttemptsToReturnToPast(localStorage.getItem('attemptsToReturnToPast') || '0');
   };
 
   useEffect(() => {
@@ -32,9 +32,9 @@ function DebugConsole() {
   };
 
   const handleResetAll = () => {
-    localStorage.removeItem('greenTechJourneyStarted');
-    localStorage.removeItem('landingRevisitCount');
-    sessionStorage.removeItem('debugModeActive');
+    localStorage.removeItem('hasChosenFuture');
+    localStorage.removeItem('attemptsToReturnToPast');
+    localStorage.setItem('debugModeActive', 'false');
     syncLocalStates();
     setIsOpen(false);
     // Route back to clean root, reload to completely purge all global caches & controllers
@@ -43,8 +43,8 @@ function DebugConsole() {
   };
 
   const handleSetRevisit = (count: number) => {
-    localStorage.setItem('greenTechJourneyStarted', 'true');
-    localStorage.setItem('landingRevisitCount', count.toString());
+    localStorage.setItem('hasChosenFuture', 'true');
+    localStorage.setItem('attemptsToReturnToPast', count.toString());
     syncLocalStates();
     // Route to replay mode
     navigate('/?replay=true');
@@ -67,14 +67,14 @@ function DebugConsole() {
           <div className={styles.section}>
             <h5>Inspect States</h5>
             <div className={styles.stateRow}>
-              <span>journeyStarted:</span>
-              <span className={journeyStarted === 'true' ? styles.trueText : styles.falseText}>
-                {journeyStarted}
+              <span>hasChosenFuture:</span>
+              <span className={hasChosenFuture === 'true' ? styles.trueText : styles.falseText}>
+                {hasChosenFuture}
               </span>
             </div>
             <div className={styles.stateRow}>
-              <span>revisitCount:</span>
-              <span className={styles.countText}>{revisitCount}</span>
+              <span>attemptsToReturnToPast:</span>
+              <span className={styles.countText}>{attemptsToReturnToPast}</span>
             </div>
           </div>
 

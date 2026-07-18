@@ -95,9 +95,9 @@ To maintain directory cleanliness and avoid clutter, team members must strictly 
 ### ⚠️ Rule 6: Developer Debug Mode & Safety Boundaries
 * **Context**: We use a floating `<DebugConsole />` component to test LocalStorage journey flags and skip to specific revisit Easter egg attempts during development.
 * **Practice**: 
-  * **How to Activate**: Access the application locally using `http://localhost:5173/?debug=true`. The system will save a flag `debugModeActive = 'true'` in `sessionStorage` to keep the console visible across tab refreshes and internal route navigations.
+  * **How to Activate**: Access the application locally. The system defaults to enabling the console on localhost unless explicitly disabled. Alternatively, accessing it via `http://localhost:5173/?debug=true` will save a flag `debugModeActive = 'true'` in `localStorage` to keep the console visible across tab refreshes and browser restarts.
   * **Domain Constraint**: The debugging dashboard is **strictly prohibited** from rendering in production domain environments. Developers must never disable the `window.location.hostname === 'localhost' || '127.0.0.1'` guard inside `src/App.tsx`.
-  * **Purge State**: Clicking the `Reset All (Fresh UI)` button inside the console will automatically clean both LocalStorage states and Session flags, followed by a hard `window.location.reload()` to completely refresh the viewport.
+  * **Purge State**: Clicking the `Reset All (Fresh UI)` button inside the console will automatically clean LocalStorage states and set `debugModeActive = 'false'` in localStorage, followed by a hard `window.location.reload()` to completely refresh the viewport.
 
 ---
 

@@ -5,14 +5,14 @@ import DebugConsole from './components/DebugConsole/DebugConsole';
 
 /**
  * Guard component for the root path "/".
- * If the user has started their journey (greenTechJourneyStarted === 'true')
+ * If the user has started their journey (hasChosenFuture === 'true')
  * AND is not explicitly requesting a replay (?replay=true is missing),
  * they will be automatically redirected to the home page.
  */
 function RootRouteGuard() {
   const [searchParams] = useSearchParams();
   const isReplay = searchParams.get('replay') === 'true';
-  const hasStarted = localStorage.getItem('greenTechJourneyStarted') === 'true';
+  const hasStarted = localStorage.getItem('hasChosenFuture') === 'true';
 
   if (hasStarted && !isReplay) {
     return <Navigate to="/home" replace />;
@@ -31,10 +31,11 @@ function App() {
   let isDebug = false;
   if (isLocal) {
     if (urlDebug) {
-      sessionStorage.setItem('debugModeActive', 'true');
+      localStorage.setItem('debugModeActive', 'true');
       isDebug = true;
     } else {
-      isDebug = sessionStorage.getItem('debugModeActive') === 'true';
+      // Default to true in local development unless explicitly set to 'false'
+      isDebug = localStorage.getItem('debugModeActive') !== 'false';
     }
   }
 

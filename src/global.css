@@ -54,25 +54,6 @@ body {
    Keyframes (shared bucket per PRD; each is consumed by exactly one
    component below but kept centralized for easy auditing).
    ========================================================================== */
-@keyframes wheelScroll {
-  0% {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
-  100% {
-    opacity: 0;
-    transform: translate(-50%, 15px);
-  }
-}
-
-@keyframes cityFloat {
-  0% {
-    transform: translateY(0);
-  }
-  100% {
-    transform: translateY(-12px);
-  }
-}
 
 @keyframes flameFlicker {
   0% {
