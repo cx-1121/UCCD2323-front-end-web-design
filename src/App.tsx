@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LandingPage from './pages/LandingPage/LandingPage';
 import HomePage from './pages/HomePage/HomePage';
+import ExplorePage from './pages/ExplorePage/ExplorePage';
 
 /**
  * Composition root, responsible for global configuration (routing, global context/state).
@@ -14,6 +15,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/home" element={<HomePage />} />
+        <Route path="/explore" element={<ExplorePage />} />
       </Routes>
     </Router>
   );
