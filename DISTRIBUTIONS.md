@@ -193,3 +193,18 @@ We follow the [Conventional Commits](https://www.conventionalcommits.org/) speci
 * `fix: correct carbon calculation for EV`
 * `refactor: simplify ACO path construction`
 * `docs: update PRD and diagrams`
+
+
+## 6. Quiz & Challenge Module
+
+The renewable-energy quiz is available at `#quiz-challenge` and is kept separate from the landing-page scene flow.
+
+### Files
+
+- `src/components/QuizChallenge/QuizChallenge.tsx` — renders one question at a time, answer feedback, final score, and explanation review.
+- `src/components/QuizChallenge/QuizChallenge.module.css` — responsive, component-scoped quiz styles.
+- `src/components/QuizChallenge/QuizChallenge.test.tsx` — interaction coverage for correct and incorrect answers.
+- `src/hooks/useQuizChallenge.ts` — owns question progress, responses, score, and restart state.
+- `src/utils/quizQuestions.ts` — shared typed data for 10 Easy, Medium, and Hard renewable-energy questions.
+
+Keep question content in `quizQuestions.ts`, state transitions in the hook, and presentation in the component. Every question must include an educational explanation.
