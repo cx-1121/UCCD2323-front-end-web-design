@@ -82,7 +82,7 @@
   color: #75d69a;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .energySection {
     padding: 28px 20px;
     border-radius: 18px;

@@ -55,7 +55,7 @@ function ExplorePage() {
         <aside className={styles.sidebar}>
           <p className={styles.sidebarLabel}>Explore Energy</p>
 
-          <nav aria-label="Renewable energy sections">
+          <nav aria-label="Renewable energy navigation">
             <ul className={styles.sidebarList}>
               {energySources.map((source) => (
                 <li key={source.id}>

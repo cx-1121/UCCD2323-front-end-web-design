@@ -1,6 +1,6 @@
 .page {
   min-height: 100vh;
-  padding: 120px 32px 80px;
+  padding: 100px 32px 80px;
   background-color: #08110d;
   color: #f3f7f4;
 }
@@ -20,7 +20,7 @@
 
 .sidebar {
   position: sticky;
-  top: 110px;
+  top: 100px;
   padding: 24px;
   background-color: #101c16;
   border: 1px solid #263a2f;
@@ -29,7 +29,7 @@
 }
 
 .sidebarLabel {
-  margin: 0 0 18px;
+  margin: 0 8px 18px;
   color: #75d69a;
   font-size: 0.8rem;
   font-weight: 700;
@@ -87,6 +87,7 @@
   .sidebar {
     position: static;
     grid-row: 1;
+    display: none;
   }
 
   .sidebarList {
