@@ -73,7 +73,7 @@ function QuizChallenge() {
           <button className={styles.primaryButton} type="button" onClick={restartQuiz}>
             Try again
           </button>
-          <a className={styles.textLink} href="#">
+          <a className={styles.textLink} href="/">
             Back to RE:FUTURE
           </a>
         </section>
@@ -88,7 +88,7 @@ function QuizChallenge() {
       <div className={styles.ambientGlow} aria-hidden="true" />
 
       <header className={styles.header}>
-        <a className={styles.brand} href="#">
+        <a className={styles.brand} href="/">
           <span className={styles.brandMark} aria-hidden="true">
             ▲
           </span>

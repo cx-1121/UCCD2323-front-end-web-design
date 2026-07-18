@@ -1,43 +1,24 @@
-import { useEffect, useState } from 'react';
-import HudHeader from './components/HudHeader/HudHeader';
-import ProgressHud from './components/ProgressHud/ProgressHud';
-import ScrollHint from './components/ScrollHint/ScrollHint';
-import ScrollContainer from './components/ScrollContainer/ScrollContainer';
-import SceneIntro from './components/SceneIntro/SceneIntro';
-import SceneTraditional from './components/SceneTraditional/SceneTraditional';
-import DevTimeDisplay from './components/DevTimeDisplay/DevTimeDisplay';
-import QuizChallenge from './components/QuizChallenge/QuizChallenge';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import LandingPage from './pages/LandingPage/LandingPage';
+import HomePage from './pages/HomePage/HomePage';
+import QuizChallenge from './pages/QuizChallenge/QuizChallenge';
 
 /**
- * Composition root for the landing page and the Quiz & Challenge experience.
- * The landing page remains the default. The quiz is available at
- * #quiz-challenge so it can be developed independently without a router.
+ * Composition root, responsible for global configuration (routing, global context/state).
+ * App routing configuration:
+ * - "/" routes to the interactive landing page.
+ * - "/home" routes to the club homepage / main entry gateway.
+ * - "/quiz-challenge" routes to the renewable-energy quiz.
  */
 function App() {
-  const [hash, setHash] = useState(window.location.hash);
-
-  useEffect(() => {
-    const handleHashChange = () => setHash(window.location.hash);
-
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
-
-  if (hash === '#quiz-challenge') {
-    return <QuizChallenge />;
-  }
-
   return (
-    <>
-      <HudHeader />
-      <ProgressHud />
-      <ScrollHint />
-      <ScrollContainer>
-        <SceneIntro />
-        <SceneTraditional />
-      </ScrollContainer>
-      <DevTimeDisplay />
-    </>
+    <Router>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/home" element={<HomePage />} />
+        <Route path="/quiz-challenge" element={<QuizChallenge />} />
+      </Routes>
+    </Router>
   );
 }
 
