@@ -20,8 +20,8 @@ export function useScrollTimeline(triggerRef: RefObject<HTMLDivElement>) {
 
     // Initialize/reset starting state on mount
     gsap.set("#scene-traditional", { scale: 1.25, opacity: 0, pointerEvents: "none" });
-    gsap.set("#fossil-gear-large", { rotation: 0 });
-    gsap.set("#fossil-gear-small", { rotation: 0 });
+    if (document.querySelector("#fossil-gear-large")) gsap.set("#fossil-gear-large", { rotation: 0 });
+    if (document.querySelector("#fossil-gear-small")) gsap.set("#fossil-gear-small", { rotation: 0 });
     gsap.set("#fossil-question-text", { opacity: 0, scale: 0.95 });
     gsap.set("#fossil-cta-container", { opacity: 0, scale: 0.95, pointerEvents: "none" });
 
@@ -129,8 +129,8 @@ export function useScrollTimeline(triggerRef: RefObject<HTMLDivElement>) {
       39
     );
 
-    mainTl.to("#fossil-gear-large", { rotation: 360, ease: "none", duration: 12 }, 39);
-    mainTl.to("#fossil-gear-small", { rotation: -540, ease: "none", duration: 12 }, 39);
+    if (document.querySelector("#fossil-gear-large")) mainTl.to("#fossil-gear-large", { rotation: 360, ease: "none", duration: 12 }, 39);
+    if (document.querySelector("#fossil-gear-small")) mainTl.to("#fossil-gear-small", { rotation: -540, ease: "none", duration: 12 }, 39);
     mainTl.to("#fossil-question-text", { opacity: 1, scale: 1, duration: 3, ease: "power2.out" }, 44);
     mainTl.fromTo("#fossil-cta-container",
       { opacity: 0, scale: 0.9, pointerEvents: "none" },
