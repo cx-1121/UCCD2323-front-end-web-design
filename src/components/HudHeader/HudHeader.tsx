@@ -1,45 +1,13 @@
 import { useEffect, useState } from 'react';
-import { NavLink } from 'react-router-dom';
 import gsap from 'gsap';
 import styles from './HudHeader.module.css';
 
-/**
- * The site's four top-level sections. Explore and the cinematic intro are
- * deliberately NOT here: they are reached from the HomePage cards, so the
- * header stays a stable frame rather than a second route list.
- *
- * Entries without a `to` have no page behind them yet. They render as inert
- * labels rather than `href="#"` anchors, which would otherwise jump the reader
- * to the top of the page and push a bare `#` into the URL. Give one a `to` the
- * moment its route exists and it becomes a working link with no other change.
- */
-const NAV_LINKS: { label: string; to?: string }[] = [
-  { label: 'Home', to: '/home' },
-  { label: 'Projects' },
-  { label: 'About' },
-  { label: 'Contact Us' },
-];
-
-type HudHeaderProps = {
-  /**
-   * 'interactive' (default) — the landing-page behaviour: a RE:FUTURE wordmark
-   * that has to be clicked before the navigation animates in.
-   * 'static' — navigation is always on screen, with no wordmark, no
-   * "tap to navigate" hint, and no click affordance.
-   */
-  variant?: 'interactive' | 'static';
-};
-
-function HudHeader({ variant = 'interactive' }: HudHeaderProps) {
+function HudHeader() {
   const [unlocked, setUnlocked] = useState(false);
-  const isStatic = variant === 'static';
 
   useEffect(() => {
-    if (isStatic) {
-      return;
-    }
     gsap.set(`.${styles.logo} svg`, { transformOrigin: "50% 50%" });
-  }, [isStatic]);
+  }, []);
 
   const handleLogoClick = () => {
     const nextState = !unlocked;
@@ -55,7 +23,7 @@ function HudHeader({ variant = 'interactive' }: HudHeaderProps) {
             .to(`.${styles.logoLine}`, { x: 120, width: 0, opacity: 0, duration: 0.5, ease: "power1.inOut" });
 
       gsap.set(`.${styles.globalNav}`, { pointerEvents: "auto" });
-      gsap.to(`.${styles.globalNav} .${styles.navItem}`, {
+      gsap.to(`.${styles.navItem}`, {
         opacity: 1,
         x: 0,
         duration: 0.5,
@@ -65,7 +33,7 @@ function HudHeader({ variant = 'interactive' }: HudHeaderProps) {
       });
     } else {
       gsap.set(`.${styles.globalNav}`, { pointerEvents: "none" });
-      gsap.to(`.${styles.globalNav} .${styles.navItem}`, {
+      gsap.to(`.${styles.navItem}`, {
         opacity: 0,
         x: -15,
         duration: 0.4,
@@ -81,51 +49,28 @@ function HudHeader({ variant = 'interactive' }: HudHeaderProps) {
 
   return (
     <header className={styles.hudHeader}>
-      <div
-        className={isStatic ? styles.logoStatic : styles.logo}
-        onClick={isStatic ? undefined : handleLogoClick}
-      >
+      <div className={styles.logo} onClick={handleLogoClick}>
         <svg viewBox="0 0 24 24">
           <path d="M12 2L2 22h9V12h2v10h9L12 2z" />
         </svg>
-
-        {!isStatic && (
-          <>
-            <div className={styles.logoTextGroup}>
-              <span className={styles.logoText}>RE:FUTURE</span>
-              <span className={styles.logoSubtext}>• Tap to navigate</span>
-            </div>
-            <div className={styles.logoLine} />
-          </>
-        )}
-
-        <nav className={isStatic ? styles.staticNav : styles.globalNav}>
-          {NAV_LINKS.map((link) => {
-            const base = isStatic
-              ? `${styles.navItem} ${styles.navItemVisible}`
-              : styles.navItem;
-
-            if (!link.to) {
-              return (
-                <span key={link.label} className={`${base} ${styles.navItemPending}`}>
-                  {link.label}
-                </span>
-              );
-            }
-
-            return (
-              <NavLink
-                key={link.label}
-                to={link.to}
-                // `end` keeps prefix matching from marking a parent route as
-                // current on every nested path.
-                end
-                className={({ isActive }) => (isActive ? `${base} ${styles.navItemActive}` : base)}
-              >
-                {link.label}
-              </NavLink>
-            );
-          })}
+        <div className={styles.logoTextGroup}>
+          <span className={styles.logoText}>RE:FUTURE</span>
+          <span className={styles.logoSubtext}>• Tap to navigate</span>
+        </div>
+        <div className={styles.logoLine} />
+        <nav className={styles.globalNav}>
+          <a href="#" className={styles.navItem}>
+            Home
+          </a>
+          <a href="#" className={styles.navItem}>
+            Projects
+          </a>
+          <a href="#" className={styles.navItem}>
+            About
+          </a>
+          <a href="#" className={styles.navItem}>
+            Contact Us
+          </a>
         </nav>
       </div>
     </header>

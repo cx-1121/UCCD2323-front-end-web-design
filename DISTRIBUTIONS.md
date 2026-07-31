@@ -29,16 +29,13 @@ frontend_react/
     │   ├── SceneTraditional/   # Stage 1.5: Fossil energy comparative scene
     │   ├── ScrollContainer/    # Main scroll container mapping scroll progressions
     │   └── ScrollHint/         # Downward scroll indicator hint
-    ├── pages/                  # Page-level containers mapped to specific routes
-    │   ├── LandingPage/        # Cinematic scroll-animation Landing Page view
-    │   └── HomePage/           # Green Tech Club gateway / Home Page view
     ├── hooks/                  # Core React hooks for state, canvas drawings, and timeline physics
     │   ├── useParticleCanvas.ts # Particle engine rendering & lifecycle (smoke, etc.)
     │   └── useScrollTimeline.ts # Main GSAP ScrollTrigger timeline sequence definitions
     ├── utils/                  # Shared utilities and state bridges
     │   └── animState.ts        # Global animation variables (e.g. smoke intensity/spread)
     ├── test/                   # Unit test setup & configuration
-    ├── App.tsx                 # App composition root & Router entry
+    ├── App.tsx                 # App composition root
     ├── App.module.css          # Main layout local styles
     ├── global.css              # Global tokens (colors, fonts, resets, core tag styles)
     ├── main.tsx                # Application mounting entry point (ReactDOM)
@@ -53,7 +50,6 @@ To maintain directory cleanliness and avoid clutter, team members must strictly 
 
 | File Type | Target Directory | Naming Pattern | Description & Constraints |
 | :--- | :--- | :--- | :--- |
-| **Pages** | `src/pages/<PageName>/` | `PageName.tsx` | Page-level components bound to specific Router routes. |
 | **UI Components** | `src/components/<ComponentName>/` | `ComponentName.tsx` | Must be a standalone directory. PascalCase naming. |
 | **Component Styles** | `src/components/<ComponentName>/` | `ComponentName.module.css` | Use Vanilla CSS Modules. Do not mix global/local rules. |
 | **Canvas Particle Physics** | `src/hooks/` | `use[Feature]Canvas.ts` | Complex Canvas drawing, animations, and render loops go here. |
@@ -86,11 +82,6 @@ To maintain directory cleanliness and avoid clutter, team members must strictly 
 
 ### ⚠️ Rule 4: CSS Framework Constraint
 * **Style System**: Rely strictly on **Vanilla CSS (CSS Modules)**. Do not introduce CSS-in-JS libraries, tailwind wrappers, or external UI frameworks without explicit team consensus.
-
-### ⚠️ Rule 5: Route Isolation & Memory Cleanup
-* **Context**: The `LandingPage` contains high-overhead animations (GSAP ScrollTriggers and Canvas render loops).
-* **Practice**: Ensure all animation timelines and Canvas render loops created inside page/scene components are registered for clean-up on unmount (e.g., returning a clean-up function in `useEffect` or using `ScrollTrigger.revert()`). Never persist page-specific tickers or global events unless they are properly garbage-collected.
-
 
 ---
 
