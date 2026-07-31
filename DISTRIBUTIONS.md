@@ -22,6 +22,7 @@ frontend_react/
 ├── public/                     # Static assets served directly from Web root
 └── src/
     ├── components/             # UI view components divided by features
+    │   ├── DebugConsole/       # Zero-intrusion developer control panel (activated by url query)
     │   ├── DevTimeDisplay/     # Time counter overlay for development/debugging
     │   ├── HudHeader/          # HUD top navigation bar
     │   ├── ProgressHud/        # Scroll position progress HUD
@@ -91,6 +92,12 @@ To maintain directory cleanliness and avoid clutter, team members must strictly 
 * **Context**: The `LandingPage` contains high-overhead animations (GSAP ScrollTriggers and Canvas render loops).
 * **Practice**: Ensure all animation timelines and Canvas render loops created inside page/scene components are registered for clean-up on unmount (e.g., returning a clean-up function in `useEffect` or using `ScrollTrigger.revert()`). Never persist page-specific tickers or global events unless they are properly garbage-collected.
 
+### ⚠️ Rule 6: Developer Debug Mode & Safety Boundaries
+* **Context**: We use a floating `<DebugConsole />` component to test LocalStorage journey flags and skip to specific revisit Easter egg attempts during development.
+* **Practice**: 
+  * **How to Activate**: Access the application locally. The system defaults to enabling the console on localhost unless explicitly disabled. Alternatively, accessing it via `http://localhost:5173/?debug=true` will save a flag `debugModeActive = 'true'` in `localStorage` to keep the console visible across tab refreshes and browser restarts.
+  * **Domain Constraint**: The debugging dashboard is **strictly prohibited** from rendering in production domain environments. Developers must never disable the `window.location.hostname === 'localhost' || '127.0.0.1'` guard inside `src/App.tsx`.
+  * **Purge State**: Clicking the `Reset All (Fresh UI)` button inside the console will automatically clean LocalStorage states and set `debugModeActive = 'false'` in localStorage, followed by a hard `window.location.reload()` to completely refresh the viewport.
 
 ---
 

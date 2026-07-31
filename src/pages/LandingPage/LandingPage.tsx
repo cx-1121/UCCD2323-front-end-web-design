@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import HudHeader from '../../components/HudHeader/HudHeader';
 import ProgressHud from '../../components/ProgressHud/ProgressHud';
 import ScrollHint from '../../components/ScrollHint/ScrollHint';
@@ -5,6 +7,7 @@ import ScrollContainer from '../../components/ScrollContainer/ScrollContainer';
 import SceneIntro from '../../components/SceneIntro/SceneIntro';
 import SceneTraditional from '../../components/SceneTraditional/SceneTraditional';
 import DevTimeDisplay from '../../components/DevTimeDisplay/DevTimeDisplay';
+import RevisitOverlay from './RevisitOverlay';
 
 /**
  * Interactive Landing Page component.
@@ -12,6 +15,33 @@ import DevTimeDisplay from '../../components/DevTimeDisplay/DevTimeDisplay';
  * Handles the complete cinematic scroll animation flow of RE:FUTURE.
  */
 function LandingPage() {
+  const navigate = useNavigate();
+
+
+  const [revisitLevel] = useState<number>(() => {
+    const isReplay = new URLSearchParams(window.location.search).get('replay') === 'true';
+    const hasStarted = localStorage.getItem('hasChosenFuture') === 'true';
+    if (isReplay && hasStarted) {
+      const currentCount = parseInt(localStorage.getItem('attemptsToReturnToPast') || '0', 10);
+      return currentCount + 1;
+    }
+    return 0;
+  });
+
+  const handleLeaveLanding = (targetPath: string = '/home') => {
+    localStorage.setItem('hasChosenFuture', 'true');
+    if (revisitLevel > 0) {
+      // Set the new attempts to return to past upon successful journey exit (easter egg fully triggered/completed)
+      localStorage.setItem('attemptsToReturnToPast', revisitLevel.toString());
+    }
+    navigate(targetPath);
+  };
+
+  // If in revisit mode, render the custom overlay with attempts layouts
+  if (revisitLevel > 0) {
+    return <RevisitOverlay level={revisitLevel} onLeave={handleLeaveLanding} />;
+  }
+
   return (
     <>
       <HudHeader />
@@ -19,11 +49,13 @@ function LandingPage() {
       <ScrollHint />
       <ScrollContainer>
         <SceneIntro />
-        <SceneTraditional />
+        <SceneTraditional onEnterFuture={() => handleLeaveLanding('/home')} />
       </ScrollContainer>
       <DevTimeDisplay />
     </>
   );
+
 }
 
 export default LandingPage;
+

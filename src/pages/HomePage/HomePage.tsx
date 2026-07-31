@@ -95,7 +95,10 @@ function HomePage() {
                 the moment the air clears.
               </p>
 
-              <Link to="/" className={`${styles.action} ${styles.actionGhost}`}>
+              {/* `?replay=true` is required: RootRouteGuard in App.tsx sends "/"
+                  straight back to /home once the journey has been started, so a
+                  bare "/" here would look like a dead button. */}
+              <Link to="/?replay=true" className={`${styles.action} ${styles.actionGhost}`}>
                 <span className={styles.actionLabel}>Replay the intro</span>
                 <span className={styles.actionIcon} aria-hidden="true">
                   <ReplayGlyph />
