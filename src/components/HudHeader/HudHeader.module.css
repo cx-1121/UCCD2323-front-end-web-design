@@ -1,5 +1,9 @@
 /* Ported from past_landing_page.css: "Top navigation and indicator (Global HUD)" section */
 .hudHeader {
+  /* Palette hooks: the dark landing-page values live in each var() fallback
+     below, NOT as declarations here. A declaration on this element would win
+     over the same property inherited from a host, so ExplorePage could never
+     re-point them for its light surface. */
   position: fixed;
   top: clamp(1rem, 2vw, 2rem);
   left: clamp(1rem, 2vw, 2rem);
@@ -29,11 +33,22 @@
   transform: scale(1.03);
 }
 
-.logo svg {
+/* Static variant: the mark sits inline with a permanently visible nav — no
+   wordmark, no "tap to navigate" hint, no click affordance. */
+.logoStatic {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.75rem, 2vw, 1.25rem);
+  pointer-events: auto;
+  position: relative;
+}
+
+.logo svg,
+.logoStatic svg {
   width: clamp(20px, 4vw, 28px);
   height: clamp(20px, 4vw, 28px);
-  fill: #10b981;
-  filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.6));
+  fill: var(--hud-mark, #10b981);
+  filter: var(--hud-mark-glow, drop-shadow(0 0 8px rgba(16, 185, 129, 0.6)));
   transform-origin: center;
 }
 
@@ -49,7 +64,7 @@
   font-size: clamp(0.9rem, 2.2vw, 1.3rem);
   font-weight: 800;
   letter-spacing: 2px;
-  color: #fff;
+  color: var(--hud-ink-strong, #fff);
   line-height: 1.1;
 }
 
@@ -57,7 +72,7 @@
   font-size: 0.52rem;
   font-family: 'Outfit', sans-serif;
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.35);
+  color: var(--hud-ink-muted, rgba(255, 255, 255, 0.35));
   letter-spacing: 1.5px;
   text-transform: uppercase;
   margin-top: 1px;
@@ -88,10 +103,11 @@
 }
 
 .navItem {
+  position: relative;
   font-size: clamp(0.6rem, 1.5vw, 0.8rem);
   font-family: 'Outfit', sans-serif;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.65);
+  color: var(--hud-ink, rgba(255, 255, 255, 0.65));
   text-decoration: none;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -104,8 +120,74 @@
   will-change: transform, opacity, scale;
 }
 
+/* Declared after .navItem so it wins the equal-specificity tie and lands the
+   links in their resolved state without waiting on the GSAP reveal. */
+.navItemVisible {
+  opacity: 1;
+  transform: none;
+}
+
+/* In-flow sibling of the mark, unlike .globalNav which is absolutely
+   positioned so it can slide out from underneath the wordmark. */
+.staticNav {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 2vw, 1.5rem);
+  pointer-events: auto;
+}
+
+/* Permanently on screen rather than a transient reveal, so it needs a higher
+   floor than the interactive variant's 0.6rem (9.6px on a phone). */
+.staticNav .navItem {
+  font-size: clamp(0.72rem, 1.5vw, 0.8rem);
+  color: var(--hud-ink-static, rgba(255, 255, 255, 0.82));
+}
+
+/* Current route. Doubled class so it outweighs `.staticNav .navItem` above,
+   and declared before :hover so hovering the current item still responds.
+   Carries a hairline rule as well as colour, so the state is not hue-only.
+   `aria-current="page"` comes free from NavLink. */
+.navItem.navItemActive {
+  color: var(--hud-hover, #10b981);
+}
+
+.navItem.navItemActive::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.375rem;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.55;
+}
+
+/* Sections without a route yet. Same type and rhythm as their siblings so the
+   nav keeps its shape, but no pointer affordance and no hover lift, because
+   there is nothing to click through to. */
+.navItemPending {
+  cursor: default;
+}
+
 .navItem:hover {
-  color: #10b981;
-  text-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+  color: var(--hud-hover, #10b981);
+  text-shadow: var(--hud-hover-glow, 0 0 8px rgba(16, 185, 129, 0.6));
   scale: 1.1;
+}
+
+.navItemPending:hover {
+  color: var(--hud-ink, rgba(255, 255, 255, 0.65));
+  text-shadow: none;
+  scale: 1;
+}
+
+.staticNav .navItemPending:hover {
+  color: var(--hud-ink-static, rgba(255, 255, 255, 0.82));
+}
+
+
+.navItem:focus-visible {
+  outline: 2px solid var(--hud-hover, #10b981);
+  outline-offset: 4px;
+  border-radius: 4px;
 }

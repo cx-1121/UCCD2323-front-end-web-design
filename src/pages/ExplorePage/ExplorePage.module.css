@@ -1,0 +1,623 @@
+/* ==========================================================================
+   ExplorePage — light editorial field guide. Layout: Editorial Split with a
+   sticky index rail. Atmosphere (wash + grain) is fixed and pointer-inert;
+   blur is confined to fixed/sticky layers so scrolling never repaints the GPU.
+   ========================================================================== */
+
+.page {
+  position: relative;
+  min-height: 100dvh;
+  padding: clamp(7rem, 12vw, 10rem) clamp(1rem, 4vw, 3rem) clamp(6rem, 10vw, 9rem);
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-body);
+  isolation: isolate;
+}
+
+/* --------------------------------------------------------------------------
+   Fixed atmosphere
+   -------------------------------------------------------------------------- */
+.mesh {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.orb {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  filter: blur(120px);
+  will-change: transform;
+}
+
+.orbEmerald {
+  top: -18vh;
+  left: -8vw;
+  width: 52vw;
+  height: 52vw;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.16) 0%, transparent 68%);
+  animation: exDrift 26s var(--ease-fluid) infinite alternate;
+}
+
+.orbTeal {
+  top: 34vh;
+  right: -14vw;
+  width: 46vw;
+  height: 46vw;
+  background: radial-gradient(circle, rgba(20, 184, 166, 0.12) 0%, transparent 68%);
+  animation: exDrift 34s var(--ease-fluid) infinite alternate-reverse;
+}
+
+.orbLime {
+  bottom: -22vh;
+  left: 26vw;
+  width: 44vw;
+  height: 44vw;
+  background: radial-gradient(circle, rgba(132, 204, 22, 0.1) 0%, transparent 68%);
+  animation: exDrift 30s var(--ease-glide) infinite alternate;
+}
+
+@keyframes exDrift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(3vw, -4vh, 0) scale(1.1);
+  }
+}
+
+/* Film grain — fixed pseudo-layer, never attached to scrolling content. */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  opacity: 0.028;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* --------------------------------------------------------------------------
+   Header — floating glass island, detached from the top edge
+   -------------------------------------------------------------------------- */
+.headerBar {
+  position: fixed;
+  top: clamp(0.875rem, 2vw, 1.5rem);
+  left: 50%;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  /* Hugs the always-visible nav rather than reserving room for a reveal. */
+  width: max-content;
+  max-width: calc(100vw - 2rem);
+  padding: 0.6875rem 1.5rem 0.6875rem 1.25rem;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.74);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-pill);
+  box-shadow:
+    var(--inner-lip),
+    var(--shadow-soft);
+  /* Retunes the shared HudHeader for paper. The component reads these from
+     its own scope, so no prop drilling and no specificity fight. */
+  --hud-mark: var(--signal);
+  --hud-mark-glow: none;
+  --hud-ink: var(--ink-soft);
+  --hud-ink-static: var(--ink);
+  --hud-hover: var(--signal-deep);
+  --hud-hover-glow: none;
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  transition:
+    transform 650ms var(--ease-fluid),
+    opacity 450ms var(--ease-fluid);
+}
+
+/* Parks off the top edge while the reader is heading down the page. The
+   centring translateX has to be restated — a transform is one value, so
+   omitting it here would snap the pill to the left. */
+.headerBarHidden {
+  transform: translateX(-50%) translate3d(0, calc(-100% - clamp(0.875rem, 2vw, 1.5rem)), 0);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* HudHeader ships as position:fixed with its own insets; inside the island it
+   has to flow normally so the pill can size to it. */
+.headerBar > header {
+  position: static;
+  inset: auto;
+  width: 100%;
+}
+
+.container {
+  position: relative;
+  z-index: 2;
+  max-width: 1360px;
+  margin: 0 auto;
+}
+
+/* --------------------------------------------------------------------------
+   Hero
+   -------------------------------------------------------------------------- */
+.hero {
+  max-width: 60rem;
+  margin-bottom: clamp(4.5rem, 9vw, 8.5rem);
+}
+
+.eyebrow {
+  display: inline-block;
+  margin-bottom: clamp(1.5rem, 3vw, 2.25rem);
+  padding: 0.375rem 0.8125rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--signal);
+  background: rgba(4, 120, 87, 0.07);
+  border: 1px solid rgba(4, 120, 87, 0.22);
+  border-radius: var(--r-pill);
+}
+
+.heroTitle {
+  margin: 0 0 clamp(1.5rem, 3vw, 2.25rem);
+  font-family: var(--font-display);
+  font-size: clamp(2.75rem, 8vw, 6.25rem);
+  font-weight: 200;
+  letter-spacing: -0.045em;
+  line-height: 0.94;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+/* Solid accent rather than a gradient fill: gradient display type loses
+   contrast against paper and reads as a stock AI flourish. */
+.heroAccent {
+  font-weight: 500;
+  color: var(--signal);
+}
+
+.heroLede {
+  max-width: 46ch;
+  margin: 0 0 clamp(2.5rem, 5vw, 4rem);
+  font-size: clamp(1rem, 1.3vw, 1.1875rem);
+  font-weight: 300;
+  line-height: 1.75;
+  color: var(--ink-soft);
+  text-wrap: pretty;
+}
+
+.heroStats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.stat {
+  flex: 1 1 12rem;
+  padding: 1.125rem 1.25rem;
+  background: var(--surface-raised);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-tile);
+  box-shadow: var(--shadow-soft);
+  transition:
+    border-color 700ms var(--ease-fluid),
+    background 700ms var(--ease-fluid);
+}
+
+.stat:hover {
+  border-color: rgba(4, 120, 87, 0.28);
+  box-shadow: var(--shadow-lift);
+}
+
+.stat dt {
+  margin-bottom: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 300;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.stat dd {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+/* --------------------------------------------------------------------------
+   Editorial split
+   -------------------------------------------------------------------------- */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 17.5rem;
+  align-items: start;
+  gap: clamp(1.5rem, 3vw, 3rem);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2.5rem, 5vw, 5rem);
+  min-width: 0;
+}
+
+.railColumn {
+  position: sticky;
+  top: clamp(6rem, 9vw, 7.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+/* ---- Index rail (outer shell) ---- */
+.railShell {
+  padding: 5px;
+  background: var(--shell);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-shell);
+  box-shadow: var(--shadow-lift);
+}
+
+.railCore {
+  padding: 1.375rem 1.25rem 1.5rem;
+  background: rgba(253, 254, 253, 0.86);
+  border: 1px solid var(--hairline);
+  border-radius: calc(var(--r-shell) - 5px);
+  box-shadow: var(--inner-lip);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.railLabel {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 0 0 1.125rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.railCounter {
+  color: var(--signal);
+  letter-spacing: 0.12em;
+}
+
+/* The nav is a two-column arrangement: a hairline track carrying the moving
+   marker, and the link list. Fixed 2.75rem rows let the marker translate by a
+   pure multiple of the row height — transform only, no layout thrash. */
+.railNav {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1px minmax(0, 1fr);
+  gap: 0.875rem;
+}
+
+.railTrack {
+  position: relative;
+  width: 1px;
+  background: var(--hairline);
+  border-radius: 1px;
+}
+
+.railMarker {
+  position: absolute;
+  top: 0;
+  left: -1px;
+  width: 3px;
+  height: 2.75rem;
+  background: linear-gradient(180deg, var(--signal), var(--signal-teal));
+  border-radius: 3px;
+  transform: translate3d(0, calc(var(--active, 0) * 2.75rem), 0);
+  transition: transform 800ms var(--ease-fluid);
+  will-change: transform;
+}
+
+.railList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.railLink {
+  display: flex;
+  align-items: center;
+  height: 2.75rem;
+  padding: 0 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 300;
+  letter-spacing: -0.005em;
+  color: var(--ink-soft);
+  text-decoration: none;
+  border-radius: 0.75rem;
+  transition:
+    color 600ms var(--ease-fluid),
+    background 600ms var(--ease-fluid),
+    transform 600ms var(--ease-fluid);
+}
+
+.railLink:hover {
+  color: var(--ink);
+  background: rgba(12, 46, 32, 0.05);
+  transform: translate3d(3px, 0, 0);
+}
+
+.railLinkActive {
+  font-weight: 500;
+  color: var(--signal-deep);
+  background: rgba(4, 120, 87, 0.09);
+  transform: translate3d(3px, 0, 0);
+}
+
+/* ---- Quiz CTA ---- */
+.ctaShell {
+  padding: 5px;
+  background:
+    radial-gradient(120% 100% at 100% 0%, rgba(4, 120, 87, 0.14) 0%, transparent 62%),
+    var(--shell);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-shell);
+  box-shadow: var(--shadow-lift);
+}
+
+.ctaCore {
+  padding: 1.5rem 1.375rem;
+  background: rgba(253, 254, 253, 0.86);
+  border: 1px solid var(--hairline);
+  border-radius: calc(var(--r-shell) - 5px);
+  box-shadow: var(--inner-lip);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.ctaEyebrow {
+  display: inline-block;
+  margin-bottom: 0.875rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--signal);
+}
+
+.ctaText {
+  margin: 0 0 1.375rem;
+  font-size: 0.875rem;
+  font-weight: 300;
+  line-height: 1.65;
+  color: var(--ink-soft);
+  text-wrap: pretty;
+}
+
+/* Island button with a nested icon capsule flush to the inner right padding. */
+.ctaButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4375rem 0.4375rem 0.4375rem 1.125rem;
+  color: #ffffff;
+  text-decoration: none;
+  background: linear-gradient(180deg, var(--signal) 0%, var(--signal-deep) 100%);
+  border-radius: var(--r-pill);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 14px 30px -18px rgba(4, 120, 87, 0.85);
+  transition:
+    transform 500ms var(--ease-snap),
+    box-shadow 500ms var(--ease-snap);
+}
+
+.ctaButton:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 18px 38px -16px rgba(4, 120, 87, 0.95);
+}
+
+.ctaButton:active {
+  transform: scale(0.98);
+}
+
+.ctaButtonLabel {
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+
+.ctaButtonIcon {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: var(--r-pill);
+  transition:
+    transform 500ms var(--ease-snap),
+    background 500ms var(--ease-snap);
+}
+
+.ctaButtonIcon svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.ctaButton:hover .ctaButtonIcon {
+  background: rgba(255, 255, 255, 0.28);
+  transform: translate3d(3px, -1px, 0) scale(1.05);
+}
+
+/* --------------------------------------------------------------------------
+   Focus states
+   -------------------------------------------------------------------------- */
+.railLink:focus-visible,
+.ctaButton:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 3px;
+}
+
+/* --------------------------------------------------------------------------
+   Hero scroll-entry — attribute selectors scoped under a hashed class so the
+   rules cannot leak into other pages' modules.
+   -------------------------------------------------------------------------- */
+.hero [data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 2.75rem, 0);
+  filter: blur(8px);
+  transition:
+    opacity 1000ms var(--ease-glide),
+    transform 1000ms var(--ease-glide),
+    filter 1000ms var(--ease-glide);
+}
+
+.hero [data-reveal-index='1'] {
+  transition-delay: 90ms;
+}
+.hero [data-reveal-index='2'] {
+  transition-delay: 180ms;
+}
+.hero [data-reveal-index='3'] {
+  transition-delay: 270ms;
+}
+
+.hero .revealed {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  filter: blur(0);
+}
+
+/* --------------------------------------------------------------------------
+   Responsive collapse — the rail becomes a sticky horizontal chip strip and
+   the CTA drops to the end of the flow.
+   -------------------------------------------------------------------------- */
+@media (max-width: 1023px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Dissolve the wrapper so its two panels become direct grid items and can
+     be reordered independently. */
+  .railColumn {
+    display: contents;
+  }
+
+  .railShell {
+    position: sticky;
+    top: clamp(4.75rem, 12vw, 5.75rem);
+    z-index: 20;
+    order: -1;
+    margin-bottom: 0.5rem;
+    border-radius: var(--r-pill);
+  }
+
+  .railCore {
+    padding: 0.5rem 0.625rem;
+    border-radius: var(--r-pill);
+  }
+
+  .railLabel {
+    display: none;
+  }
+
+  .railNav {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .railTrack {
+    display: none;
+  }
+
+  .railList {
+    display: flex;
+    gap: 0.375rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .railList::-webkit-scrollbar {
+    display: none;
+  }
+
+  .railLink {
+    /* 42px keeps the chips inside comfortable thumb-target range. */
+    height: 2.625rem;
+    padding: 0 1rem;
+    white-space: nowrap;
+    border-radius: var(--r-pill);
+  }
+
+  .railLink:hover,
+  .railLinkActive {
+    transform: none;
+  }
+
+  .ctaShell {
+    order: 1;
+    margin-top: 1rem;
+  }
+
+  .ctaCore {
+    text-align: center;
+  }
+
+  .ctaButton {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 767px) {
+  .page {
+    padding: 6.5rem 1rem 4rem;
+  }
+
+  .heroStats {
+    flex-direction: column;
+  }
+
+  .stat {
+    flex: 1 1 auto;
+  }
+
+  /* Heavy blurs and drifting orbs are the first things to cost frames on
+     mobile GPUs — cut the blur radius and stop the animation. */
+  .orb {
+    filter: blur(80px);
+    animation: none;
+  }
+
+  .orbLime {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orb {
+    animation: none;
+  }
+
+  .hero [data-reveal] {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+
+  .railMarker {
+    transition: none;
+  }
+}
