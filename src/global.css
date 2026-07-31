@@ -9,6 +9,62 @@
    the render-blocking double-fetch that `@import` inside a bundled CSS
    Module would cause, and matches the legacy <head> loading strategy. */
 
+/* ==========================================================================
+   Design tokens. Additive: existing components keep their literal colours,
+   new surfaces (ExplorePage) compose from these instead of hard-coded hex.
+
+   Theme lock: the Explore surface is LIGHT. One theme for the whole page, no
+   section inverts. The brand emerald is preserved but deepened, because the
+   dark-surface #34d399 only reaches ~1.8:1 against an off-white page.
+   ========================================================================== */
+:root {
+  /* Paper stack. Off-white carrying a faint green cast, never pure #ffffff -
+     pure values flatten the elevation between page, tray and card. */
+  --surface: #f6f8f6;
+  --surface-raised: #fdfefd;
+
+  /* Hairlines and trays, tinted to the surface hue rather than neutral grey */
+  --hairline: rgba(12, 46, 32, 0.11);
+  --hairline-strong: rgba(12, 46, 32, 0.18);
+  --shell: rgba(12, 46, 32, 0.028);
+  --core: var(--surface-raised);
+  --inner-lip: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+
+  /* Shadows tinted to the background hue. No pure-black shadow on light. */
+  --shadow-soft: 0 18px 40px -28px rgba(6, 44, 30, 0.3);
+  --shadow-lift: 0 30px 70px -46px rgba(6, 44, 30, 0.45);
+
+  /* Signal — emerald primary, deepened to clear AA on paper */
+  --signal: #047857;
+  --signal-deep: #065f46;
+  --signal-teal: #0f766e;
+  --signal-lime: #4d7c0f;
+
+  /* Ink */
+  --ink: #0c1a13;
+  --ink-soft: rgba(12, 26, 19, 0.72);
+  /* 0.66 is the floor that keeps 11px micro-labels above the 4.5:1 AA ratio
+     on --surface. The dark theme cleared it at 0.56; paper needs more, because
+     the same alpha lands closer to the background luminance. */
+  --ink-faint: rgba(12, 26, 19, 0.66);
+
+  /* Concentric radii — outer shell, inner core (outer minus shell padding) */
+  --r-shell: 2.125rem;
+  --r-core: 1.75rem;
+  --r-tile: 1.375rem;
+  --r-pill: 999px;
+
+  /* Motion — spring-weighted curves only, never linear/ease-in-out */
+  --ease-fluid: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-glide: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-snap: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Type */
+  --font-display: 'Plus Jakarta Sans', 'Outfit', sans-serif;
+  --font-body: 'Outfit', 'Montserrat', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
 * {
   margin: 0;
   padding: 0;

@@ -1,92 +1,544 @@
-.container {
+/* ==========================================================================
+   HomePage — the threshold between the dark landing page and the light
+   interior. Vibe: Soft Structuralism (paper surface, massive grotesk, highly
+   diffused ambient shadows). Layout: Z-Axis Cascade, deliberately not the
+   Explore page's Editorial Split, so the two share a system without repeating
+   a composition. Tokens, type stack and radii come from global.css.
+   ========================================================================== */
+
+.page {
+  position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  min-height: 100vh;
-  padding: 2rem;
-  background: radial-gradient(circle at top, #0f1c18 0%, #050a08 100%);
-  color: #e2e8f0;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  text-align: center;
+  min-height: 100dvh;
+  padding: clamp(7rem, 12vw, 10rem) clamp(1rem, 4vw, 3rem) clamp(3rem, 6vw, 5rem);
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-body);
+  isolation: isolate;
 }
 
-.header {
-  margin-top: 4rem;
+/* --------------------------------------------------------------------------
+   Fixed atmosphere: residual haze above, dawn bloom below
+   -------------------------------------------------------------------------- */
+.dawn {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
 
-.title {
-  font-size: clamp(2.5rem, 5vw, 4rem);
-  font-weight: 800;
-  letter-spacing: -0.05em;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 0.5rem;
+/* The smoke you walked out of, thinning as it meets the page. */
+.haze {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 42vh;
+  background: linear-gradient(
+    180deg,
+    rgba(70, 84, 78, 0.16) 0%,
+    rgba(70, 84, 78, 0.06) 38%,
+    transparent 100%
+  );
 }
 
-.subtitle {
-  font-size: 1.2rem;
-  color: #94a3b8;
-  font-weight: 300;
+/* Light rising to meet it. */
+.bloom {
+  position: absolute;
+  bottom: -34vh;
+  left: 50%;
+  width: min(140vw, 90rem);
+  height: 80vh;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(16, 185, 129, 0.16) 0%,
+    rgba(132, 204, 22, 0.08) 42%,
+    transparent 70%
+  );
+  filter: blur(90px);
+  animation: hpBreathe 22s var(--ease-fluid) infinite alternate;
+  will-change: transform;
 }
 
-.main {
-  flex-grow: 1;
+@keyframes hpBreathe {
+  from {
+    transform: translateX(-50%) scale(1);
+  }
+  to {
+    transform: translateX(-50%) scale(1.14);
+  }
+}
+
+/* Grain on a fixed, inert layer only — never on scrolling content. */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  opacity: 0.028;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* --------------------------------------------------------------------------
+   Floating nav island — matches the Explore page exactly
+   -------------------------------------------------------------------------- */
+.headerBar {
+  position: fixed;
+  top: clamp(0.875rem, 2vw, 1.5rem);
+  left: 50%;
+  z-index: 100;
   display: flex;
-  justify-content: center;
   align-items: center;
-  max-width: 600px;
+  width: max-content;
+  max-width: calc(100vw - 2rem);
+  padding: 0.6875rem 1.5rem 0.6875rem 1.25rem;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.74);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-pill);
+  box-shadow:
+    var(--inner-lip),
+    var(--shadow-soft);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+
+  /* Retunes the shared HudHeader for paper, same hooks as ExplorePage. */
+  --hud-mark: var(--signal);
+  --hud-mark-glow: none;
+  --hud-ink: var(--ink-soft);
+  --hud-ink-static: var(--ink);
+  --hud-hover: var(--signal-deep);
+  --hud-hover-glow: none;
+}
+
+.headerBar > header {
+  position: static;
+  inset: auto;
   width: 100%;
 }
 
-.card {
-  background: rgba(16, 185, 129, 0.03);
-  border: 1px solid rgba(16, 185, 129, 0.1);
-  padding: 3rem 2rem;
-  border-radius: 16px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
-}
-
-.card h2 {
-  font-size: 1.8rem;
-  margin-bottom: 1rem;
-  color: #f8fafc;
-}
-
-.card p {
-  line-height: 1.6;
-  color: #cbd5e1;
-  margin-bottom: 2rem;
-}
-
-.links {
+.container {
+  position: relative;
+  z-index: 2;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+  max-width: 78rem;
+  margin: 0 auto;
 }
 
-.button {
+/* --------------------------------------------------------------------------
+   Hero
+   -------------------------------------------------------------------------- */
+.hero {
+  max-width: 54rem;
+  margin-bottom: clamp(4rem, 8vw, 7rem);
+}
+
+.eyebrow {
   display: inline-block;
-  padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  color: #10b981;
-  text-decoration: none;
+  margin-bottom: clamp(1.5rem, 3vw, 2.25rem);
+  padding: 0.375rem 0.8125rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--signal);
+  background: rgba(4, 120, 87, 0.07);
+  border: 1px solid rgba(4, 120, 87, 0.22);
+  border-radius: var(--r-pill);
+}
+
+.title {
+  margin: 0 0 clamp(1.5rem, 3vw, 2.25rem);
+  font-family: var(--font-display);
+  font-size: clamp(2.75rem, 8vw, 6rem);
+  font-weight: 200;
+  letter-spacing: -0.045em;
+  line-height: 0.96;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.titleAccent {
   font-weight: 500;
-  border-radius: 8px;
-  transition: all 0.2s ease-in-out;
+  color: var(--signal);
 }
 
-.button:hover {
-  background: #10b981;
-  color: #0d1512;
-  box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
-  transform: translateY(-2px);
+.lede {
+  max-width: 46ch;
+  margin: 0;
+  font-size: clamp(1rem, 1.3vw, 1.1875rem);
+  font-weight: 300;
+  line-height: 1.75;
+  color: var(--ink-soft);
+  text-wrap: pretty;
 }
 
+/* --------------------------------------------------------------------------
+   Z-Axis Cascade
+   The plates overlap and sit off-axis, so they read as physical cards dropped
+   on a surface rather than grid cells. Rotation and overlap are desktop-only.
+   -------------------------------------------------------------------------- */
+.cascade {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  align-items: start;
+  margin-bottom: clamp(4rem, 8vw, 6rem);
+}
+
+.plate {
+  position: relative;
+  padding: 6px;
+  background: var(--shell);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-shell);
+  box-shadow: var(--shadow-lift);
+  transition:
+    transform 800ms var(--ease-fluid),
+    box-shadow 800ms var(--ease-fluid);
+}
+
+/* Each plate carries its resting tilt as a variable rather than a literal
+   transform. Every transform state below composes `--tilt`, so the reveal, the
+   hover lift and the mobile collapse can never flatten or fight each other. */
+.plateLead {
+  --tilt: -1.1deg;
+  z-index: 2;
+  grid-column: 1 / span 7;
+  grid-row: 1;
+}
+
+/* Overlaps by 2rem, deliberately less than the plate's own inner padding, so
+   the lead plate only ever covers this one's empty margin, never its heading. */
+.plateTrail {
+  --tilt: 1.6deg;
+  z-index: 1;
+  grid-column: 8 / span 5;
+  grid-row: 1;
+  margin-top: clamp(3.5rem, 7vw, 6rem);
+  margin-left: -2rem;
+}
+
+.plateCore {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  height: 100%;
+  padding: clamp(1.75rem, 3.2vw, 2.75rem);
+  background: var(--core);
+  border: 1px solid var(--hairline);
+  border-radius: calc(var(--r-shell) - 6px);
+  box-shadow: var(--inner-lip);
+}
+
+.plateGlyph {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+  color: var(--signal);
+  background: rgba(4, 120, 87, 0.08);
+  border: 1px solid rgba(4, 120, 87, 0.2);
+  border-radius: var(--r-pill);
+  transition: transform 800ms var(--ease-fluid);
+}
+
+.plateGlyph svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.plateGlyphMuted {
+  color: var(--ink-soft);
+  background: rgba(12, 46, 32, 0.05);
+  border-color: var(--hairline);
+}
+
+.plate:hover .plateGlyph {
+  transform: scale(1.06);
+}
+
+.plateTitle {
+  margin: 0 0 0.875rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 2.6vw, 2.125rem);
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: var(--ink);
+}
+
+.plateText {
+  margin: 0 0 clamp(1.75rem, 3vw, 2.5rem);
+  max-width: 42ch;
+  font-size: 0.9375rem;
+  font-weight: 300;
+  line-height: 1.75;
+  color: var(--ink-soft);
+  text-wrap: pretty;
+}
+
+/* --------------------------------------------------------------------------
+   Island actions with a nested icon capsule flush to the inner right padding
+   -------------------------------------------------------------------------- */
+.action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: auto;
+  padding: 0.4375rem 0.4375rem 0.4375rem 1.25rem;
+  color: #ffffff;
+  text-decoration: none;
+  background: linear-gradient(180deg, var(--signal) 0%, var(--signal-deep) 100%);
+  border: 1px solid transparent;
+  border-radius: var(--r-pill);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 14px 30px -18px rgba(4, 120, 87, 0.85);
+  transition:
+    transform 500ms var(--ease-snap),
+    box-shadow 500ms var(--ease-snap),
+    background 500ms var(--ease-snap);
+}
+
+.action:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 18px 38px -16px rgba(4, 120, 87, 0.95);
+}
+
+.action:active {
+  transform: scale(0.98);
+}
+
+/* Secondary route: same shape, quieter surface. Bordered rather than filled so
+   it still clears contrast without competing with the primary action. */
+.actionGhost {
+  color: var(--ink);
+  background: var(--surface-raised);
+  border-color: var(--hairline-strong);
+  box-shadow: var(--shadow-soft);
+}
+
+.actionGhost:hover {
+  border-color: rgba(4, 120, 87, 0.35);
+  box-shadow: var(--shadow-lift);
+}
+
+.actionLabel {
+  font-family: var(--font-display);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+}
+
+.actionIcon {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  color: inherit;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: var(--r-pill);
+  transition:
+    transform 500ms var(--ease-snap),
+    background 500ms var(--ease-snap);
+}
+
+.actionGhost .actionIcon {
+  background: rgba(12, 46, 32, 0.06);
+}
+
+.actionIcon svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.action:hover .actionIcon {
+  background: rgba(255, 255, 255, 0.28);
+  transform: translate3d(3px, -1px, 0) scale(1.05);
+}
+
+/* The replay glyph rewinds rather than travelling forward. */
+.actionGhost:hover .actionIcon {
+  background: rgba(12, 46, 32, 0.1);
+  transform: rotate(-24deg) scale(1.05);
+}
+
+.action:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 3px;
+}
+
+/* --------------------------------------------------------------------------
+   Footer
+   -------------------------------------------------------------------------- */
 .footer {
-  margin-bottom: 2rem;
-  color: #475569;
-  font-size: 0.875rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: clamp(1.5rem, 3vw, 2.5rem);
+  border-top: 1px solid var(--hairline);
+}
+
+.footer p {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 300;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* --------------------------------------------------------------------------
+   Scroll-entry choreography. Attribute selectors are NOT hashed by CSS
+   Modules, so they are nested under a hashed class to stay on this page.
+   -------------------------------------------------------------------------- */
+.page [data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 2.75rem, 0);
+  filter: blur(8px);
+  transition:
+    opacity 1000ms var(--ease-glide),
+    transform 1000ms var(--ease-glide),
+    filter 1000ms var(--ease-glide);
+}
+
+.page [data-reveal-index='1'] {
+  transition-delay: 90ms;
+}
+.page [data-reveal-index='2'] {
+  transition-delay: 180ms;
+}
+.page [data-reveal-index='3'] {
+  transition-delay: 300ms;
+}
+.page [data-reveal-index='4'] {
+  transition-delay: 400ms;
+}
+.page [data-reveal-index='5'] {
+  transition-delay: 520ms;
+}
+
+/* The cascade plates carry a resting rotation, so their resolved state has to
+   restate it. A bare `transform: none` here would flatten the composition. */
+.page .revealed {
+  opacity: 1;
+  filter: blur(0);
+  transform: translate3d(0, 0, 0);
+}
+
+/* Plates enter already tilted, then hold that tilt at rest. */
+.page .plate[data-reveal] {
+  transform: translate3d(0, 2.75rem, 0) rotate(var(--tilt, 0deg));
+}
+
+.page .plate.revealed {
+  transform: rotate(var(--tilt, 0deg));
+  transition:
+    opacity 900ms var(--ease-glide),
+    filter 900ms var(--ease-glide),
+    transform 800ms var(--ease-fluid),
+    box-shadow 800ms var(--ease-fluid);
+}
+
+/* Lifting a plate straightens it and floats it above its neighbour. Declared
+   after the resting state and one class heavier, so it actually wins. */
+.page .plate.revealed:hover {
+  z-index: 3;
+  transform: rotate(0deg) translateY(-6px);
+  box-shadow: 0 44px 90px -50px rgba(6, 44, 30, 0.55);
+}
+
+/* --------------------------------------------------------------------------
+   Responsive collapse. Below 768px the cascade becomes a plain stack: the
+   rotations and overlaps would otherwise fight for touch targets.
+   -------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .cascade {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+  }
+
+  /* Zeroing the tilt is enough: every transform state composes it. */
+  .plateLead,
+  .plateTrail {
+    --tilt: 0deg;
+    grid-column: 1;
+    grid-row: auto;
+    margin-top: 0;
+    margin-left: 0;
+  }
+
+  .page .plate.revealed:hover {
+    transform: translateY(-4px);
+  }
+}
+
+@media (max-width: 767px) {
+  .page {
+    padding: 6.5rem 1rem 2.5rem;
+  }
+
+  .plate {
+    padding: 5px;
+    border-radius: 1.625rem;
+  }
+
+  .plateCore {
+    padding: 1.375rem 1.125rem 1.5rem;
+    border-radius: 1.25rem;
+  }
+
+  .page .plate.revealed:hover {
+    transform: none;
+    box-shadow: var(--shadow-lift);
+  }
+
+  .action {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .haze {
+    height: 32vh;
+  }
+
+  .bloom {
+    filter: blur(70px);
+    animation: none;
+  }
+
+  .footer {
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bloom {
+    animation: none;
+  }
+
+  .page [data-reveal] {
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+
+  .page .plate[data-reveal] {
+    transform: rotate(var(--tilt, 0deg));
+  }
 }
