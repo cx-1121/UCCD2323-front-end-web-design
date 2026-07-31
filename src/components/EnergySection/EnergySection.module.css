@@ -1,0 +1,414 @@
+/* ==========================================================================
+   EnergySection — light paper plates, asymmetrical bento layout.
+   Every major container is a double-bezel enclosure: an outer shell holding
+   an inner core at a concentric (smaller) radius, so the panel reads as a
+   machined plate seated in a tray rather than a flat div.
+   ========================================================================== */
+
+.shell {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  padding: 6px;
+  background: var(--shell);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-shell);
+  box-shadow: var(--shadow-lift);
+  scroll-margin-top: 128px;
+}
+
+/* Emerald bloom that leaks from the top-left corner of every plate. */
+.shell::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: radial-gradient(
+    120% 80% at 0% 0%,
+    rgba(4, 120, 87, 0.07) 0%,
+    rgba(4, 120, 87, 0.02) 34%,
+    transparent 62%
+  );
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.core {
+  position: relative;
+  padding: clamp(1.75rem, 3.4vw, 3.25rem);
+  background: var(--core);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-core);
+  box-shadow: var(--inner-lip);
+}
+
+/* --------------------------------------------------------------------------
+   Masthead
+   -------------------------------------------------------------------------- */
+.masthead {
+  max-width: 62ch;
+  margin-bottom: clamp(2rem, 3.6vw, 3.25rem);
+}
+
+.folioRow {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  margin-bottom: 1.25rem;
+}
+
+.folio {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--signal);
+}
+
+.rule {
+  width: clamp(1.75rem, 5vw, 3.5rem);
+  height: 1px;
+  background: linear-gradient(90deg, rgba(4, 120, 87, 0.5), rgba(4, 120, 87, 0));
+}
+
+.kind {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 300;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.title {
+  margin: 0 0 1.125rem;
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5.6vw, 4.25rem);
+  font-weight: 200;
+  letter-spacing: -0.035em;
+  line-height: 0.98;
+  color: var(--ink);
+}
+
+.lede {
+  margin: 0;
+  font-size: clamp(0.98rem, 1.1vw, 1.09rem);
+  font-weight: 300;
+  line-height: 1.78;
+  color: var(--ink-soft);
+  text-wrap: pretty;
+}
+
+/* --------------------------------------------------------------------------
+   Bento — 6-column desktop grid, three distinct tile treatments
+   -------------------------------------------------------------------------- */
+.bento {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.tile {
+  position: relative;
+  grid-column: span 6;
+  padding: clamp(1.25rem, 2vw, 1.75rem);
+  background: rgba(12, 46, 32, 0.028);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-tile);
+  transition:
+    background 700ms var(--ease-fluid),
+    border-color 700ms var(--ease-fluid),
+    transform 700ms var(--ease-fluid);
+}
+
+.tile:hover {
+  background: rgba(12, 46, 32, 0.045);
+  border-color: rgba(4, 120, 87, 0.28);
+  transform: translateY(-2px);
+}
+
+.tileMechanism {
+  grid-column: span 4;
+}
+
+.tileSignature {
+  grid-column: span 2;
+}
+
+.tileUpside,
+.tileLimit {
+  grid-column: span 3;
+}
+
+.tileField {
+  grid-column: span 6;
+}
+
+.tileHead {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.tileIcon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 2.125rem;
+  height: 2.125rem;
+  color: var(--signal);
+  background: rgba(4, 120, 87, 0.08);
+  border: 1px solid rgba(4, 120, 87, 0.2);
+  border-radius: var(--r-pill);
+  transition: transform 700ms var(--ease-fluid);
+}
+
+.tileIcon svg {
+  width: 1.0625rem;
+  height: 1.0625rem;
+}
+
+.tile:hover .tileIcon {
+  transform: scale(1.06);
+}
+
+.tileTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 0.94rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.tileCount {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 300;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.tileBody {
+  margin: 0;
+  font-size: 0.94rem;
+  font-weight: 300;
+  line-height: 1.8;
+  color: var(--ink-soft);
+  text-wrap: pretty;
+}
+
+/* ---- Ledger lists: hairline-ruled rows, no bullet glyphs ---- */
+.ledger {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ledger li {
+  position: relative;
+  padding: 0.6875rem 0 0.6875rem 1.375rem;
+  font-size: 0.9rem;
+  font-weight: 300;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  border-top: 1px solid var(--hairline);
+}
+
+.ledger li:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.ledger li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 1.32em;
+  width: 0.5rem;
+  height: 1px;
+  background: var(--signal);
+  opacity: 0.75;
+}
+
+.ledger li:first-child::before {
+  top: 0.72em;
+}
+
+.ledgerMuted li::before {
+  background: var(--ink-faint);
+  opacity: 1;
+}
+
+/* ---- Application chips: horizontal flow, breaks the vertical list rhythm ---- */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  padding: 0.5625rem 0.9375rem;
+  font-size: 0.8125rem;
+  font-weight: 300;
+  line-height: 1.4;
+  color: var(--ink-soft);
+  background: var(--surface-raised);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-pill);
+  transition:
+    color 600ms var(--ease-glide),
+    background 600ms var(--ease-glide),
+    border-color 600ms var(--ease-glide),
+    transform 600ms var(--ease-glide);
+}
+
+.chip:hover {
+  color: var(--signal-deep);
+  background: rgba(4, 120, 87, 0.08);
+  border-color: rgba(4, 120, 87, 0.28);
+  transform: translateY(-1px);
+}
+
+/* ---- Signature plate ---- */
+.tileSignature {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 100%;
+  overflow: hidden;
+  background:
+    radial-gradient(90% 70% at 80% 10%, rgba(4, 120, 87, 0.12), transparent 68%),
+    rgba(12, 46, 32, 0.022);
+}
+
+.signatureGlyph {
+  display: block;
+  color: var(--signal);
+  opacity: 0.9;
+}
+
+.signatureGlyph svg {
+  width: clamp(2.5rem, 5vw, 3.5rem);
+  height: clamp(2.5rem, 5vw, 3.5rem);
+  transition: transform 900ms var(--ease-fluid);
+}
+
+.tileSignature:hover .signatureGlyph svg {
+  transform: rotate(12deg) scale(1.04);
+}
+
+.signatureName {
+  margin-top: 2.25rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+  font-weight: 200;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--ink);
+}
+
+/* --------------------------------------------------------------------------
+   Scroll-entry choreography — transform/opacity/filter only
+   -------------------------------------------------------------------------- */
+/* Attribute selectors are NOT hashed by CSS Modules, so each one is nested
+   under a hashed class to keep the rules from leaking to other pages. */
+.core [data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 3.5rem, 0);
+  filter: blur(6px);
+  transition:
+    opacity 900ms var(--ease-glide),
+    transform 900ms var(--ease-glide),
+    filter 900ms var(--ease-glide);
+}
+
+.core [data-reveal-index='1'] {
+  transition-delay: 60ms;
+}
+.core [data-reveal-index='2'] {
+  transition-delay: 120ms;
+}
+.core [data-reveal-index='3'] {
+  transition-delay: 180ms;
+}
+.core [data-reveal-index='4'] {
+  transition-delay: 240ms;
+}
+.core [data-reveal-index='5'] {
+  transition-delay: 300ms;
+}
+
+.core .revealed {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  filter: blur(0);
+}
+
+/* --------------------------------------------------------------------------
+   Responsive collapse
+   -------------------------------------------------------------------------- */
+@media (max-width: 1080px) {
+  .tileMechanism,
+  .tileSignature,
+  .tileUpside,
+  .tileLimit,
+  .tileField {
+    grid-column: span 6;
+  }
+
+  .tileSignature {
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .signatureName {
+    margin-top: 0;
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .shell {
+    padding: 5px;
+    border-radius: 1.625rem;
+  }
+
+  .core {
+    padding: 1.25rem 1rem 1.5rem;
+    border-radius: 1.25rem;
+  }
+
+  .title {
+    font-size: clamp(2rem, 10vw, 2.75rem);
+  }
+
+  .bento {
+    grid-template-columns: 1fr;
+    gap: 0.625rem;
+  }
+
+  /* Touch targets and hover-only affordances stand down on mobile. */
+  .tile:hover {
+    transform: none;
+  }
+
+  .signatureName {
+    margin-left: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .core [data-reveal] {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
