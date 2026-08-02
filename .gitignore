@@ -1,4 +1,5 @@
 .agents/
+.agent/
 node_modules/
 node_modules_trash/
 dist/
