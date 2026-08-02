@@ -3,6 +3,7 @@ import LandingPage from './pages/LandingPage/LandingPage';
 import HomePage from './pages/HomePage/HomePage';
 import ExplorePage from './pages/ExplorePage/ExplorePage';
 import QuizChallenge from './pages/QuizChallenge/QuizChallenge';
+import AboutPage from './pages/AboutPage/AboutPage';
 import DebugConsole from './components/DebugConsole/DebugConsole';
 import RouteHistoryTracker from './components/RouteHistoryTracker';
 
@@ -31,6 +32,7 @@ function RootRouteGuard() {
  * - "/home" routes to the club homepage / main entry gateway.
  * - "/explore" routes to the renewable-energy field guide.
  * - "/quiz-challenge" routes to the renewable-energy quiz.
+ * - "/about" routes to about / contact / references.
  */
 function App() {
   const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -57,6 +59,7 @@ function App() {
         <Route path="/home" element={<HomePage />} />
         <Route path="/explore" element={<ExplorePage />} />
         <Route path="/quiz-challenge" element={<QuizChallenge />} />
+        <Route path="/about" element={<AboutPage />} />
       </Routes>
       {isDebug && <DebugConsole />}
     </Router>

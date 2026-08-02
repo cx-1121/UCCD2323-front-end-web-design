@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import gsap from 'gsap';
 import styles from './HudHeader.module.css';
 
@@ -16,8 +16,9 @@ import styles from './HudHeader.module.css';
 const NAV_LINKS: { label: string; to?: string }[] = [
   { label: 'Home', to: '/home' },
   { label: 'Projects' },
-  { label: 'About' },
-  { label: 'Contact Us' },
+  { label: 'About', to: '/about' },
+  // The About page carries the contact section; the hash lands on it.
+  { label: 'Contact Us', to: '/about#contact' },
 ];
 
 type HudHeaderProps = {
@@ -33,6 +34,20 @@ type HudHeaderProps = {
 function HudHeader({ variant = 'interactive' }: HudHeaderProps) {
   const [unlocked, setUnlocked] = useState(false);
   const isStatic = variant === 'static';
+  const { pathname, hash } = useLocation();
+
+  /**
+   * Hash-aware, so "About" (/about) and "Contact Us" (/about#contact) never
+   * both report themselves as current. NavLink cannot express this: it matches
+   * on pathname alone and would mark both.
+   */
+  const isCurrent = (to: string) => {
+    const [toPath, toHash] = to.split('#');
+    if (pathname !== toPath) {
+      return false;
+    }
+    return toHash ? hash === `#${toHash}` : hash === '';
+  };
 
   useEffect(() => {
     if (isStatic) {
@@ -113,17 +128,17 @@ function HudHeader({ variant = 'interactive' }: HudHeaderProps) {
               );
             }
 
+            const current = isCurrent(link.to);
+
             return (
-              <NavLink
+              <Link
                 key={link.label}
                 to={link.to}
-                // `end` keeps prefix matching from marking a parent route as
-                // current on every nested path.
-                end
-                className={({ isActive }) => (isActive ? `${base} ${styles.navItemActive}` : base)}
+                className={current ? `${base} ${styles.navItemActive}` : base}
+                aria-current={current ? 'page' : undefined}
               >
                 {link.label}
-              </NavLink>
+              </Link>
             );
           })}
         </nav>

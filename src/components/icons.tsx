@@ -176,6 +176,45 @@ function OrbitGlyph(props: GlyphProps) {
   );
 }
 
+function MailGlyph(props: GlyphProps) {
+  return (
+    <svg {...base} {...props}>
+      <rect x="2.6" y="5.2" width="18.8" height="13.6" rx="2.2" />
+      <path d="m3.4 6.6 8.6 6 8.6-6" />
+    </svg>
+  );
+}
+
+function PinGlyph(props: GlyphProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M12 21.4s7-5.6 7-11.1a7 7 0 1 0-14 0c0 5.5 7 11.1 7 11.1Z" />
+      <circle cx="12" cy="10.1" r="2.6" />
+    </svg>
+  );
+}
+
+function UsersGlyph(props: GlyphProps) {
+  return (
+    <svg {...base} {...props}>
+      <circle cx="9.2" cy="8.4" r="3.4" />
+      <path d="M2.8 20.2a6.4 6.4 0 0 1 12.8 0" />
+      <path d="M16.4 5.4a3.4 3.4 0 0 1 0 6" />
+      <path d="M18.2 14.6a6.4 6.4 0 0 1 3 5.6" />
+    </svg>
+  );
+}
+
+function ExternalGlyph(props: GlyphProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M13.6 4.4h6v6" />
+      <path d="m19.6 4.4-8.4 8.4" />
+      <path d="M18.4 14.2v4.2a2 2 0 0 1-2 2H5.6a2 2 0 0 1-2-2V7.6a2 2 0 0 1 2-2h4.2" />
+    </svg>
+  );
+}
+
 function ArrowGlyph(props: GlyphProps) {
   return (
     <svg {...base} {...props}>
@@ -204,5 +243,9 @@ export {
   TargetGlyph,
   HorizonGlyph,
   OrbitGlyph,
+  MailGlyph,
+  PinGlyph,
+  UsersGlyph,
+  ExternalGlyph,
   ArrowGlyph,
 };
