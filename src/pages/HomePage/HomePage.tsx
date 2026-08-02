@@ -1,6 +1,9 @@
-import { Link } from 'react-router-dom';
+import { useCallback, useState } from 'react';
+import { Link, useNavigationType } from 'react-router-dom';
+import DawnTransition from '../../components/DawnTransition/DawnTransition';
 import HudHeader from '../../components/HudHeader/HudHeader';
 import { ArrowGlyph, CompassGlyph, ReplayGlyph } from '../../components/icons';
+import { getSettledPathname } from '../../hooks/routeHistory';
 import { useBodyBackground } from '../../hooks/useBodyBackground';
 import { useReveal } from '../../hooks/useReveal';
 import styles from './HomePage.module.css';
@@ -15,16 +18,41 @@ import styles from './HomePage.module.css';
  */
 function HomePage() {
   const pageRef = useReveal<HTMLElement>(styles.revealed);
+  const navigationType = useNavigationType();
 
-  useBodyBackground('#f6f8f6');
+  /**
+   * The cinematic plays only when the reader actually walked out of the
+   * landing page:
+   *   - PUSH rules out a direct load or refresh (POP) and RootRouteGuard's
+   *     redirect (REPLACE), neither of which is a journey.
+   *   - the route being left being "/" rules out an ordinary nav click from
+   *     /explore, which is also a PUSH but must not replay 4.6s of curtain.
+   * Both signals live on this side, so the landing page needs no change.
+   * Computed once on mount, so a later re-render cannot restart it mid-play.
+   */
+  const [showDawn, setShowDawn] = useState(
+    () =>
+      navigationType === 'PUSH' &&
+      getSettledPathname() === '/' &&
+      !window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  );
+
+  // Stable identity: DawnTransition uses this as an effect dependency.
+  const handleDawnDone = useCallback(() => setShowDawn(false), []);
+
+  useBodyBackground('#f7f8fa');
 
   return (
     <main ref={pageRef} className={styles.page}>
+      {showDawn && <DawnTransition onDone={handleDawnDone} />}
+
       {/* ---- Fixed atmosphere. A residual haze clings to the very top edge,
               the past you just walked out of, while light blooms from below.
               Fixed and inert, so scrolling never repaints it. ---- */}
       <div className={styles.dawn} aria-hidden="true">
         <span className={styles.haze} />
+        <span className={styles.sunlight} />
+        <span className={styles.flare} />
         <span className={styles.bloom} />
       </div>
       <div className={styles.grain} aria-hidden="true" />

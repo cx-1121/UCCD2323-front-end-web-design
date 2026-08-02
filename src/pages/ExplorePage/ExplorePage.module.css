@@ -515,13 +515,24 @@
     display: contents;
   }
 
+  /* Resting offset clears the floating nav island. Animating `top` rather than
+     transform is deliberate: it is the only property that stays inert while the
+     strip is in normal flow, so the strip can never be displaced into the
+     section below it. Cost is one element's sticky offset re-resolving. */
   .railShell {
     position: sticky;
-    top: clamp(4.75rem, 12vw, 5.75rem);
+    top: 4.5rem;
     z-index: 20;
     order: -1;
     margin-bottom: 0.5rem;
     border-radius: var(--r-pill);
+    transition: top 650ms var(--ease-fluid);
+  }
+
+  /* Nav gone: the strip moves up into the space it left, level with where the
+     island sat. Timed to the nav's own 650ms so they travel as one piece. */
+  .railRaised {
+    top: clamp(0.875rem, 2vw, 1.5rem);
   }
 
   .railCore {

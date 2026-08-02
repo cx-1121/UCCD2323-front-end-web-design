@@ -20,8 +20,10 @@
 :root {
   /* Paper stack. Off-white carrying a faint green cast, never pure #ffffff -
      pure values flatten the elevation between page, tray and card. */
-  --surface: #f6f8f6;
-  --surface-raised: #fdfefd;
+  --surface: #f7f8fa;
+  --surface-raised: #ffffff;
+  /* Mint the dawn resolves into, carried over from the transition's last frame. */
+  --surface-mint: #eef6f2;
 
   /* Hairlines and trays, tinted to the surface hue rather than neutral grey */
   --hairline: rgba(12, 46, 32, 0.11);

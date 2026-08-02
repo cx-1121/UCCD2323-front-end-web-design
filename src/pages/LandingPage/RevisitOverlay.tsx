@@ -1,4 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
+import {
+  ArrowGlyph,
+  BoltGlyph,
+  CompassGlyph,
+  HorizonGlyph,
+  LayersGlyph,
+  OrbitGlyph,
+  TargetGlyph,
+} from '../../components/icons';
 import styles from './RevisitOverlay.module.css';
 
 interface RevisitOverlayProps {
@@ -6,225 +15,310 @@ interface RevisitOverlayProps {
   onLeave: (targetPath?: string) => void;
 }
 
+/** When the level 3 gateway unseals. */
+const GATEWAY_DELAY_MS = 4200;
+
+type Destination = {
+  label: string;
+  detail: string;
+  Glyph: (props: { className?: string }) => JSX.Element;
+  /** Omitted while the route does not exist yet; the tile renders inert. */
+  path?: string;
+  span: 'wide' | 'half' | 'full';
+};
+
+/**
+ * The six gateway destinations. Only the two with a `path` are routed today;
+ * the rest render as sealed tiles rather than sending the reader to a blank
+ * screen. Giving one a `path` is all it takes to light it up.
+ */
+const DESTINATIONS: Destination[] = [
+  {
+    label: 'Explore energy',
+    detail: 'Five renewable sources, mechanism by mechanism',
+    Glyph: CompassGlyph,
+    path: '/explore',
+    span: 'wide',
+  },
+  { label: 'Green tech', detail: 'The hardware of the transition', Glyph: BoltGlyph, span: 'half' },
+  { label: 'Projects', detail: 'What the club is building', Glyph: LayersGlyph, span: 'half' },
+  { label: 'Quiz', detail: 'Test what stuck', Glyph: TargetGlyph, span: 'half' },
+  { label: 'Future vision', detail: 'The grid in 2050', Glyph: HorizonGlyph, span: 'half' },
+  {
+    label: 'Join the movement',
+    detail: 'Step into the club and start building',
+    Glyph: OrbitGlyph,
+    path: '/home',
+    span: 'full',
+  },
+];
+
 function RevisitOverlay({ level, onLeave }: RevisitOverlayProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [showNav, setShowNav] = useState(false);
+  const [gatewayOpen, setGatewayOpen] = useState(false);
 
-  // Canvas animations for background particles
+  const stage = level >= 3 ? 3 : level;
+
+  /**
+   * Atmosphere. Smoke at the lower levels, rising embers of green once the
+   * gateway stage is reached.
+   *
+   * Rewritten from the original: particles are stamped from a pre-rendered
+   * sprite instead of being drawn with a per-particle `shadowBlur`, which was
+   * costing a full-canvas blur pass per particle per frame. The loop is also
+   * DPR-correct, parked while the tab is hidden, and skipped outright under
+   * reduced motion.
+   */
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) {
+      return;
+    }
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+      return;
+    }
 
-    let animationId: number;
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isGateway = stage >= 3;
+    const tint = isGateway ? '16, 185, 129' : '110, 122, 138';
 
-    const handleResize = () => {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
+    let width = 0;
+    let height = 0;
+    let dpr = 1;
+
+    // One sprite, drawn once, stamped many times.
+    const sprite = document.createElement('canvas');
+    const spriteCtx = sprite.getContext('2d');
+    const SPRITE_SIZE = 128;
+    sprite.width = SPRITE_SIZE;
+    sprite.height = SPRITE_SIZE;
+    if (spriteCtx) {
+      const r = SPRITE_SIZE / 2;
+      const grad = spriteCtx.createRadialGradient(r, r, 0, r, r, r);
+      grad.addColorStop(0, `rgba(${tint}, ${isGateway ? 0.9 : 0.34})`);
+      grad.addColorStop(0.45, `rgba(${tint}, ${isGateway ? 0.22 : 0.12})`);
+      grad.addColorStop(1, `rgba(${tint}, 0)`);
+      spriteCtx.fillStyle = grad;
+      spriteCtx.fillRect(0, 0, SPRITE_SIZE, SPRITE_SIZE);
+    }
+
+    type Mote = { x: number; y: number; size: number; vx: number; vy: number; alpha: number };
+    let motes: Mote[] = [];
+
+    const seed = () => {
+      const count = isGateway ? 44 : 26;
+      motes = Array.from({ length: count }, () => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        size: isGateway ? Math.random() * 26 + 8 : Math.random() * 180 + 90,
+        vx: (Math.random() - 0.5) * (isGateway ? 0.32 : 0.14),
+        vy: -(Math.random() * (isGateway ? 0.5 : 0.22) + 0.1),
+        alpha: Math.random() * 0.45 + 0.2,
+      }));
     };
-    window.addEventListener('resize', handleResize);
 
-    // Particle class for atmospheric effects
-    class Particle {
-      x: number;
-      y: number;
-      size: number;
-      speedX: number;
-      speedY: number;
-      color: string;
-      alpha: number;
-      decay: number;
-
-      constructor(colorType: 'smoke' | 'green') {
-        this.x = Math.random() * width;
-        // Smoke drifts up, green particles drift around and float up
-        this.y = colorType === 'smoke' ? height + Math.random() * 100 : Math.random() * height;
-        this.size = Math.random() * (colorType === 'smoke' ? 120 : 6) + (colorType === 'smoke' ? 40 : 2);
-        this.speedX = (Math.random() - 0.5) * (colorType === 'smoke' ? 0.5 : 2);
-        this.speedY = -(Math.random() * (colorType === 'smoke' ? 1.5 : 3) + 0.5);
-        this.alpha = Math.random() * 0.4 + 0.1;
-        this.decay = Math.random() * 0.002 + 0.001;
-        this.color = colorType === 'smoke' ? '71, 85, 105' : '16, 185, 129'; // Slate vs Emerald
+    const resize = () => {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (motes.length === 0) {
+        seed();
       }
+    };
 
-      update() {
-        this.x += this.speedX;
-        this.y += this.speedY;
-        if (this.y < -150) {
-          this.y = height + 50;
-          this.x = Math.random() * width;
-          this.alpha = Math.random() * 0.4 + 0.1;
-        }
-      }
-
-      draw() {
-        ctx!.save();
-        ctx!.globalAlpha = this.alpha;
-        if (this.color === '71, 85, 105') {
-          // Smoke: Radial gradient blur
-          const grad = ctx!.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
-          grad.addColorStop(0, `rgba(${this.color}, 0.15)`);
-          grad.addColorStop(1, `rgba(${this.color}, 0)`);
-          ctx!.fillStyle = grad;
-          ctx!.beginPath();
-          ctx!.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-          ctx!.fill();
-        } else {
-          // Green tech particles: Glow points
-          ctx!.shadowBlur = 15;
-          ctx!.shadowColor = `rgb(${this.color})`;
-          ctx!.fillStyle = `rgba(${this.color}, ${this.alpha})`;
-          ctx!.beginPath();
-          ctx!.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-          ctx!.fill();
-        }
-        ctx!.restore();
-      }
-    }
-
-    const particleCount = level >= 3 ? 120 : 35;
-    const colorType = level >= 3 ? 'green' : 'smoke';
-    const particles: Particle[] = [];
-    for (let i = 0; i < particleCount; i++) {
-      particles.push(new Particle(colorType));
-    }
-
-    const render = () => {
+    const paint = () => {
       ctx.clearRect(0, 0, width, height);
-
-      // Level specific canvas backgrounds
-      if (level === 1) {
-        ctx.fillStyle = '#050505';
-        ctx.fillRect(0, 0, width, height);
-      } else if (level === 2) {
-        const grad = ctx.createRadialGradient(width / 2, height / 2, 0, width / 2, height / 2, width);
-        grad.addColorStop(0, '#062016'); // Dark teal center
-        grad.addColorStop(1, '#020504');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, width, height);
-      } else {
-        // level 3: transition colors
-        const grad = ctx.createLinearGradient(0, 0, 0, height);
-        grad.addColorStop(0, '#040b08');
-        grad.addColorStop(1, '#0c2419');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, width, height);
-      }
-
-      particles.forEach((p) => {
-        p.update();
-        p.draw();
+      motes.forEach((m) => {
+        ctx.globalAlpha = m.alpha;
+        ctx.drawImage(sprite, m.x - m.size, m.y - m.size, m.size * 2, m.size * 2);
       });
-
-      animationId = requestAnimationFrame(render);
+      ctx.globalAlpha = 1;
     };
 
-    render();
+    resize();
 
-    // Revisit 3 secret nav timing
-    if (level >= 3) {
-      const timer = setTimeout(() => {
-        setShowNav(true);
-      }, 5500); // Navigation appears after text animation finishes
-      return () => {
-        clearTimeout(timer);
-        window.removeEventListener('resize', handleResize);
-        cancelAnimationFrame(animationId);
-      };
+    let frame = 0;
+    const step = () => {
+      motes.forEach((m) => {
+        m.x += m.vx;
+        m.y += m.vy;
+        if (m.y < -m.size) {
+          m.y = height + m.size;
+          m.x = Math.random() * width;
+        }
+      });
+      paint();
+      frame = requestAnimationFrame(step);
+    };
+
+    if (reduceMotion) {
+      paint();
+    } else {
+      frame = requestAnimationFrame(step);
     }
+
+    const onVisibility = () => {
+      cancelAnimationFrame(frame);
+      if (!document.hidden && !reduceMotion) {
+        frame = requestAnimationFrame(step);
+      }
+    };
+
+    window.addEventListener('resize', resize);
+    document.addEventListener('visibilitychange', onVisibility);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
-      cancelAnimationFrame(animationId);
+      cancelAnimationFrame(frame);
+      window.removeEventListener('resize', resize);
+      document.removeEventListener('visibilitychange', onVisibility);
     };
-  }, [level]);
+  }, [stage]);
 
-  // Handle redirect inside hidden nav to prevent reloading
-  const handleNavClick = (path: string) => {
-    onLeave(path);
-  };
+  // Unseal the gateway once the opening lines have landed.
+  useEffect(() => {
+    if (stage < 3) {
+      return;
+    }
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setGatewayOpen(true);
+      return;
+    }
+    const timer = window.setTimeout(() => setGatewayOpen(true), GATEWAY_DELAY_MS);
+    return () => window.clearTimeout(timer);
+  }, [stage]);
+
+  const enter = (
+    <button type="button" className={styles.cta} onClick={() => onLeave('/home')}>
+      <span className={styles.ctaLabel}>Enter the future</span>
+      <span className={styles.ctaIcon} aria-hidden="true">
+        <ArrowGlyph />
+      </span>
+    </button>
+  );
 
   return (
-    <div className={styles.overlay}>
-      <canvas ref={canvasRef} className={styles.canvas} />
+    <div className={`${styles.overlay} ${styles[`stage${stage}`]}`}>
+      <canvas ref={canvasRef} className={styles.canvas} aria-hidden="true" />
+      <div className={styles.mesh} aria-hidden="true">
+        <span className={`${styles.orb} ${styles.orbA}`} />
+        <span className={`${styles.orb} ${styles.orbB}`} />
+      </div>
+      <div className={styles.grain} aria-hidden="true" />
 
-      <div className={styles.content}>
-        {level === 1 && (
-          <div className={styles.textContainer}>
-            <p className={`${styles.line} ${styles.delay1}`}>Once you've reached for a greener future...</p>
-            <p className={`${styles.line} ${styles.delay2} ${styles.warning}`}>You don't walk back into the smoke.</p>
-            <p className={`${styles.line} ${styles.delay3}`}>The journey has already begun.</p>
-            
-            <div className={`${styles.btnContainer} ${styles.delay4}`}>
-              <button className={styles.btn} onClick={() => onLeave('/home')}>
-                ENTER THE FUTURE →
-              </button>
-            </div>
-          </div>
-        )}
-
-        {level === 2 && (
-          <div className={styles.textContainer}>
-            <p className={`${styles.line} ${styles.delay1}`}>You have seen what was.</p>
-            <p className={`${styles.line} ${styles.delay2} ${styles.accent}`}>Now discover what can be.</p>
-            
-            <div className={`${styles.btnContainer} ${styles.delay3}`}>
-              <button className={styles.btn} onClick={() => onLeave('/home')}>
-                ENTER THE FUTURE →
-              </button>
-            </div>
-          </div>
-        )}
-
-        {level >= 3 && (
-          <div className={styles.textContainer}>
-            <div className={styles.reversedSceneWrapper}>
-              <p className={`${styles.line} ${styles.delay1}`}>This world once powered us.</p>
-              <p className={`${styles.line} ${styles.delay2} ${styles.dim}`}>But we learned its cost.</p>
-              <p className={`${styles.line} ${styles.delay3} ${styles.accent}`}>
-                Once you've reached for a greener future... You don't walk back.
+      <div className={styles.frame}>
+        <div className={styles.column}>
+          {stage === 1 && (
+            <>
+              <span className={`${styles.eyebrow} ${styles.step0}`}>You turned around</span>
+              <p className={`${styles.line} ${styles.step1}`}>
+                Once you have reached for a greener future
               </p>
-            </div>
+              <p className={`${styles.line} ${styles.lineEmber} ${styles.step2}`}>
+                you do not walk back into the smoke.
+              </p>
+              <p className={`${styles.sub} ${styles.step3}`}>The journey has already begun.</p>
+              <div className={`${styles.actions} ${styles.step4}`}>{enter}</div>
+            </>
+          )}
 
-            {showNav && (
-              <div className={styles.navContainer}>
-                <h3 className={styles.navTitle}>Future Navigation Gateway</h3>
-                <div className={styles.grid}>
-                  <button onClick={() => handleNavClick('/explore')} className={styles.navLink}>
-                    🌲 Explore Energy
-                  </button>
-                  <button onClick={() => handleNavClick('/green-tech')} className={styles.navLink}>
-                    ⚡ Green Tech
-                  </button>
-                  <button onClick={() => handleNavClick('/projects')} className={styles.navLink}>
-                    💼 Projects
-                  </button>
-                  <button onClick={() => handleNavClick('/quiz')} className={styles.navLink}>
-                    🏆 Quiz & Challenge
-                  </button>
-                  <button onClick={() => handleNavClick('/future')} className={styles.navLink}>
-                    🏙️ Future Vision
-                  </button>
-                  <button onClick={() => onLeave('/home')} className={styles.navLink}>
-                    🤝 Join Movement
-                  </button>
-                </div>
-                
-                <p className={styles.quote}>
-                  "The future is not behind you. It is something we build together."
+          {stage === 2 && (
+            <>
+              <span className={`${styles.eyebrow} ${styles.step0}`}>Back again</span>
+              <p className={`${styles.line} ${styles.step1}`}>You have seen what was.</p>
+              <p className={`${styles.line} ${styles.lineAccent} ${styles.step2}`}>
+                Now discover what can be.
+              </p>
+              <div className={`${styles.actions} ${styles.step3}`}>{enter}</div>
+            </>
+          )}
+
+          {stage === 3 && (
+            <>
+              <div className={gatewayOpen ? `${styles.prologue} ${styles.prologueOut}` : styles.prologue}>
+                <span className={`${styles.eyebrow} ${styles.step0}`}>You kept coming back</span>
+                <p className={`${styles.line} ${styles.step1}`}>This world once powered us.</p>
+                <p className={`${styles.line} ${styles.lineDim} ${styles.step2}`}>
+                  But we learned its cost.
                 </p>
-                <div className={styles.btnContainer}>
-                  <button className={styles.btn} onClick={() => onLeave('/home')}>
-                    ENTER THE FUTURE →
-                  </button>
-                </div>
+                <p className={`${styles.line} ${styles.lineAccent} ${styles.step3}`}>
+                  So the way back is closed, and the way forward is open.
+                </p>
               </div>
-            )}
-          </div>
-        )}
+
+              {/* Double-bezel enclosure: outer tray, inner core at a concentric radius. */}
+              <aside
+                className={gatewayOpen ? `${styles.gateway} ${styles.gatewayOpen}` : styles.gateway}
+                aria-hidden={!gatewayOpen}
+              >
+                <div className={styles.gatewayCore}>
+                  <p className={styles.gatewayLabel}>
+                    <span>Gateway</span>
+                    <span className={styles.gatewayCount}>
+                      {DESTINATIONS.filter((d) => d.path).length}/{DESTINATIONS.length} open
+                    </span>
+                  </p>
+
+                  <div className={styles.bento}>
+                    {DESTINATIONS.map((destination, index) => {
+                      const { Glyph } = destination;
+                      const body = (
+                        <>
+                          <span className={styles.tileGlyph} aria-hidden="true">
+                            <Glyph />
+                          </span>
+                          <span className={styles.tileLabel}>{destination.label}</span>
+                          <span className={styles.tileDetail}>{destination.detail}</span>
+                        </>
+                      );
+                      const tileClass = `${styles.tile} ${styles[destination.span]}`;
+
+                      if (!destination.path) {
+                        return (
+                          <div
+                            key={destination.label}
+                            className={`${tileClass} ${styles.tileSealed}`}
+                            style={{ transitionDelay: `${index * 60}ms` }}
+                          >
+                            {body}
+                            <span className={styles.tileSeal}>Sealed</span>
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <button
+                          key={destination.label}
+                          type="button"
+                          className={tileClass}
+                          style={{ transitionDelay: `${index * 60}ms` }}
+                          onClick={() => onLeave(destination.path)}
+                        >
+                          {body}
+                          <span className={styles.tileArrow} aria-hidden="true">
+                            <ArrowGlyph />
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <p className={styles.quote}>
+                    The future is not behind you. It is something we build together.
+                  </p>
+                </div>
+              </aside>
+
+              {/* Always reachable, so the reader is never held here waiting. */}
+              <div className={`${styles.actions} ${styles.step4}`}>{enter}</div>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

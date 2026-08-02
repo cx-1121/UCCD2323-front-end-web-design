@@ -15,7 +15,7 @@ function ExplorePage() {
   const heroRef = useReveal<HTMLDivElement>(styles.revealed);
   const navHidden = useHideOnScroll(140);
 
-  useBodyBackground('#f6f8f6');
+  useBodyBackground('#f7f8fa');
 
   useEffect(() => {
     const sections = energySources
@@ -118,8 +118,15 @@ function ExplorePage() {
           <div className={styles.railColumn}>
             {/* Index rail — double bezel, with a marker that tracks the
                 active section instead of restyling each link on its own. */}
+            {/* On mobile this strip pins under the floating nav. It rides up
+                into the nav's place when the nav leaves, and is pushed back
+                down when it returns. Driven by the sticky offset rather than a
+                transform: `top` is inert until an element actually pins, so it
+                cannot displace the strip while it is still in normal flow. */}
             <aside
-              className={styles.railShell}
+              className={
+                navHidden ? `${styles.railShell} ${styles.railRaised}` : styles.railShell
+              }
               style={{ '--active': activeIndex } as CSSProperties}
             >
               <div className={styles.railCore}>

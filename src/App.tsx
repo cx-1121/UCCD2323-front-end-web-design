@@ -3,6 +3,7 @@ import LandingPage from './pages/LandingPage/LandingPage';
 import HomePage from './pages/HomePage/HomePage';
 import ExplorePage from './pages/ExplorePage/ExplorePage';
 import DebugConsole from './components/DebugConsole/DebugConsole';
+import RouteHistoryTracker from './components/RouteHistoryTracker';
 
 /**
  * Guard component for the root path "/".
@@ -42,6 +43,9 @@ function App() {
 
   return (
     <Router>
+      {/* Records the previous route so HomePage can tell "walked in from the
+          landing page" apart from an ordinary nav click. Renders nothing. */}
+      <RouteHistoryTracker />
       <Routes>
         <Route path="/" element={<RootRouteGuard />} />
         <Route path="/home" element={<HomePage />} />
