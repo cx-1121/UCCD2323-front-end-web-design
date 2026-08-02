@@ -1,3 +1,4 @@
+import HudHeader from '../../components/HudHeader/HudHeader';
 import styles from './QuizChallenge.module.css';
 import { useQuizChallenge } from '../../hooks/useQuizChallenge';
 
@@ -56,7 +57,7 @@ function QuizChallenge() {
                   <strong
                     className={response.isCorrect ? styles.correctText : styles.incorrectText}
                   >
-                    {response.isCorrect ? 'Correct' : 'Review'}
+                    {response.isCorrect ? 'Correct' : 'Incorrect'}
                   </strong>
                 </div>
                 <p>{response.question.prompt}</p>
@@ -87,13 +88,8 @@ function QuizChallenge() {
     <main className={styles.page}>
       <div className={styles.ambientGlow} aria-hidden="true" />
 
+      <HudHeader />
       <header className={styles.header}>
-        <a className={styles.brand} href="/">
-          <span className={styles.brandMark} aria-hidden="true">
-            ▲
-          </span>
-          <span>RE:FUTURE</span>
-        </a>
         <span className={styles.headerLabel}>Quiz &amp; Challenge</span>
       </header>
 
