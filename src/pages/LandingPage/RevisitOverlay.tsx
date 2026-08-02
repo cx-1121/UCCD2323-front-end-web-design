@@ -18,6 +18,9 @@ interface RevisitOverlayProps {
 /** When the level 3 gateway unseals. */
 const GATEWAY_DELAY_MS = 4200;
 
+const prefersReducedMotion = () =>
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 type Destination = {
   label: string;
   detail: string;
@@ -55,9 +58,17 @@ const DESTINATIONS: Destination[] = [
 
 function RevisitOverlay({ level, onLeave }: RevisitOverlayProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [gatewayOpen, setGatewayOpen] = useState(false);
-
   const stage = level >= 3 ? 3 : level;
+
+  /**
+   * Under reduced motion the gateway is open from the first frame: making the
+   * reader wait 4.2s for a sealed panel is the timing, and the timing is the
+   * thing being opted out of. Derived here rather than assigned from inside an
+   * effect, which would cost an extra render pass on every mount.
+   */
+  const [gatewayOpen, setGatewayOpen] = useState(
+    () => stage >= 3 && prefersReducedMotion(),
+  );
 
   /**
    * Atmosphere. Smoke at the lower levels, rising embers of green once the
@@ -182,11 +193,7 @@ function RevisitOverlay({ level, onLeave }: RevisitOverlayProps) {
 
   // Unseal the gateway once the opening lines have landed.
   useEffect(() => {
-    if (stage < 3) {
-      return;
-    }
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setGatewayOpen(true);
+    if (stage < 3 || prefersReducedMotion()) {
       return;
     }
     const timer = window.setTimeout(() => setGatewayOpen(true), GATEWAY_DELAY_MS);

@@ -26,7 +26,9 @@
   /* Shared dark scale */
   --rv-ink: #eef2f0;
   --rv-ink-soft: rgba(226, 240, 231, 0.66);
-  --rv-ink-faint: rgba(226, 240, 231, 0.44);
+  /* 0.58 is the floor that keeps the quote, the gateway label and the sealed
+     markers above 4.5:1 on --rv-base. 0.44 measured 3.88:1 and failed. */
+  --rv-ink-faint: rgba(226, 240, 231, 0.58);
   --rv-hairline: rgba(255, 255, 255, 0.08);
   --rv-shell: rgba(255, 255, 255, 0.022);
   --rv-core: rgba(8, 12, 10, 0.72);
