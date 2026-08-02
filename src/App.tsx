@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useSearchParams } fro
 import LandingPage from './pages/LandingPage/LandingPage';
 import HomePage from './pages/HomePage/HomePage';
 import ExplorePage from './pages/ExplorePage/ExplorePage';
+import QuizChallenge from './pages/QuizChallenge/QuizChallenge';
 import DebugConsole from './components/DebugConsole/DebugConsole';
 import RouteHistoryTracker from './components/RouteHistoryTracker';
 
@@ -25,6 +26,11 @@ function RootRouteGuard() {
 
 /**
  * Composition root, responsible for global configuration (routing, global context/state).
+ * App routing configuration:
+ * - "/" routes to the interactive landing page, behind the revisit guard.
+ * - "/home" routes to the club homepage / main entry gateway.
+ * - "/explore" routes to the renewable-energy field guide.
+ * - "/quiz-challenge" routes to the renewable-energy quiz.
  */
 function App() {
   const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -50,13 +56,11 @@ function App() {
         <Route path="/" element={<RootRouteGuard />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/explore" element={<ExplorePage />} />
+        <Route path="/quiz-challenge" element={<QuizChallenge />} />
       </Routes>
       {isDebug && <DebugConsole />}
     </Router>
   );
 }
 
-
-
 export default App;
-
