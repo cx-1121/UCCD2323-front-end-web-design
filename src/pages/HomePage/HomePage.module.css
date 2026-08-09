@@ -258,6 +258,13 @@
   grid-row: 1;
 }
 
+.plateSecond {
+  --tilt: 0.8deg;
+  z-index: 2;
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+
 /* Overlaps by 2rem, deliberately less than the plate's own inner padding, so
    the lead plate only ever covers this one's empty margin, never its heading. */
 .plateTrail {
@@ -517,6 +524,7 @@
 
   /* Zeroing the tilt is enough: every transform state composes it. */
   .plateLead,
+  .plateSecond,
   .plateTrail {
     --tilt: 0deg;
     grid-column: 1;

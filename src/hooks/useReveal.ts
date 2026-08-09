@@ -8,13 +8,17 @@ import { useEffect, useRef } from 'react';
  * IntersectionObserver rather than a scroll listener: no continuous reflow,
  * no main-thread work between intersections. Stagger is expressed in CSS via
  * transition-delay keyed off `data-reveal-index`, so the JS stays layout-free.
+ *
+ * `enabled` defers the whole observer. Pages that run an intro sequence pass
+ * false until it finishes, otherwise above-the-fold nodes reveal themselves
+ * behind the curtain and land already-resolved when it lifts.
  */
-export function useReveal<T extends HTMLElement>(revealedClass: string) {
+export function useReveal<T extends HTMLElement>(revealedClass: string, enabled = true) {
   const ref = useRef<T | null>(null);
 
   useEffect(() => {
     const host = ref.current;
-    if (!host) {
+    if (!host || !enabled) {
       return;
     }
 
@@ -47,7 +51,7 @@ export function useReveal<T extends HTMLElement>(revealedClass: string) {
     watched.forEach((node) => observer.observe(node));
 
     return () => observer.disconnect();
-  }, [revealedClass]);
+  }, [revealedClass, enabled]);
 
   return ref;
 }

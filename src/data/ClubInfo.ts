@@ -15,19 +15,16 @@ export type CommitteeMember = {
   focus: string;
 };
 
-/** ⚠️ Placeholder names. Replace with the actual committee. */
 export const committee: CommitteeMember[] = [
-  { role: 'President', name: 'Tan Wei Ming', focus: 'Direction and partnerships' },
-  { role: 'Vice President', name: 'Nurul Aisyah binti Rahman', focus: 'Programmes and events' },
-  { role: 'Secretary', name: 'Lim Jia Hui', focus: 'Records and correspondence' },
-  { role: 'Treasurer', name: 'Arvind Raj a/l Kumaran', focus: 'Budget and sponsorship' },
-  { role: 'Technical Lead', name: 'Chong Kai Xin', focus: 'Builds, data and this site' },
-  { role: 'Outreach Lead', name: 'Muhammad Danial bin Zulkifli', focus: 'Campus and community' },
+  { role: 'President', name: 'CHIN JUNXI', focus: 'Direction and partnerships' },
+  { role: 'Vice President', name: 'BEH YUAN WEN', focus: 'Programmes and events' },
+  { role: 'Technical Lead', name: 'CHOI HONG ER', focus: 'Builds, data and technology' },
+  { role: 'Outreach & Operations Lead', name: 'MEAH CHEE XIANG', focus: 'Budget, outreach and campus community' },
 ];
 
 /** ⚠️ Placeholder. Replace with the club's faculty advisor. */
 export const advisor = {
-  name: 'Dr. Sarawathy Ramasamy',
+  name: 'Dr. Nor Fatiha',
   title: 'Faculty Advisor',
   department: 'Faculty of Information and Communication Technology',
   note: 'Advises on research direction and reviews the technical claims made across this site.',
@@ -51,7 +48,7 @@ export const channels: Channel[] = [
 /** ⚠️ Placeholder location. */
 export const location = {
   room: 'Block N, Level 2, Room N204',
-  campus: 'Universiti Tunku Abdul Rahman, Sungai Long Campus',
+  campus: 'Universiti Tunku Abdul Rahman, Kampar Campus',
   hours: 'Open Wednesdays and Fridays, 2pm to 6pm',
 };
 

@@ -1,10 +1,8 @@
 /* ==========================================================================
-   AboutPage — About · Contact · Support · References.
+   ContactPage — Contact · Support · Location.
 
-   Vibe: Soft Structuralism, sharing the interior token layer with Explore and
-   Home so the three read as one product. Layout changes family per section
-   rather than repeating one archetype: masthead, offset plates, hairline
-   roster, a plate holding the form, asymmetric support cards, numbered index.
+   Extracted from AboutPage. Shares the interior token layer with Explore,
+   Home and About so all routes read as one product.
    ========================================================================== */
 
 .page {
@@ -43,11 +41,11 @@
     transparent 70%
   );
   filter: blur(80px);
-  animation: abBreathe 26s var(--ease-fluid) infinite alternate;
+  animation: ctBreathe 26s var(--ease-fluid) infinite alternate;
   will-change: transform;
 }
 
-@keyframes abBreathe {
+@keyframes ctBreathe {
   from {
     transform: translateX(-50%) scale(1);
   }
@@ -67,7 +65,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   Floating nav island, identical to the other interior routes
+   Floating nav island
    -------------------------------------------------------------------------- */
 .headerBar {
   position: fixed;
@@ -272,11 +270,10 @@
 }
 
 /* --------------------------------------------------------------------------
-   Section rhythm. The page breathes hard between families.
+   Section rhythm
    -------------------------------------------------------------------------- */
 .section {
   margin-bottom: clamp(5rem, 10vw, 9rem);
-  scroll-margin-top: 7rem;
 }
 
 .sectionHead {
@@ -320,46 +317,113 @@
 }
 
 /* --------------------------------------------------------------------------
-   Mission / vision: double-bezel plates, vertically offset
+   Contact: form and channels
    -------------------------------------------------------------------------- */
-.plates {
-  display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: 0.875rem;
-  align-items: start;
-}
-
-.plate {
+.contactShell {
   padding: 6px;
   background: var(--shell);
   border: 1px solid var(--hairline);
   border-radius: var(--r-shell);
   box-shadow: var(--shadow-lift);
-  transition:
-    transform 700ms var(--ease-fluid),
-    box-shadow 700ms var(--ease-fluid);
 }
 
-.plateMission {
-  grid-column: span 7;
-}
-
-.plateVision {
-  grid-column: span 5;
-  margin-top: clamp(2rem, 4vw, 3.5rem);
-}
-
-.plate:hover {
-  transform: translateY(-3px);
-}
-
-.plateCore {
-  height: 100%;
+.contactCore {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: clamp(1.5rem, 3vw, 3rem);
   padding: clamp(1.5rem, 3vw, 2.5rem);
   background: var(--core);
   border: 1px solid var(--hairline);
   border-radius: calc(var(--r-shell) - 6px);
   box-shadow: var(--inner-lip);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.125rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.field label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.field input,
+.field textarea {
+  padding: 0.75rem 0.9375rem;
+  font: inherit;
+  font-size: 0.9375rem;
+  color: var(--ink);
+  background: rgba(12, 46, 32, 0.028);
+  border: 1px solid var(--hairline-strong);
+  border-radius: 0.875rem;
+  box-shadow: var(--inner-lip);
+  transition:
+    border-color 500ms var(--ease-fluid),
+    background 500ms var(--ease-fluid),
+    box-shadow 500ms var(--ease-fluid);
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 7rem;
+  line-height: 1.6;
+}
+
+.field input:hover,
+.field textarea:hover {
+  border-color: rgba(4, 120, 87, 0.28);
+}
+
+.field input:focus,
+.field textarea:focus {
+  outline: none;
+  background: var(--surface-raised);
+  border-color: var(--signal);
+  box-shadow:
+    var(--inner-lip),
+    0 0 0 3px rgba(4, 120, 87, 0.14);
+}
+
+.hint {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 300;
+  color: var(--ink-faint);
+}
+
+.error {
+  margin: 0;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: #9f1239;
+  background: rgba(159, 18, 57, 0.06);
+  border: 1px solid rgba(159, 18, 57, 0.22);
+  border-radius: 0.75rem;
+}
+
+.form .cta {
+  align-self: flex-start;
+  margin-top: 0.25rem;
+}
+
+.formNote {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 300;
+  color: var(--ink-faint);
 }
 
 .plateKicker {
@@ -373,202 +437,232 @@
   color: var(--signal);
 }
 
-.plateBody {
-  margin: 0;
-  font-size: 0.9375rem;
-  font-weight: 300;
-  line-height: 1.75;
-  color: var(--ink-soft);
-  text-wrap: pretty;
+.channels {
+  display: flex;
+  flex-direction: column;
 }
 
-/* --------------------------------------------------------------------------
-   Committee: hairline-ruled rows. Deliberately not cards.
-   -------------------------------------------------------------------------- */
-.roster {
-  margin: 0 0 clamp(1.5rem, 3vw, 2.5rem);
+.channelList {
+  margin: 0 0 clamp(1.5rem, 3vw, 2rem);
   padding: 0;
   list-style: none;
-  border-top: 1px solid var(--hairline);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.rosterRow {
-  display: grid;
-  grid-template-columns: 12rem minmax(0, 1fr) minmax(0, 1fr);
-  gap: 1rem;
-  align-items: baseline;
-  padding: clamp(0.875rem, 1.8vw, 1.25rem) 0.25rem;
-  border-bottom: 1px solid var(--hairline);
-  transition: background 600ms var(--ease-fluid);
-}
-
-.rosterRow:hover {
-  background: rgba(12, 46, 32, 0.028);
-}
-
-.rosterRole {
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: 400;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--signal);
-}
-
-.rosterName {
-  font-family: var(--font-display);
-  font-size: 1.0625rem;
-  font-weight: 500;
-  letter-spacing: -0.015em;
-  color: var(--ink);
-}
-
-.rosterFocus {
-  font-size: 0.875rem;
-  font-weight: 300;
-  line-height: 1.55;
-  color: var(--ink-soft);
-}
-
-.advisor {
-  padding: 6px;
-  background:
-    radial-gradient(120% 100% at 100% 0%, rgba(4, 120, 87, 0.12) 0%, transparent 62%),
-    var(--shell);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-shell);
-  box-shadow: var(--shadow-lift);
-}
-
-.advisorCore {
-  padding: clamp(1.5rem, 3vw, 2.25rem);
-  background: var(--core);
-  border: 1px solid var(--hairline);
-  border-radius: calc(var(--r-shell) - 6px);
-  box-shadow: var(--inner-lip);
-}
-
-.advisorName {
-  margin: 0 0 0.25rem;
-  font-family: var(--font-display);
-  font-size: clamp(1.25rem, 2.2vw, 1.625rem);
-  font-weight: 300;
-  letter-spacing: -0.03em;
-  color: var(--ink);
-}
-
-.advisorDept {
-  margin: 0 0 1rem;
-  font-size: 0.875rem;
-  font-weight: 300;
-  color: var(--ink-faint);
-}
-
-
-/* --------------------------------------------------------------------------
-   References: numbered index
-   -------------------------------------------------------------------------- */
-.index {
-  margin: 0 0 1.25rem;
-  padding: 0;
-  list-style: none;
-  counter-reset: none;
-  border-top: 1px solid var(--hairline);
-}
-
-.indexRow {
-  display: grid;
-  grid-template-columns: 3rem minmax(0, 1fr) 2rem;
-  gap: 1rem;
+.channel {
+  display: flex;
   align-items: center;
-  padding: clamp(1rem, 2vw, 1.375rem) 0.25rem;
+  gap: 0.75rem;
+  padding: 0.75rem 0.875rem;
+  color: var(--ink);
   text-decoration: none;
-  border-bottom: 1px solid var(--hairline);
+  background: var(--surface-raised);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-tile);
   transition:
-    background 600ms var(--ease-fluid),
-    padding-left 600ms var(--ease-fluid);
+    border-color 600ms var(--ease-fluid),
+    transform 600ms var(--ease-fluid),
+    box-shadow 600ms var(--ease-fluid);
 }
 
-.indexRow:hover {
-  background: rgba(12, 46, 32, 0.028);
+.channel:hover {
+  border-color: rgba(4, 120, 87, 0.3);
+  box-shadow: var(--shadow-soft);
+  transform: translateX(2px);
 }
 
-.indexRow:focus-visible {
+.channel:focus-visible {
   outline: 2px solid var(--signal);
-  outline-offset: -2px;
+  outline-offset: 3px;
 }
 
-.indexNumber {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.12em;
+.channelGlyph {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 2.125rem;
+  height: 2.125rem;
   color: var(--signal);
+  background: rgba(4, 120, 87, 0.08);
+  border: 1px solid rgba(4, 120, 87, 0.2);
+  border-radius: var(--r-pill);
 }
 
-.indexBody {
+.channelGlyph svg {
+  width: 1.0625rem;
+  height: 1.0625rem;
+}
+
+.channelText {
   display: flex;
   flex-direction: column;
   min-width: 0;
 }
 
-.indexName {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.625rem;
-  font-family: var(--font-display);
-  font-size: 1.0625rem;
-  font-weight: 500;
-  letter-spacing: -0.015em;
-  color: var(--ink);
-}
-
-.indexAbbr {
-  padding: 0.125rem 0.4375rem;
+.channelLabel {
   font-family: var(--font-mono);
-  font-size: 0.5625rem;
-  font-weight: 400;
+  font-size: 0.625rem;
   letter-spacing: 0.16em;
+  text-transform: uppercase;
   color: var(--ink-faint);
-  background: rgba(12, 46, 32, 0.05);
-  border-radius: var(--r-pill);
 }
 
-.indexScope {
-  margin-top: 0.25rem;
+.channelValue {
   font-size: 0.875rem;
-  font-weight: 300;
-  line-height: 1.55;
-  color: var(--ink-soft);
+  font-weight: 400;
+  color: var(--ink);
+  overflow-wrap: anywhere;
 }
 
-.indexArrow {
+.channelArrow {
   display: grid;
   place-items: center;
+  margin-left: auto;
   color: var(--ink-faint);
   transition:
     color 600ms var(--ease-fluid),
     transform 600ms var(--ease-fluid);
 }
 
-.indexArrow svg {
-  width: 1rem;
-  height: 1rem;
+.channelArrow svg {
+  width: 0.9375rem;
+  height: 0.9375rem;
 }
 
-.indexRow:hover .indexArrow {
+.channel:hover .channelArrow {
   color: var(--signal);
   transform: translate3d(2px, -2px, 0);
 }
 
-.indexNote {
-  margin: 0;
-  max-width: 52ch;
-  font-size: 0.8125rem;
+.locationBlock {
+  margin-top: auto;
+  padding-top: clamp(1.25rem, 2.5vw, 1.75rem);
+  border-top: 1px solid var(--hairline);
+}
+
+.locationBlock .channelGlyph {
+  margin-bottom: 0.875rem;
+}
+
+.locationRoom {
+  margin: 0 0 0.25rem;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.locationCampus {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
   font-weight: 300;
-  line-height: 1.6;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+.locationHours {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
   color: var(--ink-faint);
+}
+
+/* --------------------------------------------------------------------------
+   Support: three cards, three widths
+   -------------------------------------------------------------------------- */
+.support {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 0.875rem;
+}
+
+.wide {
+  grid-column: span 5;
+}
+.mid {
+  grid-column: span 4;
+}
+.narrow {
+  grid-column: span 3;
+}
+
+.supportCard {
+  display: flex;
+  flex-direction: column;
+  padding: clamp(1.375rem, 2.4vw, 1.875rem);
+  background: var(--surface-raised);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-tile);
+  box-shadow: var(--shadow-soft);
+  transition:
+    transform 700ms var(--ease-fluid),
+    border-color 700ms var(--ease-fluid),
+    box-shadow 700ms var(--ease-fluid);
+}
+
+.supportCard:hover {
+  transform: translateY(-3px);
+  border-color: rgba(4, 120, 87, 0.28);
+  box-shadow: var(--shadow-lift);
+}
+
+.supportTitle {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: 1.1875rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.supportBody {
+  margin: 0 0 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--ink-soft);
+  text-wrap: pretty;
+}
+
+.supportAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: auto;
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--signal-deep);
+  text-decoration: none;
+}
+
+.supportArrow {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  background: rgba(4, 120, 87, 0.08);
+  border-radius: var(--r-pill);
+  transition: transform 500ms var(--ease-snap);
+}
+
+.supportArrow svg {
+  width: 0.8125rem;
+  height: 0.8125rem;
+}
+
+.supportCard:hover .supportArrow {
+  transform: translate3d(3px, -1px, 0) scale(1.05);
+}
+
+.supportAction:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 3px;
+  border-radius: 0.25rem;
 }
 
 /* --------------------------------------------------------------------------
@@ -594,8 +688,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   Scroll-entry choreography. Attribute selectors are nested under a hashed
-   class so CSS Modules cannot leak them to other routes.
+   Scroll-entry choreography
    -------------------------------------------------------------------------- */
 .page [data-reveal] {
   opacity: 0;
@@ -627,10 +720,14 @@
    Responsive collapse
    -------------------------------------------------------------------------- */
 @media (max-width: 1023px) {
-  .plateMission,
-  .plateVision {
+  .contactCore {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .wide,
+  .mid,
+  .narrow {
     grid-column: span 12;
-    margin-top: 0;
   }
 }
 
@@ -639,34 +736,23 @@
     padding: 6.5rem 1rem 2.5rem;
   }
 
-  .rosterRow {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0.25rem;
-  }
-
-  .indexRow {
-    grid-template-columns: 2.25rem minmax(0, 1fr) 1.5rem;
-    gap: 0.75rem;
-  }
-
-  .plate,
-  .advisor {
+  .contactShell {
     padding: 5px;
     border-radius: 1.625rem;
   }
 
-  .plateCore,
-  .advisorCore {
+  .contactCore {
     padding: 1.25rem 1rem 1.5rem;
     border-radius: 1.25rem;
   }
 
-  .plate:hover {
+  .supportCard:hover {
     transform: none;
   }
 
   .heroActions .cta,
-  .heroActions .ctaGhost {
+  .heroActions .ctaGhost,
+  .form .cta {
     width: 100%;
     justify-content: space-between;
   }

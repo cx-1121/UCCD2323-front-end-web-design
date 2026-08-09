@@ -224,3 +224,18 @@ The renewable-energy quiz is available at `/quiz-challenge` and is kept separate
 - `src/utils/quizQuestions.ts` — shared typed data for 10 Easy, Medium, and Hard renewable-energy questions.
 
 Keep question content in `quizQuestions.ts`, state transitions in the hook, and presentation in the component. Every question must include an educational explanation.
+
+---
+
+## 7. Projects & Impact Showcase Module
+
+The projects & impact showcase is available at `/projects` and showcases Green Tech Club's research initiatives, student engineering prototypes, eco competitions, and environmental campaigns.
+
+### Files
+
+- `src/pages/ProjectsPage/ProjectsPage.tsx` — main projects page rendering double-bezel bento grid, category filters, search input, roadmap timeline, and interactive detail modal.
+- `src/pages/ProjectsPage/ProjectsPage.module.css` — responsive double-bezel styling, spring fluid transitions, and mobile collapse.
+- `src/pages/ProjectsPage/ProjectsPage.test.tsx` — unit & integration test suite covering rendering, category filtering, search input, and modal dialog lifecycle.
+- `src/hooks/useProjects.ts` — manages category tab selection, text search filtering, modal open/close states, and keyboard ESC shortcuts.
+- `src/data/projectsData.ts` — domain data structures and curated project instances (IoT digital twins, solar race vehicles, AI waste sorters, hydrogen fuel cell prototypes, carbon audits).
+

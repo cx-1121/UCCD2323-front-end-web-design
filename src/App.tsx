@@ -4,6 +4,9 @@ import HomePage from './pages/HomePage/HomePage';
 import ExplorePage from './pages/ExplorePage/ExplorePage';
 import QuizChallenge from './pages/QuizChallenge/QuizChallenge';
 import AboutPage from './pages/AboutPage/AboutPage';
+import ContactPage from './pages/ContactPage/ContactPage';
+import ProjectsPage from './pages/ProjectsPage/ProjectsPage';
+import DashboardPage from './pages/DashboardPage/DashboardPage';
 import DebugConsole from './components/DebugConsole/DebugConsole';
 import RouteHistoryTracker from './components/RouteHistoryTracker';
 
@@ -31,8 +34,10 @@ function RootRouteGuard() {
  * - "/" routes to the interactive landing page, behind the revisit guard.
  * - "/home" routes to the club homepage / main entry gateway.
  * - "/explore" routes to the renewable-energy field guide.
+ * - "/projects" routes to the club projects & impact showcase.
  * - "/quiz-challenge" routes to the renewable-energy quiz.
- * - "/about" routes to about / contact / references.
+ * - "/about" routes to about / references.
+ * - "/contact" routes to contact / support.
  */
 function App() {
   const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -58,8 +63,11 @@ function App() {
         <Route path="/" element={<RootRouteGuard />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/explore" element={<ExplorePage />} />
+        <Route path="/projects" element={<ProjectsPage />} />
         <Route path="/quiz-challenge" element={<QuizChallenge />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
       </Routes>
       {isDebug && <DebugConsole />}
     </Router>

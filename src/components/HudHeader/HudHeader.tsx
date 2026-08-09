@@ -15,10 +15,10 @@ import styles from './HudHeader.module.css';
  */
 const NAV_LINKS: { label: string; to?: string }[] = [
   { label: 'Home', to: '/home' },
-  { label: 'Projects' },
+  { label: 'Explore', to: '/explore' },
+  { label: 'Projects', to: '/projects' },
+  { label: 'Dashboard', to: '/dashboard' },
   { label: 'About', to: '/about' },
-  // The About page carries the contact section; the hash lands on it.
-  { label: 'Contact Us', to: '/about#contact' },
 ];
 
 type HudHeaderProps = {
@@ -37,9 +37,8 @@ function HudHeader({ variant = 'interactive' }: HudHeaderProps) {
   const { pathname, hash } = useLocation();
 
   /**
-   * Hash-aware, so "About" (/about) and "Contact Us" (/about#contact) never
-   * both report themselves as current. NavLink cannot express this: it matches
-   * on pathname alone and would mark both.
+   * Hash-aware active detection. NavLink cannot express this: it matches
+   * on pathname alone and would mark both a path and its hash variant.
    */
   const isCurrent = (to: string) => {
     const [toPath, toHash] = to.split('#');

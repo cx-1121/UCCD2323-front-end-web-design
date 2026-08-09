@@ -76,7 +76,7 @@ function ExplorePage() {
         {/* ---- Editorial hero ---- */}
         <div ref={heroRef} className={styles.hero}>
           <span className={styles.eyebrow} data-reveal data-reveal-index="0">
-            Field guide · 05 sources
+            Field guide
           </span>
 
           <h1 className={styles.heroTitle} data-reveal data-reveal-index="1">
@@ -91,20 +91,7 @@ function ExplorePage() {
             strains, and where it is already running today.
           </p>
 
-          <dl className={styles.heroStats} data-reveal data-reveal-index="3">
-            <div className={styles.stat}>
-              <dt>Sources</dt>
-              <dd>05</dd>
-            </div>
-            <div className={styles.stat}>
-              <dt>Breakdown</dt>
-              <dd>Mechanism, limits, field use</dd>
-            </div>
-            <div className={styles.stat}>
-              <dt>Reading</dt>
-              <dd>~12 min</dd>
-            </div>
-          </dl>
+
         </div>
 
         {/* ---- Editorial split: content column + sticky rail ---- */}
