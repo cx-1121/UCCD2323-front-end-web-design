@@ -1,0 +1,98 @@
+/* Share surface. Sits inside existing cards, so it carries no enclosure of its
+   own — only a hairline rule to separate it from the content above. */
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid var(--hairline);
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* The Facebook plugin renders its own chrome inside the iframe; we only
+   reserve the box and stop it inheriting a border. */
+.fbFrame {
+  display: block;
+  flex-shrink: 0;
+  border: none;
+  overflow: hidden;
+  color-scheme: light;
+}
+
+/* Styling for the pre-hydration state. Once widgets.js runs it replaces this
+   anchor with its own iframe, and these rules stop applying. */
+.xLink {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: #ffffff;
+  background: #0f1419;
+  border: 1px solid #0f1419;
+  border-radius: var(--r-pill);
+  text-decoration: none;
+  transition: opacity 200ms var(--ease-fluid);
+}
+
+.xLink:hover {
+  opacity: 0.85;
+}
+
+.fallbackBtn {
+  padding: 0.3125rem 0.8125rem;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  background: transparent;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  transition:
+    border-color 200ms var(--ease-fluid),
+    color 200ms var(--ease-fluid);
+}
+
+.fallbackBtn:hover {
+  border-color: var(--signal);
+  color: var(--signal-deep);
+}
+
+.xLink:focus-visible,
+.fallbackBtn:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
+}
+
+.note {
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  color: var(--ink-faint);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .xLink,
+  .fallbackBtn {
+    transition: none;
+  }
+}

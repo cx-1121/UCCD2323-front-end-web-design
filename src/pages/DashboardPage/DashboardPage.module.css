@@ -251,13 +251,80 @@
   background: var(--shell);
   border: 1px solid var(--hairline);
   border-radius: var(--r-shell);
+  display: flex;
+  flex-direction: column;
+  perspective: 1000px;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
-.kpiCore {
+.kpiTile:hover {
+  border-color: rgba(4, 120, 87, 0.3);
+  box-shadow: 0 6px 20px -4px rgba(0, 0, 0, 0.05);
+}
+
+.kpiTile:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
+}
+
+.kpiCardInner {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: 144px;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.kpiCardInner.flipped {
+  transform: rotateY(180deg);
+}
+
+.kpiFront,
+.kpiBack {
+  position: absolute;
+  inset: 0;
   padding: 1rem 1.125rem;
   background: var(--core);
   border-radius: var(--r-core);
   box-shadow: var(--inner-lip);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.kpiFront {
+  transform: rotateY(0deg);
+}
+
+.kpiBack {
+  transform: rotateY(180deg);
+  background: var(--core);
+}
+
+.kpiHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.flipHint {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-faint);
+  opacity: 0.4;
+  transition: opacity 0.2s ease, transform 0.3s ease;
+}
+
+.kpiTile:hover .flipHint {
+  opacity: 0.95;
+  transform: rotate(180deg);
 }
 
 .kpiLabel {
@@ -267,7 +334,38 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ink-faint);
-  margin-bottom: 0.5rem;
+}
+
+.kpiBackTitle {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--signal);
+}
+
+.kpiExplanationText {
+  font-family: var(--font-sans);
+  font-size: 0.725rem;
+  line-height: 1.45;
+  color: var(--ink);
+  margin-top: 0.35rem;
+  margin-bottom: auto;
+}
+
+.kpiBackTag {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  margin-top: 0.5rem;
+  padding: 0.15rem 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 500;
+  color: var(--ink-faint);
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: var(--r-pill);
 }
 
 .kpiValue {
@@ -290,6 +388,7 @@
 .kpiBadge {
   display: inline-flex;
   align-items: center;
+  align-self: flex-start;
   gap: 0.25rem;
   margin-top: 0.5rem;
   padding: 0.125rem 0.5rem;
@@ -314,7 +413,8 @@
   align-items: flex-end;
   gap: 3px;
   height: 24px;
-  margin-top: 0.75rem;
+  margin-top: auto;
+  padding-top: 0.75rem;
 }
 
 .sparkBar {
@@ -340,6 +440,8 @@
   background: var(--shell);
   border: 1px solid var(--hairline);
   border-radius: var(--r-shell);
+  display: flex;
+  flex-direction: column;
 }
 
 .chartCore {
@@ -347,6 +449,104 @@
   background: var(--core);
   border-radius: var(--r-core);
   box-shadow: var(--inner-lip);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* --------------------------------------------------------------------------
+   Flipping chart cards.
+
+   These faces had no styles at all, which caused both reported symptoms: the
+   front never got the white .chartCore surface the other cards have, and the
+   back sat in normal flow underneath the front instead of being hidden behind
+   it, so "Data Interpretation" was visible without flipping.
+
+   Modelled on the working .kpiCardInner / .kpiFront / .kpiBack trio, with one
+   deliberate difference noted on the faces below.
+   -------------------------------------------------------------------------- */
+
+/* Perspective and the pointer affordance belong only to the shells that are
+   actually clickable. Two chart shells on this page do not flip, and giving
+   every shell `cursor: pointer` would promise them an interaction they lack. */
+.chartShell[role='button'] {
+  perspective: 1000px;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.chartShell[role='button']:hover {
+  border-color: rgba(4, 120, 87, 0.3);
+  box-shadow: 0 6px 20px -4px rgba(0, 0, 0, 0.05);
+}
+
+.chartShell[role='button']:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
+}
+
+.chartCardInner {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.chartCardInner.flipped {
+  transform: rotateY(180deg);
+}
+
+/* Same white surface as .chartCore, so a flipping card is indistinguishable
+   from a static one until it turns. */
+.chartFront,
+.chartBack {
+  padding: 1.25rem;
+  background: var(--core);
+  border-radius: var(--r-core);
+  box-shadow: var(--inner-lip);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* The difference from the KPI tiles: those are a fixed 144px, so both faces can
+   be absolutely positioned. Charts vary in height, so the front stays in flow
+   and lets its chart set the card's height; only the back is overlaid.
+
+   `flex: 1` makes the front fill the shell when a taller neighbour in the grid
+   row stretches it — without it the white surface stopped at its content height
+   while the shell around it grew, so the budget card's core looked short next to
+   Top emitters. */
+.chartFront {
+  position: relative;
+  flex: 1;
+  transform: rotateY(0deg);
+}
+
+.chartBack {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+  justify-content: flex-start;
+  overflow-y: auto;
+}
+
+.chartExplanationText {
+  margin: 0.875rem 0 0;
+  font-size: 0.875rem;
+  font-weight: 300;
+  line-height: 1.65;
+  color: var(--ink-soft);
+  text-wrap: pretty;
 }
 
 .chartHeader {
@@ -385,7 +585,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 1.25rem;
+  flex: 1;
 }
 
 .donutSvg {
@@ -534,8 +736,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 1rem;
   text-align: center;
+  flex: 1;
 }
 
 .budgetRing {
@@ -600,26 +804,41 @@
   color: var(--ink);
 }
 
+/* Tall enough for an inline % label; was 0.75rem when the bars carried no
+   text and every value was invisible. */
 .mixTrack {
   display: flex;
-  height: 0.75rem;
+  height: 1.25rem;
   border-radius: var(--r-pill);
   overflow: hidden;
 }
 
+.mixFossil,
+.mixNuclear,
+.mixRenewable,
+.mixOther {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  transition: width 800ms var(--ease-fluid);
+}
+
 .mixFossil {
   background: rgba(12, 26, 19, 0.25);
-  transition: width 800ms var(--ease-fluid);
 }
 
 .mixNuclear {
   background: #6366f1;
-  transition: width 800ms var(--ease-fluid);
 }
 
 .mixRenewable {
   background: var(--signal);
-  transition: width 800ms var(--ease-fluid);
+}
+
+/* The unattributed remainder — deliberately the quietest fill on the track, so
+   it reads as "not classified" rather than as a fourth energy source. */
+.mixOther {
+  background: rgba(12, 26, 19, 0.12);
 }
 
 .mixLegend {
@@ -731,4 +950,189 @@
   .heroTitle {
     font-size: clamp(2rem, 10vw, 3.5rem);
   }
+}
+
+/* ── Live renewable conditions panel (jQuery REST feed) ─────────────────── */
+
+.liveControls {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.liveBadge {
+  padding: 0.25rem 0.5625rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  border-radius: var(--r-pill);
+  white-space: nowrap;
+}
+
+.liveBadgeOk {
+  /* #065f46 on a 12%-alpha emerald wash clears AA at this weight */
+  background: rgba(4, 120, 87, 0.12);
+  color: var(--signal-deep);
+}
+
+.liveBadgeDegraded {
+  background: rgba(217, 119, 6, 0.14);
+  color: #92400e;
+}
+
+.liveGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.liveTile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3125rem;
+  padding: 0.9375rem 1rem;
+  background: var(--surface-mint);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-tile);
+}
+
+.liveTileLabel {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.liveTileValue {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.liveTileUnit {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+.liveTileFoot {
+  font-size: 0.6875rem;
+  color: var(--ink-faint);
+}
+
+.liveTrend {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 44px;
+  margin-top: 1rem;
+  padding: 0 0.125rem;
+}
+
+.liveTrendBar {
+  flex: 1 1 0;
+  min-height: 2px;
+  background: linear-gradient(to top, var(--signal), var(--signal-teal));
+  border-radius: 2px 2px 0 0;
+  opacity: 0.75;
+  transition: opacity 200ms var(--ease-fluid);
+}
+
+.liveTrendBar:hover {
+  opacity: 1;
+}
+
+.liveFoot {
+  margin-top: 0.875rem;
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  color: var(--ink-faint);
+}
+
+@media (max-width: 768px) {
+  .liveGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .liveControls {
+    flex-wrap: wrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liveTrendBar {
+    transition: none;
+  }
+}
+
+/* ── Chart clarity additions ────────────────────────────────────────────── */
+
+/* Title + unit subtext stacked, so headers with a right-side control keep the
+   unit visible under the title instead of losing it. */
+.chartTitleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+/* Inline % on energy-mix segments. Light text for the two saturated fills… */
+.mixValue {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 500;
+  color: #ffffff;
+  padding-left: 0.4375rem;
+  white-space: nowrap;
+}
+
+/* …dark ink on the pale fossil fill, which white would vanish against. */
+.mixValueDark {
+  color: var(--ink-soft);
+}
+
+/* Year axis under the live renewable-share bars. */
+.liveTrendAxis {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.375rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  color: var(--ink-faint);
+}
+
+.liveTrendCaption {
+  font-family: var(--font-body);
+  letter-spacing: 0.02em;
+}
+
+/* On narrow viewports a 12% segment is ~23px — the label clips into a
+   misleading truncated digit. Below this width the tooltips carry the values
+   and the bars go clean. */
+@media (max-width: 640px) {
+  .mixValue {
+    display: none;
+  }
+}
+
+/* Period anchor under KPI sparklines. */
+.kpiTrendYears {
+  display: block;
+  margin-top: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
 }

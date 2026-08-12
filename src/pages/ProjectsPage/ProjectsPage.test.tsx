@@ -1,19 +1,15 @@
-import { render, screen, cleanup } from '@testing-library/react';
+import { screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, afterEach } from 'vitest';
+import { renderWithProviders } from '../../test/renderWithProviders';
 import ProjectsPage from './ProjectsPage';
 
 afterEach(() => {
   cleanup();
 });
 
-const renderProjects = () =>
-  render(
-    <MemoryRouter>
-      <ProjectsPage />
-    </MemoryRouter>
-  );
+// The detail modal now contains SocialShare, which requires ConsentProvider.
+const renderProjects = () => renderWithProviders(<ProjectsPage />);
 
 describe('ProjectsPage', () => {
   it('renders headline, category tabs, and project cards', () => {

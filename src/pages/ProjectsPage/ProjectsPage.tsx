@@ -1,11 +1,13 @@
 import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import HudHeader from '../../components/HudHeader/HudHeader';
+import SocialShare from '../../components/SocialShare/SocialShare';
 import { useProjects } from '../../hooks/useProjects';
 import { useHideOnScroll } from '../../hooks/useHideOnScroll';
 import { useBodyBackground } from '../../hooks/useBodyBackground';
 import { useReveal } from '../../hooks/useReveal';
 import { PROJECT_CATEGORIES } from '../../data/projectsData';
+import type { ProjectCategory } from '../../data/projectsData';
 import styles from './ProjectsPage.module.css';
 
 /**
@@ -52,30 +54,25 @@ export default function ProjectsPage() {
         ref={mainRef}
         className={`${styles.contentWrapper} ${styles.launched}`}
       >
-        {/* HERO SECTION */}
+        {/* HERO SECTION
+            Uses the same entry choreography as every other interior page:
+            useReveal's IntersectionObserver toggles `.revealed`, and the
+            transition under `.contentWrapper [data-reveal]` carries it. The
+            headline animates as one element rather than unmasking line by
+            line, which is what the other heroes do. */}
         <section className={styles.heroSection}>
-          <div className={styles.eyebrowTag} data-launch style={{ '--i': 0 } as CSSProperties}>
+          <div className={styles.eyebrowTag} data-reveal data-reveal-index="0">
             <span>Impact &amp; Initiatives</span>
           </div>
 
-          <h1 className={styles.heroTitle}>
-            <span className={styles.lineMask}>
-              <span className={styles.lineInk} data-launch style={{ '--i': 1 } as CSSProperties}>
-                Engineering Tangible
-              </span>
-            </span>
-            <span className={styles.lineMask}>
-              <span
-                className={`${styles.lineInk} ${styles.heroTitleHighlight}`}
-                data-launch
-                style={{ '--i': 2 } as CSSProperties}
-              >
-                Climate Solutions
-              </span>
+          <h1 className={styles.heroTitle} data-reveal data-reveal-index="1">
+            <span className={styles.lineInk}>Engineering Tangible</span>
+            <span className={`${styles.lineInk} ${styles.heroTitleHighlight}`}>
+              Climate Solutions
             </span>
           </h1>
 
-          <p className={styles.heroSubtext} data-launch style={{ '--i': 3 } as CSSProperties}>
+          <p className={styles.heroSubtext} data-reveal data-reveal-index="2">
             From IoT microgrid digital twins to ultralight solar vehicles and AI waste sorters —
             explore how student researchers and engineers turn green tech theories into campus-wide impact.
           </p>
@@ -448,6 +445,15 @@ export default function ProjectsPage() {
                   </div>
                 )}
               </div>
+
+              {/* Share the specific project, not the page: the modal is not a
+                  route, so window.location would point at /projects for every
+                  one of them. */}
+              <SocialShare
+                label="Share this project"
+                title={`${selectedProject.title} — ${selectedProject.tagline}`}
+                url={`${window.location.origin}/projects?project=${selectedProject.id}`}
+              />
             </div>
           </div>
         </div>

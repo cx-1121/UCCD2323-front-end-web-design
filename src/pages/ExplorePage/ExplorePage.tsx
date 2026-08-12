@@ -54,8 +54,6 @@ function ExplorePage() {
 
   return (
     <main className={styles.page}>
-      {/* ---- Fixed atmosphere: mesh orbs + film grain. Fixed and inert so the
-              GPU never repaints them while the document scrolls. ---- */}
       <div className={styles.mesh} aria-hidden="true">
         <span className={`${styles.orb} ${styles.orbEmerald}`} />
         <span className={`${styles.orb} ${styles.orbTeal}`} />

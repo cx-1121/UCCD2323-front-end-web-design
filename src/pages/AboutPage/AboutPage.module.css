@@ -692,3 +692,18 @@
     filter: none;
   }
 }
+
+/* Section heading kept for the accessibility tree only — the embedded feed
+   panel carries its own visible label, so a second one would be redundant
+   noise on screen but is still needed to keep the heading outline intact. */
+.srOnlyHeading {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

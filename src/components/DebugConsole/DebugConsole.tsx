@@ -1,5 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useConsent } from '../../context/consentContext';
+import { safeLocal } from '../../utils/storage';
+import {
+  DEBUG_MODE_KEY,
+  HAS_CHOSEN_FUTURE_KEY,
+  REVISIT_ATTEMPTS_KEY,
+} from '../../utils/storageKeys';
 import styles from './DebugConsole.module.css';
 
 /**
@@ -9,14 +16,19 @@ import styles from './DebugConsole.module.css';
  */
 function DebugConsole() {
   const [isOpen, setIsOpen] = useState(false);
-  const [hasChosenFuture, setHasChosenFuture] = useState(() => localStorage.getItem('hasChosenFuture') || 'false');
-  const [attemptsToReturnToPast, setAttemptsToReturnToPast] = useState(() => localStorage.getItem('attemptsToReturnToPast') || '0');
+  const [hasChosenFuture, setHasChosenFuture] = useState(
+    () => safeLocal.get(HAS_CHOSEN_FUTURE_KEY) || 'false',
+  );
+  const [attemptsToReturnToPast, setAttemptsToReturnToPast] = useState(
+    () => safeLocal.get(REVISIT_ATTEMPTS_KEY) || '0',
+  );
   const navigate = useNavigate();
+  const { status: consentStatus, reset: resetConsent } = useConsent();
 
   // Sync state values with LocalStorage
   const syncLocalStates = () => {
-    setHasChosenFuture(localStorage.getItem('hasChosenFuture') || 'false');
-    setAttemptsToReturnToPast(localStorage.getItem('attemptsToReturnToPast') || '0');
+    setHasChosenFuture(safeLocal.get(HAS_CHOSEN_FUTURE_KEY) || 'false');
+    setAttemptsToReturnToPast(safeLocal.get(REVISIT_ATTEMPTS_KEY) || '0');
   };
 
   useEffect(() => {
@@ -32,9 +44,9 @@ function DebugConsole() {
   };
 
   const handleResetAll = () => {
-    localStorage.removeItem('hasChosenFuture');
-    localStorage.removeItem('attemptsToReturnToPast');
-    localStorage.setItem('debugModeActive', 'false');
+    safeLocal.remove(HAS_CHOSEN_FUTURE_KEY);
+    safeLocal.remove(REVISIT_ATTEMPTS_KEY);
+    safeLocal.set(DEBUG_MODE_KEY, 'false');
     syncLocalStates();
     setIsOpen(false);
     // Route back to clean root, reload to completely purge all global caches & controllers
@@ -43,8 +55,8 @@ function DebugConsole() {
   };
 
   const handleSetRevisit = (count: number) => {
-    localStorage.setItem('hasChosenFuture', 'true');
-    localStorage.setItem('attemptsToReturnToPast', count.toString());
+    safeLocal.set(HAS_CHOSEN_FUTURE_KEY, 'true');
+    safeLocal.set(REVISIT_ATTEMPTS_KEY, count.toString());
     syncLocalStates();
     // Route to replay mode
     navigate('/?replay=true');
@@ -76,6 +88,12 @@ function DebugConsole() {
               <span>attemptsToReturnToPast:</span>
               <span className={styles.countText}>{attemptsToReturnToPast}</span>
             </div>
+            <div className={styles.stateRow}>
+              <span>refuture_consent:</span>
+              <span className={consentStatus === 'granted' ? styles.trueText : styles.falseText}>
+                {consentStatus}
+              </span>
+            </div>
           </div>
 
           <div className={styles.section}>
@@ -92,6 +110,9 @@ function DebugConsole() {
               </button>
               <button onClick={() => handleSetRevisit(2)} className={styles.cmdBtn}>
                 Set Revisit 3
+              </button>
+              <button onClick={resetConsent} className={styles.cmdBtn}>
+                Reset Consent Cookie
               </button>
               <button onClick={handleGoHome} className={`${styles.cmdBtn} ${styles.homeBtn}`}>
                 Go To /home

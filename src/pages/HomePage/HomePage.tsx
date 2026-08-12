@@ -46,9 +46,6 @@ function HomePage() {
     <main ref={pageRef} className={styles.page}>
       {showDawn && <DawnTransition onDone={handleDawnDone} />}
 
-      {/* ---- Fixed atmosphere. A residual haze clings to the very top edge,
-              the past you just walked out of, while light blooms from below.
-              Fixed and inert, so scrolling never repaints it. ---- */}
       <div className={styles.dawn} aria-hidden="true">
         <span className={styles.haze} />
         <span className={styles.sunlight} />

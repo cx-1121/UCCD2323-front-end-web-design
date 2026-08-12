@@ -1,20 +1,15 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
+import { renderWithProviders } from '../../test/renderWithProviders';
 import QuizChallenge from './QuizChallenge';
 
 /**
  * QuizChallenge renders HudHeader, whose nav became real <NavLink> routing
- * rather than `href="#"` placeholders, so it now needs router context. Render
- * through this helper rather than calling render(<QuizChallenge />) directly.
+ * rather than `href="#"` placeholders, so it needs router context — and the
+ * result screen renders SocialShare, which needs ConsentProvider.
  */
-const renderQuiz = () =>
-  render(
-    <MemoryRouter>
-      <QuizChallenge />
-    </MemoryRouter>,
-  );
+const renderQuiz = () => renderWithProviders(<QuizChallenge />);
 
 describe('QuizChallenge', () => {
   it('shows one question at a time and explains a correct answer', async () => {

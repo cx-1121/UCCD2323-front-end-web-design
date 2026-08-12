@@ -8,6 +8,8 @@ import SceneIntro from '../../components/SceneIntro/SceneIntro';
 import SceneTraditional from '../../components/SceneTraditional/SceneTraditional';
 import DevTimeDisplay from '../../components/DevTimeDisplay/DevTimeDisplay';
 import RevisitOverlay from './RevisitOverlay';
+import { safeLocal } from '../../utils/storage';
+import { HAS_CHOSEN_FUTURE_KEY, REVISIT_ATTEMPTS_KEY } from '../../utils/storageKeys';
 
 /**
  * Interactive Landing Page component.
@@ -20,19 +22,19 @@ function LandingPage() {
 
   const [revisitLevel] = useState<number>(() => {
     const isReplay = new URLSearchParams(window.location.search).get('replay') === 'true';
-    const hasStarted = localStorage.getItem('hasChosenFuture') === 'true';
+    const hasStarted = safeLocal.get(HAS_CHOSEN_FUTURE_KEY) === 'true';
     if (isReplay && hasStarted) {
-      const currentCount = parseInt(localStorage.getItem('attemptsToReturnToPast') || '0', 10);
+      const currentCount = parseInt(safeLocal.get(REVISIT_ATTEMPTS_KEY) || '0', 10);
       return currentCount + 1;
     }
     return 0;
   });
 
   const handleLeaveLanding = (targetPath: string = '/home') => {
-    localStorage.setItem('hasChosenFuture', 'true');
+    safeLocal.set(HAS_CHOSEN_FUTURE_KEY, 'true');
     if (revisitLevel > 0) {
       // Set the new attempts to return to past upon successful journey exit (easter egg fully triggered/completed)
-      localStorage.setItem('attemptsToReturnToPast', revisitLevel.toString());
+      safeLocal.set(REVISIT_ATTEMPTS_KEY, revisitLevel.toString());
     }
     navigate(targetPath);
   };

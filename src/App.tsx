@@ -9,6 +9,10 @@ import ProjectsPage from './pages/ProjectsPage/ProjectsPage';
 import DashboardPage from './pages/DashboardPage/DashboardPage';
 import DebugConsole from './components/DebugConsole/DebugConsole';
 import RouteHistoryTracker from './components/RouteHistoryTracker';
+import CookieConsent from './components/CookieConsent/CookieConsent';
+import ConsentProvider from './context/ConsentProvider';
+import { safeLocal } from './utils/storage';
+import { DEBUG_MODE_KEY, HAS_CHOSEN_FUTURE_KEY } from './utils/storageKeys';
 
 /**
  * Guard component for the root path "/".
@@ -19,7 +23,7 @@ import RouteHistoryTracker from './components/RouteHistoryTracker';
 function RootRouteGuard() {
   const [searchParams] = useSearchParams();
   const isReplay = searchParams.get('replay') === 'true';
-  const hasStarted = localStorage.getItem('hasChosenFuture') === 'true';
+  const hasStarted = safeLocal.get(HAS_CHOSEN_FUTURE_KEY) === 'true';
 
   if (hasStarted && !isReplay) {
     return <Navigate to="/home" replace />;
@@ -46,31 +50,35 @@ function App() {
   let isDebug = false;
   if (isLocal) {
     if (urlDebug) {
-      localStorage.setItem('debugModeActive', 'true');
+      safeLocal.set(DEBUG_MODE_KEY, 'true');
       isDebug = true;
     } else {
       // Default to true in local development unless explicitly set to 'false'
-      isDebug = localStorage.getItem('debugModeActive') !== 'false';
+      isDebug = safeLocal.get(DEBUG_MODE_KEY) !== 'false';
     }
   }
 
   return (
-    <Router>
-      {/* Records the previous route so HomePage can tell "walked in from the
+    <ConsentProvider>
+      <Router>
+        {/* Records the previous route so HomePage can tell "walked in from the
           landing page" apart from an ordinary nav click. Renders nothing. */}
-      <RouteHistoryTracker />
-      <Routes>
-        <Route path="/" element={<RootRouteGuard />} />
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/explore" element={<ExplorePage />} />
-        <Route path="/projects" element={<ProjectsPage />} />
-        <Route path="/quiz-challenge" element={<QuizChallenge />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-      </Routes>
-      {isDebug && <DebugConsole />}
-    </Router>
+        <RouteHistoryTracker />
+        <Routes>
+          <Route path="/" element={<RootRouteGuard />} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/explore" element={<ExplorePage />} />
+          <Route path="/projects" element={<ProjectsPage />} />
+          <Route path="/quiz-challenge" element={<QuizChallenge />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+        </Routes>
+        {/* Renders only until a consent decision exists (FR-STO-003). */}
+        <CookieConsent />
+        {isDebug && <DebugConsole />}
+      </Router>
+    </ConsentProvider>
   );
 }
 

@@ -669,3 +669,135 @@
     text-align: center;
   }
 }
+
+/* ── Resume offer (sessionStorage recovery, FR-STO-005) ─────────────────── */
+
+.resumeBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+  padding: 0.9375rem 1.25rem;
+
+  background: var(--surface-mint);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-tile);
+  box-shadow: var(--inner-lip);
+
+  animation: resume-settle 460ms var(--ease-glide) both;
+}
+
+.resumeCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1875rem;
+  min-width: 0;
+}
+
+.resumeTitle {
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.resumeText {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+
+.resumeActions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.5rem;
+}
+
+.resumeConfirm,
+.resumeDismiss {
+  padding: 0.5625rem 1.125rem;
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  transition:
+    transform 240ms var(--ease-snap),
+    background-color 240ms var(--ease-fluid),
+    border-color 240ms var(--ease-fluid);
+}
+
+.resumeConfirm {
+  background: var(--signal);
+  border: 1px solid var(--signal);
+  color: #ffffff;
+}
+
+.resumeConfirm:hover {
+  background: var(--signal-deep);
+  border-color: var(--signal-deep);
+  transform: translateY(-1px);
+}
+
+.resumeDismiss {
+  background: transparent;
+  border: 1px solid var(--hairline-strong);
+  color: var(--ink-soft);
+}
+
+.resumeDismiss:hover {
+  border-color: var(--ink-soft);
+  color: var(--ink);
+  transform: translateY(-1px);
+}
+
+.resumeConfirm:focus-visible,
+.resumeDismiss:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 3px;
+}
+
+@keyframes resume-settle {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .resumeBar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.875rem;
+  }
+
+  .resumeActions {
+    flex-direction: row-reverse;
+  }
+
+  .resumeConfirm,
+  .resumeDismiss {
+    flex: 1 1 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .resumeBar {
+    animation: none;
+  }
+
+  .resumeConfirm,
+  .resumeDismiss {
+    transition: none;
+  }
+
+  .resumeConfirm:hover,
+  .resumeDismiss:hover {
+    transform: none;
+  }
+}

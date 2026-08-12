@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import HudHeader from '../../components/HudHeader/HudHeader';
+import SocialEmbed from '../../components/SocialEmbed/SocialEmbed';
 import {
   ArrowGlyph,
   ExternalGlyph,
@@ -162,6 +163,18 @@ function AboutPage() {
             Cited at the organisation level. Specific reports are named inline wherever a figure
             comes from one.
           </p>
+        </section>
+
+        {/* Embedded social feed, gated on consent (FR-SOC-005). Placed with the
+            references because it is sourced from the same body the citations
+            above draw on. */}
+        <section className={styles.section} aria-labelledby="feed-heading">
+          <h2 id="feed-heading" className={styles.srOnlyHeading}>
+            Live social feed
+          </h2>
+          <div data-reveal data-reveal-index="1">
+            <SocialEmbed />
+          </div>
         </section>
 
         <footer className={styles.footer} data-reveal data-reveal-index="0">

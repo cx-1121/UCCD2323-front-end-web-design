@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import HudHeader from '../../components/HudHeader/HudHeader';
+import SocialShare from '../../components/SocialShare/SocialShare';
 import { useQuizChallenge } from '../../hooks/useQuizChallenge';
 import { useHideOnScroll } from '../../hooks/useHideOnScroll';
 import styles from './QuizChallenge.module.css';
@@ -24,6 +25,10 @@ function QuizChallenge() {
     selectAnswer,
     nextQuestion,
     restartQuiz,
+    canResume,
+    savedQuestionNumber,
+    resumeQuiz,
+    discardSavedProgress,
   } = useQuizChallenge();
   const navHidden = useHideOnScroll(140);
 
@@ -122,6 +127,14 @@ function QuizChallenge() {
                   Back to Explore
                 </Link>
               </div>
+
+              {/* Sharing a score is the one moment in the site with genuine
+                  social intent, so the plugins live here rather than being
+                  scattered across every page (FR-SOC-003). */}
+              <SocialShare
+                label="Share your score"
+                title={`I scored ${score}/${totalQuestions} on the RE:FUTURE green tech challenge!`}
+              />
             </div>
           </section>
         </div>
@@ -144,18 +157,27 @@ function QuizChallenge() {
       {navBar}
 
       <div className={styles.container}>
-        {/* HERO INTRO */}
-        <section className={styles.intro}>
-          <div className={styles.eyebrowTag}>
-            <span>Learn by Participating</span>
+        {/* RESUME OFFER — shown when sessionStorage holds unfinished progress
+            from this tab (FR-STO-005). Resuming is opt-in: silently restoring
+            would strand anyone who deliberately wanted a clean run. */}
+        {canResume && (
+          <div className={styles.resumeBar} role="status">
+            <div className={styles.resumeCopy}>
+              <strong className={styles.resumeTitle}>Unfinished attempt found</strong>
+              <span className={styles.resumeText}>
+                You stopped at question {savedQuestionNumber} of {totalQuestions} in this tab.
+              </span>
+            </div>
+            <div className={styles.resumeActions}>
+              <button type="button" className={styles.resumeDismiss} onClick={discardSavedProgress}>
+                Start over
+              </button>
+              <button type="button" className={styles.resumeConfirm} onClick={resumeQuiz}>
+                Resume
+              </button>
+            </div>
           </div>
-          <h1 id="quiz-title" className={styles.title}>
-            How Green is Your <span className={styles.titleHighlight}>Knowledge?</span>
-          </h1>
-          <p className={styles.subtitle}>
-            Ten questions moving from everyday energy choices to the complex systems that power a sustainable future.
-          </p>
-        </section>
+        )}
 
         {/* PROGRESS METRIC BAR */}
         <div className={styles.progressMeta}>

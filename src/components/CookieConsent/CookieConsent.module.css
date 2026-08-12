@@ -1,0 +1,181 @@
+/* Cookie consent banner.
+   Uses the site's double-bezel enclosure language (outer shell + inner core)
+   so it reads as part of the interface rather than a bolted-on compliance
+   widget. Docked bottom-centre: bottom-left would collide with the debug
+   console trigger, and a full-width bar would cover the scroll hint. */
+
+.shell {
+  position: fixed;
+  left: 50%;
+  bottom: 1.25rem;
+  transform: translateX(-50%);
+  z-index: 9000; /* above page chrome, below the debug console (9999) */
+
+  width: min(46rem, calc(100vw - 2rem));
+  padding: 0.5rem;
+
+  background: var(--shell);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-shell);
+  box-shadow: var(--shadow-lift);
+  backdrop-filter: blur(14px);
+
+  animation: consent-rise 520ms var(--ease-glide) both;
+}
+
+/* The shell receives programmatic focus on mount so screen readers announce it.
+   It is never a Tab stop, so suppressing the ring here costs no keyboard
+   affordance — the two buttons keep their own :focus-visible rings. */
+.shell:focus {
+  outline: none;
+}
+
+.core {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+
+  padding: 1.25rem 1.5rem;
+  background: var(--core);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-core);
+  box-shadow: var(--inner-lip);
+}
+
+.copy {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: 0.35rem;
+
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  /* --ink-faint clears 4.5:1 on --core at this size (token comment, global.css) */
+  color: var(--ink-faint);
+}
+
+.title {
+  margin-bottom: 0.4rem;
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.body {
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+.actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.625rem;
+}
+
+.accept,
+.decline {
+  padding: 0.6875rem 1.375rem;
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  transition:
+    transform 240ms var(--ease-snap),
+    background-color 240ms var(--ease-fluid),
+    border-color 240ms var(--ease-fluid);
+}
+
+.accept {
+  /* #ffffff on --signal (#047857) = 5.3:1 — clears AA */
+  background: var(--signal);
+  border: 1px solid var(--signal);
+  color: #ffffff;
+}
+
+.accept:hover {
+  background: var(--signal-deep);
+  border-color: var(--signal-deep);
+  transform: translateY(-1px);
+}
+
+.decline {
+  /* Equal visual weight in size and position; only fill differs, so declining
+     is never the harder path to find. */
+  background: transparent;
+  border: 1px solid var(--hairline-strong);
+  color: var(--ink-soft);
+}
+
+.decline:hover {
+  border-color: var(--ink-soft);
+  color: var(--ink);
+  transform: translateY(-1px);
+}
+
+.accept:focus-visible,
+.decline:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 3px;
+}
+
+@keyframes consent-rise {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 1.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@media (max-width: 640px) {
+  .shell {
+    bottom: 0.75rem;
+    width: calc(100vw - 1.5rem);
+  }
+
+  .core {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    padding: 1.125rem 1.125rem 1rem;
+  }
+
+  .actions {
+    flex-direction: row-reverse; /* Accept lands under the thumb on the right */
+  }
+
+  .accept,
+  .decline {
+    flex: 1 1 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell {
+    animation: none;
+  }
+
+  .accept,
+  .decline {
+    transition: none;
+  }
+
+  .accept:hover,
+  .decline:hover {
+    transform: none;
+  }
+}

@@ -130,13 +130,8 @@
 /* Typographic mask: each headline line rides up out of an invisible box, so the
    title assembles line by line instead of fading in as one flat block. The
    padding/margin pair reclaims the space descenders need inside the clip. */
-.lineMask {
-  display: block;
-  overflow: hidden;
-  padding-bottom: 0.14em;
-  margin-bottom: -0.14em;
-}
-
+/* The headline is still two block lines, but it enters as a single element
+   with the rest of the hero, so no mask is needed to clip anything. */
 .lineInk {
   display: block;
 }
@@ -1264,19 +1259,6 @@
     opacity: 0;
     transform: translate3d(0, 2.25rem, 0);
     filter: blur(10px);
-  }
-}
-
-/* Headline lines clear their mask on a longer, heavier curve than the body. */
-.launched .lineInk {
-  animation-name: lineUnmask;
-  animation-duration: 1100ms;
-}
-
-@keyframes lineUnmask {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 105%, 0);
   }
 }
 
