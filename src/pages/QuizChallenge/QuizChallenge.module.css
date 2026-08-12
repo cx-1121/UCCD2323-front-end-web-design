@@ -1,0 +1,803 @@
+/* ==========================================================================
+   QuizChallenge.module.css
+   High-End Visual Design & UI-UX Pro Max Principles:
+   - Paper Stack & Ethereal Mint theme matching global.css design tokens
+   - Double-Bezel Architecture (Doppelrand nested outer shell + inner core)
+   - Button-in-Button Island CTAs with trailing vector icons
+   - Micro-eyebrow pill badges & fluid spring transitions (--ease-fluid)
+   - Mobile responsive collapse (< 768px)
+   ========================================================================== */
+
+.page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-body);
+  position: relative;
+  overflow-x: hidden;
+  padding-top: 5rem;
+}
+
+/* ── Unified Floating Glass-Pill Navigation Island ── */
+.headerBar {
+  position: fixed;
+  top: clamp(0.875rem, 2vw, 1.5rem);
+  left: 50%;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  width: max-content;
+  max-width: calc(100vw - 2rem);
+  padding: 0.6875rem 1.5rem 0.6875rem 1.25rem;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.74);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-pill);
+  box-shadow:
+    var(--inner-lip),
+    var(--shadow-soft);
+  --hud-mark: var(--signal);
+  --hud-mark-glow: none;
+  --hud-ink: var(--ink-soft);
+  --hud-ink-static: var(--ink);
+  --hud-hover: var(--signal-deep);
+  --hud-hover-glow: none;
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  transition:
+    transform 650ms var(--ease-fluid),
+    opacity 450ms var(--ease-fluid);
+}
+
+.headerBarHidden {
+  transform: translateX(-50%) translate3d(0, calc(-100% - clamp(0.875rem, 2vw, 1.5rem)), 0);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.headerBar > header {
+  position: static;
+  inset: auto;
+  width: 100%;
+}
+
+/* Page Container Width Constraint */
+.container {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 6rem 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* Background Atmosphere Ambient Bloom */
+.ambientGlow {
+  position: fixed;
+  top: -15vh;
+  right: -10vw;
+  width: min(45rem, 80vw);
+  height: min(45rem, 80vw);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(16, 185, 129, 0.12) 0%,
+    rgba(4, 120, 87, 0.04) 50%,
+    transparent 70%
+  );
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ==========================================================================
+   1. HERO INTRO & HEADER
+   ========================================================================== */
+
+.intro {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 3rem auto;
+}
+
+.eyebrowTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1rem;
+  background-color: var(--surface-mint);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-pill);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--signal-deep);
+  margin-bottom: 1.25rem;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 5vw, 3.75rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  margin-bottom: 1rem;
+}
+
+.titleHighlight {
+  background: linear-gradient(135deg, var(--signal) 0%, var(--signal-teal) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  font-size: clamp(1rem, 1.8vw, 1.15rem);
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+/* ==========================================================================
+   2. PROGRESS BAR & META
+   ========================================================================== */
+
+.progressMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.65rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-faint);
+}
+
+.progressScore {
+  color: var(--signal-deep);
+  font-weight: 700;
+}
+
+.progressTrack {
+  height: 0.5rem;
+  margin-bottom: 2rem;
+  border-radius: var(--r-pill);
+  background-color: var(--shell);
+  border: 1px solid var(--hairline);
+  overflow: hidden;
+  padding: 1px;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: var(--r-pill);
+  background: linear-gradient(90deg, var(--signal) 0%, var(--signal-teal) 100%);
+  box-shadow: 0 0 12px rgba(4, 120, 87, 0.3);
+  transition: width 0.4s var(--ease-fluid);
+}
+
+/* ==========================================================================
+   3. QUESTION CARD (DOUBLE-BEZEL DOPPELRAND)
+   ========================================================================== */
+
+.questionShell {
+  background-color: var(--shell);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-shell);
+  padding: 0.6rem;
+  box-shadow: var(--shadow-lift);
+}
+
+.questionCore {
+  background-color: var(--surface-raised);
+  border-radius: var(--r-core);
+  box-shadow: var(--inner-lip), var(--shadow-soft);
+  padding: clamp(1.75rem, 4vw, 2.75rem);
+}
+
+.questionMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.difficultyPill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--r-pill);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.diffEasy {
+  background-color: rgba(4, 120, 87, 0.1);
+  color: var(--signal-deep);
+  border: 1px solid rgba(4, 120, 87, 0.2);
+}
+
+.diffMedium {
+  background-color: rgba(15, 118, 110, 0.1);
+  color: var(--signal-teal);
+  border: 1px solid rgba(15, 118, 110, 0.2);
+}
+
+.diffHard {
+  background-color: rgba(77, 124, 15, 0.1);
+  color: var(--signal-lime);
+  border: 1px solid rgba(77, 124, 15, 0.2);
+}
+
+.topicTag {
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.questionPrompt {
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 3vw, 1.85rem);
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--ink);
+  margin-bottom: 2rem;
+}
+
+/* Option Grid Layout */
+.optionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.optionShell {
+  background-color: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-tile);
+  padding: 0.35rem;
+  transition: all 0.3s var(--ease-fluid);
+}
+
+.optionButton {
+  width: 100%;
+  min-height: 4.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1.1rem;
+  background-color: var(--surface-raised);
+  border: 1px solid var(--hairline);
+  border-radius: calc(var(--r-tile) - 4px);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  box-shadow: var(--inner-lip);
+  transition: all 0.25s var(--ease-fluid);
+}
+
+.optionButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: var(--signal);
+  color: var(--signal-deep);
+  box-shadow: 0 4px 16px rgba(4, 120, 87, 0.12);
+}
+
+.optionButton:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
+}
+
+.optionButton:disabled {
+  cursor: default;
+}
+
+.optionLetter {
+  width: 2.2rem;
+  height: 2.2rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-pill);
+  background-color: var(--shell);
+  border: 1px solid var(--hairline);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ink-faint);
+  transition: all 0.25s var(--ease-fluid);
+}
+
+.optionButton:hover:not(:disabled) .optionLetter {
+  background-color: var(--surface-mint);
+  color: var(--signal-deep);
+  border-color: rgba(4, 120, 87, 0.25);
+}
+
+/* Selected & Feedback States */
+.selectedOption {
+  border-color: var(--signal) !important;
+  background-color: var(--surface-mint) !important;
+}
+
+.selectedOption .optionLetter {
+  background-color: var(--signal-deep) !important;
+  color: #ffffff !important;
+  border-color: var(--signal-deep) !important;
+}
+
+.correctOption {
+  border-color: var(--signal) !important;
+  background-color: rgba(4, 120, 87, 0.08) !important;
+  box-shadow: 0 0 0 2px var(--signal) !important;
+}
+
+.correctOption .optionLetter {
+  background-color: var(--signal) !important;
+  color: #ffffff !important;
+}
+
+.incorrectOption {
+  border-color: #e11d48 !important;
+  background-color: rgba(225, 29, 72, 0.06) !important;
+  box-shadow: 0 0 0 2px #e11d48 !important;
+}
+
+.incorrectOption .optionLetter {
+  background-color: #e11d48 !important;
+  color: #ffffff !important;
+}
+
+/* ==========================================================================
+   4. ANSWER EXPLANATION FEEDBACK BLOCK
+   ========================================================================== */
+
+.feedbackBlock {
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--r-tile);
+  border: 1px solid var(--hairline);
+  margin-bottom: 2rem;
+  animation: fadeIn 0.3s var(--ease-fluid);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.correctFeedback {
+  background-color: var(--surface-mint);
+  border-color: rgba(4, 120, 87, 0.3);
+  color: var(--signal-deep);
+}
+
+.incorrectFeedback {
+  background-color: rgba(225, 29, 72, 0.06);
+  border-color: rgba(225, 29, 72, 0.25);
+  color: #9f1239;
+}
+
+.feedbackTitle {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin-bottom: 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.feedbackText {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+/* ==========================================================================
+   5. CARD FOOTER & ISLAND CTA BUTTONS
+   ========================================================================== */
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--hairline);
+}
+
+.helperText {
+  font-size: 0.85rem;
+  color: var(--ink-faint);
+}
+
+.primaryButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--r-pill);
+  background-color: var(--signal-deep);
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-fluid);
+  box-shadow: 0 4px 16px rgba(6, 95, 70, 0.25);
+}
+
+.primaryButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background-color: var(--signal);
+  box-shadow: 0 8px 24px rgba(6, 95, 70, 0.35);
+}
+
+.primaryButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btnIconWrapper {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s var(--ease-fluid);
+}
+
+.primaryButton:hover:not(:disabled) .btnIconWrapper {
+  transform: translateX(3px);
+}
+
+/* ==========================================================================
+   6. RESULT PANEL (DOUBLE-BEZEL SUMMARY)
+   ========================================================================== */
+
+.resultShell {
+  background-color: var(--shell);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-shell);
+  padding: 0.65rem;
+  box-shadow: var(--shadow-lift);
+}
+
+.resultCore {
+  background-color: var(--surface-raised);
+  border-radius: var(--r-core);
+  box-shadow: var(--inner-lip), var(--shadow-soft);
+  padding: clamp(2rem, 5vw, 4rem);
+  text-align: center;
+}
+
+.resultHeader {
+  margin-bottom: 2.5rem;
+}
+
+.scoreHero {
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 12vw, 7rem);
+  font-weight: 800;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--signal) 0%, var(--signal-teal) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 1rem 0;
+}
+
+.scoreDenom {
+  font-size: 0.35em;
+  color: var(--ink-faint);
+  -webkit-text-fill-color: var(--ink-faint);
+}
+
+.resultMessage {
+  font-size: 1.1rem;
+  color: var(--ink-soft);
+  line-height: 1.6;
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+/* Score Breakdown Grid */
+.scoreGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 3rem;
+}
+
+.scoreCardShell {
+  background-color: var(--shell);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-tile);
+  padding: 0.35rem;
+}
+
+.scoreCardCore {
+  background-color: var(--surface);
+  border-radius: calc(var(--r-tile) - 4px);
+  padding: 1.25rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.scoreCardLabel {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.scoreCardVal {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--signal-deep);
+}
+
+/* Question Review List */
+.reviewList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  text-align: left;
+  margin-bottom: 3rem;
+}
+
+.reviewItemShell {
+  background-color: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-tile);
+  padding: 1.25rem 1.5rem;
+}
+
+.reviewHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+}
+
+.correctText {
+  color: var(--signal-deep);
+  font-weight: 800;
+}
+
+.incorrectText {
+  color: #e11d48;
+  font-weight: 800;
+}
+
+.reviewPrompt {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 0.35rem;
+}
+
+.correctAnswerText {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #e11d48;
+  margin-bottom: 0.35rem;
+}
+
+.reviewExplanation {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+.resultActions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+}
+
+.ghostLink {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  text-decoration: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--r-pill);
+  transition: all 0.25s ease;
+}
+
+.ghostLink:hover {
+  color: var(--ink);
+  background-color: var(--shell);
+}
+
+/* ==========================================================================
+   7. RESPONSIVE BREAKPOINTS (Mobile Collapse)
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .optionGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .scoreGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .cardFooter {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .primaryButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .resultActions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .ghostLink {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* ── Resume offer (sessionStorage recovery, FR-STO-005) ─────────────────── */
+
+.resumeBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+  padding: 0.9375rem 1.25rem;
+
+  background: var(--surface-mint);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-tile);
+  box-shadow: var(--inner-lip);
+
+  animation: resume-settle 460ms var(--ease-glide) both;
+}
+
+.resumeCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1875rem;
+  min-width: 0;
+}
+
+.resumeTitle {
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.resumeText {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+
+.resumeActions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.5rem;
+}
+
+.resumeConfirm,
+.resumeDismiss {
+  padding: 0.5625rem 1.125rem;
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  transition:
+    transform 240ms var(--ease-snap),
+    background-color 240ms var(--ease-fluid),
+    border-color 240ms var(--ease-fluid);
+}
+
+.resumeConfirm {
+  background: var(--signal);
+  border: 1px solid var(--signal);
+  color: #ffffff;
+}
+
+.resumeConfirm:hover {
+  background: var(--signal-deep);
+  border-color: var(--signal-deep);
+  transform: translateY(-1px);
+}
+
+.resumeDismiss {
+  background: transparent;
+  border: 1px solid var(--hairline-strong);
+  color: var(--ink-soft);
+}
+
+.resumeDismiss:hover {
+  border-color: var(--ink-soft);
+  color: var(--ink);
+  transform: translateY(-1px);
+}
+
+.resumeConfirm:focus-visible,
+.resumeDismiss:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 3px;
+}
+
+@keyframes resume-settle {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .resumeBar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.875rem;
+  }
+
+  .resumeActions {
+    flex-direction: row-reverse;
+  }
+
+  .resumeConfirm,
+  .resumeDismiss {
+    flex: 1 1 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .resumeBar {
+    animation: none;
+  }
+
+  .resumeConfirm,
+  .resumeDismiss {
+    transition: none;
+  }
+
+  .resumeConfirm:hover,
+  .resumeDismiss:hover {
+    transform: none;
+  }
+}

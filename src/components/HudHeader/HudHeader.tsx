@@ -1,7 +1,10 @@
-import { useEffect, useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { useRef, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
 import styles from './HudHeader.module.css';
+
+gsap.registerPlugin(useGSAP);
 
 /**
  * The site's four top-level sections. Explore and the cinematic intro are
@@ -15,9 +18,10 @@ import styles from './HudHeader.module.css';
  */
 const NAV_LINKS: { label: string; to?: string }[] = [
   { label: 'Home', to: '/home' },
-  { label: 'Projects' },
-  { label: 'About' },
-  { label: 'Contact Us' },
+  { label: 'Explore', to: '/explore' },
+  { label: 'Projects', to: '/projects' },
+  { label: 'Dashboard', to: '/dashboard' },
+  { label: 'About', to: '/about' },
 ];
 
 type HudHeaderProps = {
@@ -31,17 +35,51 @@ type HudHeaderProps = {
 };
 
 function HudHeader({ variant = 'interactive' }: HudHeaderProps) {
+  const headerRef = useRef<HTMLElement>(null);
+  /**
+   * State rather than a ref: contextSafe re-wraps a fresh closure on every
+   * render, so there is no staleness to avoid, and reading a ref inside that
+   * callback trips the compiler's "no refs during render" rule, which cannot
+   * see that contextSafe only wraps the function instead of calling it.
+   */
   const [unlocked, setUnlocked] = useState(false);
   const isStatic = variant === 'static';
+  const { pathname, hash } = useLocation();
 
-  useEffect(() => {
-    if (isStatic) {
-      return;
+  /**
+   * Hash-aware active detection. NavLink cannot express this: it matches
+   * on pathname alone and would mark both a path and its hash variant.
+   */
+  const isCurrent = (to: string) => {
+    const [toPath, toHash] = to.split('#');
+    if (pathname !== toPath) {
+      return false;
     }
-    gsap.set(`.${styles.logo} svg`, { transformOrigin: "50% 50%" });
-  }, [isStatic]);
+    return toHash ? hash === `#${toHash}` : hash === '';
+  };
 
-  const handleLogoClick = () => {
+  /**
+   * Scoped to the header element, so every selector below resolves inside this
+   * component instead of querying the whole document. That matters here: the
+   * class names are CSS Module hashes, but the lookups were still global.
+   */
+  const { contextSafe } = useGSAP(
+    () => {
+      if (isStatic) {
+        return;
+      }
+      gsap.set(`.${styles.logo} svg`, { transformOrigin: '50% 50%' });
+    },
+    { scope: headerRef, dependencies: [isStatic] },
+  );
+
+  /**
+   * contextSafe is what makes this correct. These tweens are created when the
+   * reader clicks, long after useGSAP has run, so without it they belong to no
+   * context and survive unmount: nothing reverts them, and the inline styles
+   * they write stay on detached nodes.
+   */
+  const handleLogoClick = contextSafe(() => {
     const nextState = !unlocked;
     setUnlocked(nextState);
 
@@ -77,10 +115,10 @@ function HudHeader({ variant = 'interactive' }: HudHeaderProps) {
       gsap.to(`.${styles.logo} svg`, { rotation: 0, duration: 1.2, ease: "back.out(2)", delay: 0.1 });
       gsap.to(`.${styles.logoTextGroup}`, { x: 0, opacity: 1, duration: 0.8, ease: "power2.out", delay: 0.1 });
     }
-  };
+  });
 
   return (
-    <header className={styles.hudHeader}>
+    <header ref={headerRef} className={styles.hudHeader}>
       <div
         className={isStatic ? styles.logoStatic : styles.logo}
         onClick={isStatic ? undefined : handleLogoClick}
@@ -113,17 +151,17 @@ function HudHeader({ variant = 'interactive' }: HudHeaderProps) {
               );
             }
 
+            const current = isCurrent(link.to);
+
             return (
-              <NavLink
+              <Link
                 key={link.label}
                 to={link.to}
-                // `end` keeps prefix matching from marking a parent route as
-                // current on every nested path.
-                end
-                className={({ isActive }) => (isActive ? `${base} ${styles.navItemActive}` : base)}
+                className={current ? `${base} ${styles.navItemActive}` : base}
+                aria-current={current ? 'page' : undefined}
               >
                 {link.label}
-              </NavLink>
+              </Link>
             );
           })}
         </nav>

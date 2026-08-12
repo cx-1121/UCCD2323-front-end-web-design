@@ -1,26 +1,7 @@
 import styles from './EnergySection.module.css';
 import type { EnergySource } from '../../data/EnergySources';
 import { useReveal } from '../../hooks/useReveal';
-import {
-  BiomassGlyph,
-  FieldGlyph,
-  GeoGlyph,
-  HydroGlyph,
-  LimitGlyph,
-  MechanismGlyph,
-  SolarGlyph,
-  UpsideGlyph,
-  WindGlyph,
-} from '../icons';
-
-/** Source id → signature glyph. Unknown ids fall back to the solar mark. */
-const sourceGlyphs = {
-  solar: SolarGlyph,
-  wind: WindGlyph,
-  hydroelectric: HydroGlyph,
-  biomass: BiomassGlyph,
-  geothermal: GeoGlyph,
-} as const;
+import { FieldGlyph, LimitGlyph, MechanismGlyph, UpsideGlyph } from '../icons';
 
 type EnergySectionProps = {
   source: EnergySource;
@@ -30,7 +11,6 @@ type EnergySectionProps = {
 
 function EnergySection({ source, index }: EnergySectionProps) {
   const hostRef = useReveal<HTMLElement>(styles.revealed);
-  const SourceGlyph = sourceGlyphs[source.id as keyof typeof sourceGlyphs] ?? SolarGlyph;
   const folio = String(index + 1).padStart(2, '0');
 
   return (
@@ -56,7 +36,8 @@ function EnergySection({ source, index }: EnergySectionProps) {
           <p className={styles.lede}>{source.description}</p>
         </header>
 
-        {/* ---- Asymmetrical bento ---- */}
+        {/* ---- Asymmetrical bento: 7|5 over 5|7, a pinwheel rather than a
+             symmetric 2x2, so the eye still travels across each row ---- */}
         <div className={styles.bento}>
           <article className={`${styles.tile} ${styles.tileMechanism}`} data-reveal data-reveal-index="1">
             <div className={styles.tileHead}>
@@ -68,17 +49,7 @@ function EnergySection({ source, index }: EnergySectionProps) {
             <p className={styles.tileBody}>{source.howItWorks}</p>
           </article>
 
-          {/* Signature plate — the visual anchor that breaks the text rhythm */}
-          <div className={`${styles.tile} ${styles.tileSignature}`} data-reveal data-reveal-index="2">
-            <span className={styles.signatureGlyph} aria-hidden="true">
-              <SourceGlyph />
-            </span>
-            <span className={styles.signatureName} aria-hidden="true">
-              {source.name.split(' ')[0]}
-            </span>
-          </div>
-
-          <article className={`${styles.tile} ${styles.tileUpside}`} data-reveal data-reveal-index="3">
+          <article className={`${styles.tile} ${styles.tileUpside}`} data-reveal data-reveal-index="2">
             <div className={styles.tileHead}>
               <span className={styles.tileIcon}>
                 <UpsideGlyph />
@@ -92,7 +63,7 @@ function EnergySection({ source, index }: EnergySectionProps) {
             </ul>
           </article>
 
-          <article className={`${styles.tile} ${styles.tileLimit}`} data-reveal data-reveal-index="4">
+          <article className={`${styles.tile} ${styles.tileLimit}`} data-reveal data-reveal-index="3">
             <div className={styles.tileHead}>
               <span className={styles.tileIcon}>
                 <LimitGlyph />
@@ -106,7 +77,7 @@ function EnergySection({ source, index }: EnergySectionProps) {
             </ul>
           </article>
 
-          <article className={`${styles.tile} ${styles.tileField}`} data-reveal data-reveal-index="5">
+          <article className={`${styles.tile} ${styles.tileField}`} data-reveal data-reveal-index="4">
             <div className={styles.tileHead}>
               <span className={styles.tileIcon}>
                 <FieldGlyph />

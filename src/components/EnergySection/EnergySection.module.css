@@ -100,17 +100,21 @@
 }
 
 /* --------------------------------------------------------------------------
-   Bento — 6-column desktop grid, three distinct tile treatments
+   Bento — 12-column desktop grid.
+
+   Four tiles laid out as a pinwheel: 7|5 on the first row, 5|7 on the second.
+   A 12-column track is what makes that possible; on a 6-column track the only
+   even split for four tiles is a symmetric 2x2, which stops the eye dead.
    -------------------------------------------------------------------------- */
 .bento {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: 0.75rem;
 }
 
 .tile {
   position: relative;
-  grid-column: span 6;
+  grid-column: span 12;
   padding: clamp(1.25rem, 2vw, 1.75rem);
   background: rgba(12, 46, 32, 0.028);
   border: 1px solid var(--hairline);
@@ -128,20 +132,19 @@
 }
 
 .tileMechanism {
-  grid-column: span 4;
+  grid-column: span 7;
 }
 
-.tileSignature {
-  grid-column: span 2;
+.tileUpside {
+  grid-column: span 5;
 }
 
-.tileUpside,
 .tileLimit {
-  grid-column: span 3;
+  grid-column: span 5;
 }
 
 .tileField {
-  grid-column: span 6;
+  grid-column: span 7;
 }
 
 .tileHead {
@@ -276,44 +279,6 @@
   transform: translateY(-1px);
 }
 
-/* ---- Signature plate ---- */
-.tileSignature {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 100%;
-  overflow: hidden;
-  background:
-    radial-gradient(90% 70% at 80% 10%, rgba(4, 120, 87, 0.12), transparent 68%),
-    rgba(12, 46, 32, 0.022);
-}
-
-.signatureGlyph {
-  display: block;
-  color: var(--signal);
-  opacity: 0.9;
-}
-
-.signatureGlyph svg {
-  width: clamp(2.5rem, 5vw, 3.5rem);
-  height: clamp(2.5rem, 5vw, 3.5rem);
-  transition: transform 900ms var(--ease-fluid);
-}
-
-.tileSignature:hover .signatureGlyph svg {
-  transform: rotate(12deg) scale(1.04);
-}
-
-.signatureName {
-  margin-top: 2.25rem;
-  font-family: var(--font-display);
-  font-size: clamp(1.4rem, 2.4vw, 1.9rem);
-  font-weight: 200;
-  letter-spacing: -0.03em;
-  line-height: 1;
-  color: var(--ink);
-}
-
 /* --------------------------------------------------------------------------
    Scroll-entry choreography — transform/opacity/filter only
    -------------------------------------------------------------------------- */
@@ -341,9 +306,6 @@
 .core [data-reveal-index='4'] {
   transition-delay: 240ms;
 }
-.core [data-reveal-index='5'] {
-  transition-delay: 300ms;
-}
 
 .core .revealed {
   opacity: 1;
@@ -356,22 +318,10 @@
    -------------------------------------------------------------------------- */
 @media (max-width: 1080px) {
   .tileMechanism,
-  .tileSignature,
   .tileUpside,
   .tileLimit,
   .tileField {
-    grid-column: span 6;
-  }
-
-  .tileSignature {
-    flex-direction: row;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .signatureName {
-    margin-top: 0;
-    margin-left: auto;
+    grid-column: span 12;
   }
 }
 
@@ -391,17 +341,20 @@
   }
 
   .bento {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 0.625rem;
+  }
+
+  .tileMechanism,
+  .tileUpside,
+  .tileLimit,
+  .tileField {
+    grid-column: span 1;
   }
 
   /* Touch targets and hover-only affordances stand down on mobile. */
   .tile:hover {
     transform: none;
-  }
-
-  .signatureName {
-    margin-left: auto;
   }
 }
 

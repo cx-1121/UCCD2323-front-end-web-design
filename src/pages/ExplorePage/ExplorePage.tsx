@@ -15,7 +15,7 @@ function ExplorePage() {
   const heroRef = useReveal<HTMLDivElement>(styles.revealed);
   const navHidden = useHideOnScroll(140);
 
-  useBodyBackground('#f6f8f6');
+  useBodyBackground('#f7f8fa');
 
   useEffect(() => {
     const sections = energySources
@@ -54,8 +54,6 @@ function ExplorePage() {
 
   return (
     <main className={styles.page}>
-      {/* ---- Fixed atmosphere: mesh orbs + film grain. Fixed and inert so the
-              GPU never repaints them while the document scrolls. ---- */}
       <div className={styles.mesh} aria-hidden="true">
         <span className={`${styles.orb} ${styles.orbEmerald}`} />
         <span className={`${styles.orb} ${styles.orbTeal}`} />
@@ -76,7 +74,7 @@ function ExplorePage() {
         {/* ---- Editorial hero ---- */}
         <div ref={heroRef} className={styles.hero}>
           <span className={styles.eyebrow} data-reveal data-reveal-index="0">
-            Field guide · 05 sources
+            Field guide
           </span>
 
           <h1 className={styles.heroTitle} data-reveal data-reveal-index="1">
@@ -91,20 +89,7 @@ function ExplorePage() {
             strains, and where it is already running today.
           </p>
 
-          <dl className={styles.heroStats} data-reveal data-reveal-index="3">
-            <div className={styles.stat}>
-              <dt>Sources</dt>
-              <dd>05</dd>
-            </div>
-            <div className={styles.stat}>
-              <dt>Breakdown</dt>
-              <dd>Mechanism, limits, field use</dd>
-            </div>
-            <div className={styles.stat}>
-              <dt>Reading</dt>
-              <dd>~12 min</dd>
-            </div>
-          </dl>
+
         </div>
 
         {/* ---- Editorial split: content column + sticky rail ---- */}
@@ -118,8 +103,15 @@ function ExplorePage() {
           <div className={styles.railColumn}>
             {/* Index rail — double bezel, with a marker that tracks the
                 active section instead of restyling each link on its own. */}
+            {/* On mobile this strip pins under the floating nav. It rides up
+                into the nav's place when the nav leaves, and is pushed back
+                down when it returns. Driven by the sticky offset rather than a
+                transform: `top` is inert until an element actually pins, so it
+                cannot displace the strip while it is still in normal flow. */}
             <aside
-              className={styles.railShell}
+              className={
+                navHidden ? `${styles.railShell} ${styles.railRaised}` : styles.railShell
+              }
               style={{ '--active': activeIndex } as CSSProperties}
             >
               <div className={styles.railCore}>

@@ -129,6 +129,92 @@ function ReplayGlyph(props: GlyphProps) {
   );
 }
 
+function BoltGlyph(props: GlyphProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M13.4 2.5 5.2 13.1h5.3l-.7 8.4 8.2-10.6h-5.3l.7-8.4Z" />
+    </svg>
+  );
+}
+
+function LayersGlyph(props: GlyphProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M12 3.2 3.4 7.6 12 12l8.6-4.4L12 3.2Z" />
+      <path d="M3.4 12.2 12 16.6l8.6-4.4M3.4 16.6 12 21l8.6-4.4" />
+    </svg>
+  );
+}
+
+function TargetGlyph(props: GlyphProps) {
+  return (
+    <svg {...base} {...props}>
+      <circle cx="12" cy="12" r="8.6" />
+      <circle cx="12" cy="12" r="4.6" />
+      <circle cx="12" cy="12" r="0.9" />
+    </svg>
+  );
+}
+
+function HorizonGlyph(props: GlyphProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M2.5 16.5h19" />
+      <path d="M6 20.2h12" />
+      <path d="M17 16.5a5 5 0 0 0-10 0" />
+      <path d="M12 4.2v2.4M5.6 6.9l1.7 1.7M18.4 6.9l-1.7 1.7" />
+    </svg>
+  );
+}
+
+function OrbitGlyph(props: GlyphProps) {
+  return (
+    <svg {...base} {...props}>
+      <circle cx="12" cy="12" r="3.4" />
+      <path d="M12 12c5.5-3.2 10.4-3.8 11-1.4.6 2.4-3.5 6.9-9 10.1S3.6 24.5 3 22.1c-.4-1.6 1.4-4.2 4.4-6.8" transform="translate(0 -5)" />
+    </svg>
+  );
+}
+
+function MailGlyph(props: GlyphProps) {
+  return (
+    <svg {...base} {...props}>
+      <rect x="2.6" y="5.2" width="18.8" height="13.6" rx="2.2" />
+      <path d="m3.4 6.6 8.6 6 8.6-6" />
+    </svg>
+  );
+}
+
+function PinGlyph(props: GlyphProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M12 21.4s7-5.6 7-11.1a7 7 0 1 0-14 0c0 5.5 7 11.1 7 11.1Z" />
+      <circle cx="12" cy="10.1" r="2.6" />
+    </svg>
+  );
+}
+
+function UsersGlyph(props: GlyphProps) {
+  return (
+    <svg {...base} {...props}>
+      <circle cx="9.2" cy="8.4" r="3.4" />
+      <path d="M2.8 20.2a6.4 6.4 0 0 1 12.8 0" />
+      <path d="M16.4 5.4a3.4 3.4 0 0 1 0 6" />
+      <path d="M18.2 14.6a6.4 6.4 0 0 1 3 5.6" />
+    </svg>
+  );
+}
+
+function ExternalGlyph(props: GlyphProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M13.6 4.4h6v6" />
+      <path d="m19.6 4.4-8.4 8.4" />
+      <path d="M18.4 14.2v4.2a2 2 0 0 1-2 2H5.6a2 2 0 0 1-2-2V7.6a2 2 0 0 1 2-2h4.2" />
+    </svg>
+  );
+}
+
 function ArrowGlyph(props: GlyphProps) {
   return (
     <svg {...base} {...props}>
@@ -152,5 +238,14 @@ export {
   FieldGlyph,
   CompassGlyph,
   ReplayGlyph,
+  BoltGlyph,
+  LayersGlyph,
+  TargetGlyph,
+  HorizonGlyph,
+  OrbitGlyph,
+  MailGlyph,
+  PinGlyph,
+  UsersGlyph,
+  ExternalGlyph,
   ArrowGlyph,
 };

@@ -98,3 +98,12 @@
   object-position: bottom center;
   animation: cityFloat 3.5s ease-in-out infinite alternate;
 }
+
+@keyframes cityFloat {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-6px);
+  }
+}
