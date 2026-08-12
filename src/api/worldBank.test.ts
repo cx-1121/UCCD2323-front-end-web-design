@@ -4,6 +4,8 @@ const getJsonMock = vi.fn();
 
 vi.mock('./http', () => ({
   getJson: (...args: unknown[]) => getJsonMock(...args),
+  SLOW_REQUEST_TIMEOUT_MS: 30_000,
+  SLOW_MAX_RETRIES: 1,
 }));
 
 const { fetchWorldBankSeries, indexCells, latestCommonYear } = await import('./worldBank');
@@ -30,12 +32,17 @@ describe('fetchWorldBankSeries', () => {
     // blocked in browsers, so each indicator gets its own classic request.
     expect(getJsonMock).toHaveBeenCalledTimes(2);
 
-    const [url, params] = getJsonMock.mock.calls[0];
+    const [url, params, options] = getJsonMock.mock.calls[0];
     expect(url).toContain('/country/WLD;CHN/indicator/A');
     expect(url).not.toContain('/sources/');
     expect((params as { date: string }).date).toBe('2023:2024');
     // 2 countries x 2 years, and must clear the API's default of 50.
     expect((params as { per_page: number }).per_page).toBeGreaterThan(50);
+
+    // This upstream has been measured at 28 s; the default 8 s ceiling turned
+    // every late-but-correct response into a dashboard-wide degradation.
+    expect((options as { timeoutMs: number }).timeoutMs).toBeGreaterThanOrEqual(30_000);
+    expect((options as { maxRetries: number }).maxRetries).toBeLessThan(2);
   });
 
   it('merges rows from every indicator into one flat cell list', async () => {

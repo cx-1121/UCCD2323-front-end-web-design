@@ -610,39 +610,28 @@ function DashboardPage() {
     }));
   };
 
-  const kpiExplanations: Record<string, { desc: string; tag: string }> = {
-    'Annual global CO₂': {
-      desc: 'Total annual energy-related emissions worldwide. Power generation and heavy industry account for over 70% of total annual output.',
-      tag: 'Source: IEA & GCP',
-    },
-    'Year-over-year change': {
-      desc: 'Annual growth rate of carbon emissions. Rapid clean energy expansion is slowing growth, but total energy demand remains high.',
-      tag: 'Trend: +1.1% Increase',
-    },
-    'Per capita average': {
-      desc: 'Global average CO₂ per person. Developed nations average 9–14t per person, while developing nations average under 2.5t.',
-      tag: 'Global Avg: 4.7 t/person',
-    },
-    '1.5°C budget remaining': {
-      desc: 'Remaining carbon allowance to cap warming at 1.5°C with a 50% probability — equivalent to ~6–7 years at current rates.',
-      tag: 'Target: Paris 1.5°C',
-    },
+  /**
+   * Descriptions only. The source line used to live here too, hardcoded — the
+   * annual-CO₂ tile cited "IEA & GCP" while its number came from the World
+   * Bank on a different basis (excluding land use), which is precisely why it
+   * reads 39.6 rather than ~37. Provenance now travels with each value from
+   * the hook, so a tile cannot cite a source it did not use.
+   */
+  const kpiExplanations: Record<string, string> = {
+    'Annual global CO₂':
+      'Total annual CO₂ emissions worldwide, excluding land use. Power generation and industry together account for over 60% of the total.',
+    'Year-over-year change':
+      'Annual growth rate of global emissions, derived from the same yearly totals the trend chart plots.',
+    'Per capita average':
+      'Global average CO₂ per person. Developed nations average 9–14 t, developing nations under 2.5 t. The world figure has been close to flat for a decade — totals rose because population did.',
+    '1.5°C budget remaining':
+      'Remaining carbon allowance to cap warming at 1.5°C with 50% probability — roughly 6–7 years at current rates.',
   };
 
-  /**
-   * The annual-total tile reads from the fetched figure, not the bundled one.
-   *
-   * Leaving it on the mock constant would have put 36.8 Gt in the headline tile
-   * while the donut immediately below it read 39.6 Gt from the same page — the
-   * kind of internal contradiction a reader notices before anything else. The
-   * remaining three tiles have no World Bank equivalent and stay bundled.
-   */
-  const kpiEntries = [
-    { ...kpis.annualGlobal, value: annualTotalGt, direction: 'up' as const },
-    { ...kpis.yoyChange, direction: 'up' as const },
-    { ...kpis.perCapita, direction: 'up' as const },
-    { ...kpis.budgetLeft, direction: 'down' as const },
-  ];
+  const kpiEntries = kpis.map((kpi) => ({
+    ...kpi,
+    direction: kpi.label === '1.5°C budget remaining' ? ('down' as const) : ('up' as const),
+  }));
 
   const chartExplanations: Record<string, { desc: string; tag: string }> = {
     historical: {
@@ -749,10 +738,19 @@ function DashboardPage() {
                         {kpi.value > 0 ? '↑' : '↓'} {kpi.value > 0 ? '+' : ''}{kpi.value}%
                       </span>
                     )}
-                    <Sparkline data={kpi.trend} />
-                    {/* The sparkline is a shape without this — six points could
-                        be six days or six decades. */}
-                    <span className={styles.kpiTrendYears}>2020 – 2025</span>
+                    {/* No sparkline where no series exists. The budget tile
+                        used to draw an invented decline; an absent chart is
+                        more honest than a fabricated one. */}
+                    {kpi.trend.length > 0 && <Sparkline data={kpi.trend} />}
+
+                    {/* Range is derived, not typed in — the old hardcoded
+                        "2020 – 2025" outlived the data it described and named a
+                        year no source actually publishes. */}
+                    <span className={styles.kpiTrendYears}>
+                      {kpi.trendRange
+                        ? `${kpi.trendRange[0]} – ${kpi.trendRange[1]} · ${kpi.provenance}`
+                        : kpi.provenance}
+                    </span>
                   </div>
 
                   {/* Back Side (Data Interpretation) */}
@@ -768,9 +766,11 @@ function DashboardPage() {
                         </svg>
                       </span>
                     </div>
-                    <p className={styles.kpiExplanationText}>{explanation?.desc}</p>
+                    <p className={styles.kpiExplanationText}>{explanation}</p>
                     <div className={styles.kpiBackTag}>
-                      <span>{explanation?.tag}</span>
+                      {/* The citation is the tile's own provenance, so it
+                          cannot drift away from where the number came from. */}
+                      <span>Source: {kpi.provenance}</span>
                     </div>
                   </div>
                 </div>

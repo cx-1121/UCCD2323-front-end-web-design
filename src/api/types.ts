@@ -97,6 +97,12 @@ export interface SectorYear {
   totalGt: number;
 }
 
+/** A single point in a yearly series. */
+export interface YearValue {
+  year: number;
+  value: number;
+}
+
 export interface EmitterRow {
   /** Two-letter code shown in the bar list. */
   code: string;
@@ -133,6 +139,13 @@ export interface CarbonSnapshot {
   sectorTrend: SectorYear[];
   /** Annual total for `dataYear`, gigatonnes. */
   annualTotalGt: number;
+  /**
+   * World CO₂ per person, tonnes, by year.
+   *
+   * Fetched for the `WLD` aggregate inside the emitters request, which already
+   * asks for this indicator — so the KPI row costs no extra round trip.
+   */
+  perCapitaTrend: YearValue[];
   emitters: EmitterRow[];
   emittersYear: number;
   energyMix: EnergyMixRow[];

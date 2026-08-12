@@ -174,9 +174,10 @@ vendor script may be injected before the consent cookie reads `granted`.
 | ID | Requirement | Threshold |
 |---|---|---|
 | NFR-001 | Live-data panel first contentful render is not blocked by network | Dashboard interactive ≤ 100 ms after mount regardless of API state |
-| NFR-002 | API request timeout | 8000 ms hard ceiling per attempt |
+| NFR-002 | API request timeout | 8000 ms default per attempt; **amended 2026-08-13** — see NFR-002a |
+| NFR-002a | Timeout for upstreams measured as slow rather than unreliable | 30 000 ms per attempt, retry budget reduced to 1 (2 attempts). Applies to the World Bank Indicators API only |
 | NFR-003 | Vendor script timeout | 6000 ms, after which fallback UI renders |
-| NFR-004 | Retry ceiling per user-initiated fetch | ≤ 3 total attempts; no unbounded retry |
+| NFR-004 | Retry ceiling per user-initiated fetch | ≤ 3 total attempts (≤ 2 for NFR-002a upstreams); no unbounded retry |
 | NFR-005 | Cache TTL | 600 s; stale entries discarded, not served |
 | NFR-006 | Added bundle weight from jQuery | ≤ 90 KB gzipped |
 | NFR-007 | Consent banner accessibility | Reachable by keyboard, `role="dialog"`, `aria-labelledby`, contrast ≥ 4.5:1 |

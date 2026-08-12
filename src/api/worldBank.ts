@@ -1,4 +1,4 @@
-import { getJson } from './http';
+import { getJson, SLOW_MAX_RETRIES, SLOW_REQUEST_TIMEOUT_MS } from './http';
 import type { ApiError } from './types';
 
 /**
@@ -80,12 +80,19 @@ async function fetchIndicator(
   toYear: number,
   expectedRows: number,
 ): Promise<WorldBankCell[]> {
-  const body = await getJson<unknown>(`${BASE_URL}/${countries.join(';')}/indicator/${series}`, {
-    format: 'json',
-    // A range is accepted directly and is far shorter than listing every year.
-    date: `${fromYear}:${toYear}`,
-    per_page: expectedRows + PAGE_HEADROOM,
-  });
+  const body = await getJson<unknown>(
+    `${BASE_URL}/${countries.join(';')}/indicator/${series}`,
+    {
+      format: 'json',
+      // A range is accepted directly and is far shorter than listing every year.
+      date: `${fromYear}:${toYear}`,
+      per_page: expectedRows + PAGE_HEADROOM,
+    },
+    // This upstream is slow rather than unreliable — measured at 28 s for a
+    // single indicator. The default 8 s ceiling turned every correct-but-late
+    // response into a failure and degraded the whole dashboard.
+    { timeoutMs: SLOW_REQUEST_TIMEOUT_MS, maxRetries: SLOW_MAX_RETRIES },
+  );
 
   if (!isIndicatorResponse(body)) {
     throw shapeError(`unexpected envelope for ${series}`);

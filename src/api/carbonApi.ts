@@ -7,6 +7,7 @@ import type {
   EnergyMixRow,
   SectorValue,
   SectorYear,
+  YearValue,
 } from './types';
 
 /**
@@ -32,8 +33,15 @@ import type {
 /** Emissions series are published ~2 years behind; ten years covers the chart. */
 const TREND_YEARS = Array.from({ length: 10 }, (_, i) => 2015 + i);
 
-/** Enough recent years that a late-publishing country still lands in range. */
-const EMITTER_YEARS = [2020, 2021, 2022, 2023, 2024];
+/**
+ * Same span as the sector trend, deliberately.
+ *
+ * The world per-capita series is pulled from this request, and its sparkline
+ * sits beside the total-emissions sparkline in the KPI row — two charts over
+ * different year ranges would invite a comparison that isn't valid. Widening
+ * the range costs no extra request, only rows.
+ */
+const EMITTER_YEARS = TREND_YEARS;
 
 /** Electricity mix lags further; reach back far enough to find a complete year. */
 const MIX_YEARS = Array.from({ length: 12 }, (_, i) => 2012 + i);
@@ -110,42 +118,81 @@ export const CARBON_CACHE_TTL_MS = 86_400_000;
 /* ── Bundled fallback ───────────────────────────────────────────────────── */
 
 /**
- * Grouped sector totals (Mt CO₂e) used when the upstream is unreachable.
+ * Real World Bank world totals, gigatonnes, 2015–2024.
  *
- * 2024 is the real World Bank reading; earlier years are the published series
- * rounded. Keeping real numbers here matters — a degraded dashboard that shows
- * invented figures is worse than one that shows dated real ones, because only
- * one of those can be checked.
+ * These are exact. The COVID dip at 2020 and the recovery above the 2019 peak
+ * by 2021 are both in the real series, so the degraded chart tells the same
+ * story as the live one.
  */
-const FALLBACK_SECTOR_MT: Record<number, Record<string, number>> = {
-  2019: { power: 14650, transport: 8250, industry: 9100, buildings: 3150, fugitive: 2680, other: 150 },
-  2020: { power: 14200, transport: 7450, industry: 8850, buildings: 3080, fugitive: 2600, other: 148 },
-  2021: { power: 15000, transport: 7900, industry: 9300, buildings: 3180, fugitive: 2700, other: 152 },
-  2022: { power: 15150, transport: 8100, industry: 9420, buildings: 3200, fugitive: 2730, other: 154 },
-  2023: { power: 15320, transport: 8220, industry: 9540, buildings: 3230, fugitive: 2760, other: 155 },
-  2024: { power: 15485.8, transport: 8299.2, industry: 9649.4, buildings: 3253.8, fugitive: 2787.6, other: 156.9 },
+const FALLBACK_TOTAL_GT: [number, number][] = [
+  [2015, 36.3], [2016, 36.4], [2017, 37.0], [2018, 37.9], [2019, 38.0],
+  [2020, 36.2], [2021, 38.2], [2022, 38.5], [2023, 39.1], [2024, 39.6],
+];
+
+/**
+ * 2024 sector proportions, from the real readings
+ * (15485.8 / 8299.2 / 9649.4 / 3253.8 / 2787.6 / 156.9 Mt of 39632.7).
+ */
+const FALLBACK_SECTOR_SHARE: Record<string, number> = {
+  power: 0.3907,
+  transport: 0.2094,
+  industry: 0.2435,
+  buildings: 0.0821,
+  fugitive: 0.0703,
+  other: 0.004,
 };
 
+/**
+ * Bundled trend used when the upstream is unreachable.
+ *
+ * Each year's *total* is the real published figure; the split across sectors
+ * holds the 2024 proportions constant, because storing ten years x six sectors
+ * of hand-copied numbers invites exactly the drift this fallback exists to
+ * avoid. The approximation is in the mix, never in the headline total — and the
+ * UI flags the whole panel as bundled when this is what renders.
+ */
 function buildFallbackTrend(): SectorYear[] {
-  return Object.entries(FALLBACK_SECTOR_MT).map(([year, totals]) => {
+  return FALLBACK_TOTAL_GT.map(([year, totalGt]) => {
+    const totalMt = totalGt * MT_PER_GT;
+
     const sectors: SectorValue[] = SECTOR_GROUPS.map((group) => ({
       key: group.key,
       label: group.label,
       color: group.color,
-      value: totals[group.key] ?? 0,
+      value: Number((totalMt * (FALLBACK_SECTOR_SHARE[group.key] ?? 0)).toFixed(1)),
     }));
 
-    const totalMt = sectors.reduce((sum, s) => sum + s.value, 0);
-
-    return { year: Number(year), sectors, totalGt: totalMt / MT_PER_GT };
+    return { year, sectors, totalGt };
   });
 }
+
+/**
+ * World CO₂ per person, tonnes — the real World Bank series.
+ *
+ * Worth stating plainly because the chart it feeds says something the hand-made
+ * predecessor did not: per-capita emissions have been flat for a decade, with a
+ * COVID dip. Total emissions rose over the same period because population did.
+ * The mock series this replaces drew a steady climb.
+ */
+const FALLBACK_PER_CAPITA: YearValue[] = [
+  { year: 2015, value: 4.7 },
+  { year: 2016, value: 4.65 },
+  { year: 2017, value: 4.67 },
+  { year: 2018, value: 4.73 },
+  { year: 2019, value: 4.7 },
+  { year: 2020, value: 4.47 },
+  { year: 2021, value: 4.68 },
+  { year: 2022, value: 4.67 },
+  { year: 2023, value: 4.68 },
+  { year: 2024, value: 4.69 },
+];
 
 /** Rendered whenever live data is unavailable, with a DEGRADED badge. */
 export const FALLBACK_CARBON: CarbonSnapshot = {
   dataYear: 2024,
   sectorTrend: buildFallbackTrend(),
   annualTotalGt: 39.6,
+  perCapitaTrend: FALLBACK_PER_CAPITA,
   emitters: [
     { code: 'CN', name: 'China', total: 13.02, perCapita: 9.3 },
     { code: 'US', name: 'United States', total: 4.87, perCapita: 14.3 },
@@ -247,6 +294,24 @@ function buildEmitters(
   return { rows: [], year: 0 };
 }
 
+/**
+ * Extracts the world per-capita series, ascending by year.
+ *
+ * Read from the emitters response rather than its own request: that call
+ * already asks for `EN.GHG.CO2.PC.CE.AR5`, so adding `WLD` to its country list
+ * yields this for free.
+ */
+function buildPerCapitaTrend(
+  index: Map<string, Map<string, Map<number, number>>>,
+): YearValue[] {
+  const byYear = index.get(WORLD)?.get(CO2_PER_CAPITA);
+  if (!byYear) return [];
+
+  return [...byYear.entries()]
+    .map(([year, value]) => ({ year, value: Number(value.toFixed(2)) }))
+    .sort((a, b) => a.year - b.year);
+}
+
 /** Builds mix rows for the latest year complete across every country. */
 function buildEnergyMix(
   index: Map<string, Map<string, Map<number, number>>>,
@@ -296,7 +361,10 @@ export async function getCarbonSnapshot(
   const [sectorCells, emitterCells, mixCells] = await Promise.all([
     fetchWorldBankSeries([WORLD], ALL_SECTOR_SERIES, TREND_YEARS),
     fetchWorldBankSeries(
-      EMITTERS.map((e) => e.iso3),
+      // WLD rides along for the KPI row's per-capita series. It is not an
+      // emitter row — `buildEmitters` iterates EMITTERS, so the world
+      // aggregate never appears as a bar in the ranking.
+      [...EMITTERS.map((e) => e.iso3), WORLD],
       [CO2_TOTAL, CO2_PER_CAPITA],
       EMITTER_YEARS,
     ),
@@ -313,7 +381,8 @@ export async function getCarbonSnapshot(
   }
 
   const latest = sectorTrend[sectorTrend.length - 1];
-  const emitters = buildEmitters(indexCells(emitterCells));
+  const emitterIndex = indexCells(emitterCells);
+  const emitters = buildEmitters(emitterIndex);
 
   const mixYear = latestCommonYear(mixCells, mixCountryCodes, mixSeries);
   const energyMix = mixYear === null ? [] : buildEnergyMix(indexCells(mixCells), mixYear);
@@ -322,6 +391,7 @@ export async function getCarbonSnapshot(
     dataYear: latest.year,
     sectorTrend,
     annualTotalGt: Number(latest.totalGt.toFixed(1)),
+    perCapitaTrend: buildPerCapitaTrend(emitterIndex),
     emitters: emitters.rows.sort((a, b) => b.total - a.total),
     emittersYear: emitters.year,
     energyMix,

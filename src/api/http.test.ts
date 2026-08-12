@@ -40,7 +40,8 @@ vi.mock('jquery', () => ({
   default: { ajax: (options: Record<string, unknown>) => ajaxMock(options) },
 }));
 
-const { getJson, toApiError, isRetryable, MAX_RETRIES } = await import('./http');
+const { getJson, toApiError, isRetryable, MAX_RETRIES, SLOW_REQUEST_TIMEOUT_MS } =
+  await import('./http');
 
 beforeEach(() => {
   script.length = 0;
@@ -131,6 +132,26 @@ describe('getJson', () => {
 
     await expect(getJson('https://example.test/flaky')).resolves.toEqual({ recovered: true });
     expect(ajaxMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('accepts a per-call timeout and retry budget for slow upstreams', async () => {
+    script.push({ ok: false, status: 0, statusText: '', textStatus: 'timeout' });
+
+    await expect(
+      getJson('https://slow.test/data', {}, { timeoutMs: SLOW_REQUEST_TIMEOUT_MS, maxRetries: 1 }),
+    ).rejects.toMatchObject({ kind: 'timeout' });
+
+    // A slow upstream is not a flaky one: fewer attempts, each given longer.
+    expect(ajaxMock).toHaveBeenCalledTimes(2);
+    expect((ajaxMock.mock.calls[0][0] as { timeout: number }).timeout).toBe(30_000);
+  });
+
+  it('falls back to the default ceiling when no override is given', async () => {
+    script.push({ ok: true, data: {} });
+
+    await getJson('https://example.test/data');
+
+    expect((ajaxMock.mock.calls[0][0] as { timeout: number }).timeout).toBe(8000);
   });
 
   it('never sends credentials to the public upstreams', async () => {

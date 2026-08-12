@@ -34,10 +34,15 @@ function sectorCells(years: number[]) {
 }
 
 function emitterCells(year: number) {
-  return EMITTERS.flatMap((e) => [
-    { country: e.iso3, series: 'EN.GHG.CO2.MT.CE.AR5', year, value: 1000 },
-    { country: e.iso3, series: 'EN.GHG.CO2.PC.CE.AR5', year, value: 5 },
-  ]);
+  return [
+    ...EMITTERS.flatMap((e) => [
+      { country: e.iso3, series: 'EN.GHG.CO2.MT.CE.AR5', year, value: 1000 },
+      { country: e.iso3, series: 'EN.GHG.CO2.PC.CE.AR5', year, value: 5 },
+    ]),
+    // WLD rides along in the same request to supply the KPI per-capita series.
+    { country: 'WLD', series: 'EN.GHG.CO2.MT.CE.AR5', year, value: 39632.7 },
+    { country: 'WLD', series: 'EN.GHG.CO2.PC.CE.AR5', year, value: 4.69 },
+  ];
 }
 
 function mixCells(year: number) {
@@ -140,6 +145,43 @@ describe('getCarbonSnapshot', () => {
     const { snapshot } = await getCarbonSnapshot();
 
     expect(snapshot.mixYear).toBe(2021);
+  });
+
+  it('extracts the world per-capita series without adding a request', async () => {
+    mockAllThree(sectorCells([2024]), emitterCells(2024), mixCells(2021));
+
+    const { snapshot } = await getCarbonSnapshot();
+
+    expect(snapshot.perCapitaTrend).toEqual([{ year: 2024, value: 4.69 }]);
+    // Still three fetches: WLD joined the existing emitters country list.
+    expect(fetchSeriesMock).toHaveBeenCalledTimes(3);
+  });
+
+  it('requests WLD alongside the emitters but never lists it as one', async () => {
+    mockAllThree(sectorCells([2024]), emitterCells(2024), mixCells(2021));
+
+    const { snapshot } = await getCarbonSnapshot();
+
+    const [countries] = fetchSeriesMock.mock.calls[1] as [string[]];
+    expect(countries).toContain('WLD');
+    // The world aggregate would otherwise top the bar ranking by definition.
+    expect(snapshot.emitters.some((e) => e.name === 'World')).toBe(false);
+    expect(snapshot.emitters).toHaveLength(EMITTERS.length);
+  });
+
+  it('sorts the per-capita series ascending by year', async () => {
+    const shuffled = [
+      { country: 'WLD', series: 'EN.GHG.CO2.PC.CE.AR5', year: 2024, value: 4.69 },
+      { country: 'WLD', series: 'EN.GHG.CO2.PC.CE.AR5', year: 2015, value: 4.7 },
+      { country: 'WLD', series: 'EN.GHG.CO2.PC.CE.AR5', year: 2020, value: 4.47 },
+      ...emitterCells(2024),
+    ];
+    mockAllThree(sectorCells([2024]), shuffled, mixCells(2021));
+
+    const { snapshot } = await getCarbonSnapshot();
+
+    // A sparkline plots in array order; unsorted input would draw nonsense.
+    expect(snapshot.perCapitaTrend.map((p) => p.year)).toEqual([2015, 2020, 2024]);
   });
 
   it('rejects when the sector series yields nothing usable', async () => {

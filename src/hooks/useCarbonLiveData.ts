@@ -1,7 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { FALLBACK_CARBON, getCarbonSnapshot } from '../api/carbonApi';
 import { isApiError, type ApiError, type CarbonSnapshot, type SnapshotSource } from '../api/types';
-import { carbonBudget, kpiData } from '../data/carbonMockData';
+import { carbonBudget } from '../data/carbonMockData';
+
+/** Where a KPI tile's number came from, so the UI can cite it honestly. */
+export type KpiProvenance = 'World Bank' | 'IPCC AR6 (bundled)';
+
+export interface KpiTile {
+  label: string;
+  value: number;
+  unit: string;
+  /** Sparkline series. Empty means "no series exists" — draw nothing. */
+  trend: number[];
+  /** Year range covered by `trend`, or null when there is no series. */
+  trendRange: [number, number] | null;
+  provenance: KpiProvenance;
+}
 
 /** Seconds in an average year, accounting for leap years. */
 const SECONDS_PER_YEAR = 365.25 * 24 * 3600;
@@ -127,6 +141,69 @@ export function useCarbonLiveData() {
       })
     : [];
 
+  /* ── KPI row ──────────────────────────────────────────────────────────── */
+
+  const totals = snapshot.sectorTrend.map((year) => year.totalGt);
+  const trendYears = snapshot.sectorTrend.map((year) => year.year);
+
+  /**
+   * Year-over-year percentage change, derived from the same totals the trend
+   * chart plots — so the tile and the chart can never disagree.
+   *
+   * One point shorter than `totals` by construction: the first year has no
+   * predecessor to compare against.
+   */
+  const yoySeries = totals.slice(1).map((value, index) => {
+    const previous = totals[index];
+    return previous > 0 ? ((value - previous) / previous) * 100 : 0;
+  });
+
+  const perCapita = snapshot.perCapitaTrend;
+
+  const range = (years: number[]): [number, number] | null =>
+    years.length > 0 ? [years[0], years[years.length - 1]] : null;
+
+  const kpis: KpiTile[] = [
+    {
+      label: 'Annual global CO₂',
+      value: snapshot.annualTotalGt,
+      unit: 'Gt',
+      trend: totals,
+      trendRange: range(trendYears),
+      provenance: 'World Bank',
+    },
+    {
+      label: 'Year-over-year change',
+      value: Number((yoySeries[yoySeries.length - 1] ?? 0).toFixed(1)),
+      unit: '%',
+      trend: yoySeries,
+      trendRange: range(trendYears.slice(1)),
+      provenance: 'World Bank',
+    },
+    {
+      label: 'Per capita average',
+      value: perCapita[perCapita.length - 1]?.value ?? 0,
+      unit: 't/person',
+      trend: perCapita.map((point) => point.value),
+      trendRange: range(perCapita.map((point) => point.year)),
+      provenance: 'World Bank',
+    },
+    {
+      /**
+       * The one tile with no live equivalent. The remaining 1.5°C budget comes
+       * from periodic IPCC assessments, not a queryable indicator series, so it
+       * stays bundled — and ships no sparkline at all, because the declining
+       * line it used to draw was invented rather than measured.
+       */
+      label: '1.5°C budget remaining',
+      value: carbonBudget.remaining,
+      unit: 'Gt',
+      trend: [],
+      trendRange: null,
+      provenance: 'IPCC AR6 (bundled)',
+    },
+  ];
+
   return {
     counter,
     snapshot,
@@ -146,14 +223,15 @@ export function useCarbonLiveData() {
     energyMix: snapshot.energyMix,
     mixYear: snapshot.mixYear,
 
+    /** Values and sparklines, each carrying its own provenance. */
+    kpis,
+
     /**
-     * Still bundled: the 1.5°C budget and the KPI trend sparklines have no
-     * World Bank equivalent (the budget comes from IPCC assessments, not an
-     * indicator series). Kept explicitly separate so the UI can label them
-     * differently from the fetched figures.
+     * Still bundled: the remaining 1.5°C budget comes from IPCC assessment
+     * reports rather than an indicator series. Kept separate so the UI labels
+     * it differently from the fetched figures.
      */
     carbonBudget,
-    kpis: kpiData,
   };
 }
 

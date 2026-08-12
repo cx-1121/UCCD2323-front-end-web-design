@@ -17,11 +17,37 @@ import type { ApiError, ApiErrorKind } from './types';
  * that into one `ApiError` here is what lets callers write a single switch.
  */
 
-/** Hard ceiling per attempt (NFR-002). */
+/** Default ceiling per attempt (NFR-002). Suits fast, low-latency upstreams. */
 export const REQUEST_TIMEOUT_MS = 8000;
+
+/**
+ * Ceiling for upstreams that are simply slow rather than broken.
+ *
+ * The World Bank Indicators API is highly variable: the same request has been
+ * measured at well under a second and at 28 s within one session. Against the
+ * 8 s default every call timed out, retried twice, and degraded the whole
+ * dashboard to bundled figures — a correct response arriving late was being
+ * treated as a failure.
+ */
+export const SLOW_REQUEST_TIMEOUT_MS = 30_000;
 
 /** Retries *after* the first attempt, so 3 total attempts (FR-API-003). */
 export const MAX_RETRIES = 2;
+
+/**
+ * Retry budget for slow upstreams.
+ *
+ * Deliberately lower than the default: when a timeout means "this service is
+ * slow today" rather than "a packet was dropped", a third 30 s attempt costs
+ * a minute and a half to learn nothing new.
+ */
+export const SLOW_MAX_RETRIES = 1;
+
+/** Per-call overrides for upstreams that do not fit the defaults. */
+export interface RequestOptions {
+  timeoutMs?: number;
+  maxRetries?: number;
+}
 
 /** First backoff step; doubles each retry (500 ms, then 1000 ms). */
 export const RETRY_BASE_MS = 500;
@@ -51,7 +77,7 @@ export function toApiError(
 
   if (textStatus === 'timeout') {
     kind = 'timeout';
-    message = `Request timed out after ${REQUEST_TIMEOUT_MS} ms.`;
+    message = 'Request timed out.';
   } else if (textStatus === 'abort') {
     kind = 'abort';
     message = 'Request was cancelled.';
@@ -94,14 +120,18 @@ function delay(ms: number): Promise<void> {
 }
 
 /** One `$.ajax` GET, normalised to a native promise. */
-function requestOnce<T>(url: string, params: Record<string, string | number>): Promise<T> {
+function requestOnce<T>(
+  url: string,
+  params: Record<string, string | number>,
+  timeoutMs: number,
+): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     $.ajax({
       url,
       method: 'GET',
       data: params,
       dataType: 'json',
-      timeout: REQUEST_TIMEOUT_MS,
+      timeout: timeoutMs,
       // No credentials are ever sent: both upstreams are public and keyless,
       // and withCredentials against a wildcard CORS origin is rejected anyway.
       xhrFields: { withCredentials: false },
@@ -122,25 +152,29 @@ function requestOnce<T>(url: string, params: Record<string, string | number>): P
 export async function getJson<T>(
   url: string,
   params: Record<string, string | number> = {},
+  options: RequestOptions = {},
 ): Promise<T> {
+  const timeoutMs = options.timeoutMs ?? REQUEST_TIMEOUT_MS;
+  const maxRetries = options.maxRetries ?? MAX_RETRIES;
+
   let lastError: ApiError = {
     kind: 'network',
     status: 0,
     message: 'Request was never attempted.',
   };
 
-  for (let attempt = 0; attempt <= MAX_RETRIES; attempt += 1) {
+  for (let attempt = 0; attempt <= maxRetries; attempt += 1) {
     try {
-      return await requestOnce<T>(url, params);
+      return await requestOnce<T>(url, params, timeoutMs);
     } catch (error) {
       lastError = error as ApiError;
 
-      if (!isRetryable(lastError) || attempt === MAX_RETRIES) {
+      if (!isRetryable(lastError) || attempt === maxRetries) {
         throw lastError;
       }
 
       console.warn(
-        `[api] ${lastError.kind} on ${url} (attempt ${attempt + 1}/${MAX_RETRIES + 1}); retrying.`,
+        `[api] ${lastError.kind} on ${url} (attempt ${attempt + 1}/${maxRetries + 1}); retrying.`,
       );
 
       // Full jitter on the backoff. Without it, every client that hit the same
