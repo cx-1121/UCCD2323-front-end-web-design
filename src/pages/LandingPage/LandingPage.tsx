@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import HudHeader from '../../components/HudHeader/HudHeader';
-import ProgressHud from '../../components/ProgressHud/ProgressHud';
 import ScrollHint from '../../components/ScrollHint/ScrollHint';
 import ScrollContainer from '../../components/ScrollContainer/ScrollContainer';
 import SceneIntro from '../../components/SceneIntro/SceneIntro';
-import SceneTraditional from '../../components/SceneTraditional/SceneTraditional';
+import SceneDawn from '../../components/SceneDawn/SceneDawn';
 import DevTimeDisplay from '../../components/DevTimeDisplay/DevTimeDisplay';
 import RevisitOverlay from './RevisitOverlay';
 import { safeLocal } from '../../utils/storage';
@@ -46,12 +44,22 @@ function LandingPage() {
 
   return (
     <>
-      <HudHeader />
-      <ProgressHud />
+      {/* No navigation furniture here on purpose: the cinematic is a single
+          uninterrupted descent and climb back out, and the only way onward is
+          answering SceneDawn. The interior routes still mount HudHeader in its
+          `static` variant. The scene radar that used to sit on the right went
+          with the fossil scene — with only two scenes left it had nothing to
+          navigate to, and it was white-on-white by the time the sky went
+          cream. */}
       <ScrollHint />
       <ScrollContainer>
         <SceneIntro />
-        <SceneTraditional onEnterFuture={() => handleLeaveLanding('/home')} />
+        {/* The walk out of the smoke. Used to be a 4.6s timed curtain played
+            over HomePage on arrival; it is now the whole second half of this
+            scroll, so the descent and the climb back out run on one clock —
+            the reader's. It ends on a question, and answering it is what takes
+            them to /home, already clear. */}
+        <SceneDawn onEnterFuture={() => handleLeaveLanding('/home')} />
       </ScrollContainer>
       <DevTimeDisplay />
     </>

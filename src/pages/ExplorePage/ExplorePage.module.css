@@ -95,12 +95,6 @@
   max-width: calc(100vw - 2rem);
   padding: 0.6875rem 1.5rem 0.6875rem 1.25rem;
   transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.74);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-pill);
-  box-shadow:
-    var(--inner-lip),
-    var(--shadow-soft);
   /* Retunes the shared HudHeader for paper. The component reads these from
      its own scope, so no prop drilling and no specificity fight. */
   --hud-mark: var(--signal);
@@ -109,8 +103,6 @@
   --hud-ink-static: var(--ink);
   --hud-hover: var(--signal-deep);
   --hud-hover-glow: none;
-  backdrop-filter: blur(22px) saturate(140%);
-  -webkit-backdrop-filter: blur(22px) saturate(140%);
   transition:
     transform 650ms var(--ease-fluid),
     opacity 450ms var(--ease-fluid);
@@ -146,21 +138,6 @@
 .hero {
   max-width: 60rem;
   margin-bottom: clamp(4.5rem, 9vw, 8.5rem);
-}
-
-.eyebrow {
-  display: inline-block;
-  margin-bottom: clamp(1.5rem, 3vw, 2.25rem);
-  padding: 0.375rem 0.8125rem;
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: 400;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--signal);
-  background: rgba(4, 120, 87, 0.07);
-  border: 1px solid rgba(4, 120, 87, 0.22);
-  border-radius: var(--r-pill);
 }
 
 .heroTitle {

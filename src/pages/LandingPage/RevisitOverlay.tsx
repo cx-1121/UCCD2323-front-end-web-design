@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import IndustrialSilhouette from '../../components/SceneIntro/IndustrialSilhouette';
 import {
   ArrowGlyph,
   BoltGlyph,
@@ -10,323 +11,300 @@ import {
 } from '../../components/icons';
 import styles from './RevisitOverlay.module.css';
 
+/**
+ * THE ACCESSION — the revisit surface.
+ *
+ * THESIS: a returning visitor is an accession, not a cache-miss. A herbarium
+ * sheet gains a dated annotation slip every time a new botanist re-examines
+ * it, so the sheet's own history is a stack of return visits — which is
+ * exactly what `attemptsToReturnToPast` counts. The pressed specimen is this
+ * project's own industrial city: the fossil past, collected, flattened,
+ * labelled, and no longer growing.
+ *
+ * OWN-WORLD: the interior of a seed vault at -18C. Cold near-black ground,
+ * the sheet reading pale steel-green under cold light rather than parchment,
+ * violet aniline accession ink, and ONE living green held back for whatever is
+ * actually alive. Typed in Courier Prime, stamped in Archivo Narrow.
+ *
+ * FORM: herbarium specimen sheet & seed vault; candidate 6 of 7; seed f7aee1de.
+ *
+ * The three levels are the fixed product constraint (PRODUCT.md): each return
+ * goes further than the last, and the third opens the vault catalogue.
+ */
+
 interface RevisitOverlayProps {
   level: number;
   onLeave: (targetPath?: string) => void;
 }
 
-/** When the level 3 gateway unseals. */
-const GATEWAY_DELAY_MS = 4200;
+/** When the level 3 catalogue unseals, after the determination lands. */
+const CATALOGUE_DELAY_MS = 4200;
 
 const prefersReducedMotion = () =>
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-type Destination = {
+/**
+ * What each return writes onto the sheet. The narrative lines are the
+ * annotations themselves — what the examiner wrote — so the copy and the
+ * artifact are the same object rather than text laid over a picture.
+ */
+type Annotation = { hand: string; note: string; determined?: boolean };
+
+const RECORD: Record<number, { stamp: string; annotations: Annotation[]; lines: string[] }> = {
+  1: {
+    stamp: 'Returned',
+    annotations: [{ hand: 'det. i', note: 'Specimen re-examined. Unchanged.' }],
+    lines: [
+      'Once you have reached for a greener future,',
+      'you do not walk back into the smoke.',
+    ],
+  },
+  2: {
+    stamp: 'Re-examined',
+    annotations: [
+      { hand: 'det. i', note: 'Specimen re-examined. Unchanged.' },
+      { hand: 'det. ii', note: 'Growth observed at the margins. Revise.' },
+    ],
+    lines: ['You have seen what was.', 'Now discover what can be.'],
+  },
+  3: {
+    stamp: 'Determined',
+    annotations: [
+      { hand: 'det. i', note: 'Specimen re-examined. Unchanged.' },
+      { hand: 'det. ii', note: 'Growth observed at the margins. Revise.' },
+      { hand: 'det. iii', note: 'Living. Transfer to the vault.', determined: true },
+    ],
+    lines: [
+      'This world once powered us.',
+      'But we learned its cost.',
+      'So the way back is closed, and the way forward is open.',
+    ],
+  },
+};
+
+type Drawer = {
   label: string;
   detail: string;
   Glyph: (props: { className?: string }) => JSX.Element;
-  /** Omitted while the route does not exist yet; the tile renders inert. */
+  /** Omitted while the route does not exist yet; the drawer renders unaccessioned. */
   path?: string;
-  span: 'wide' | 'half' | 'full';
 };
 
 /**
- * The six gateway destinations. Only the two with a `path` are routed today;
- * the rest render as sealed tiles rather than sending the reader to a blank
- * screen. Giving one a `path` is all it takes to light it up.
+ * The vault catalogue. Routes that do not exist yet are not hidden — a seed
+ * vault records what it does not hold, so they read as accessions not yet
+ * made. Giving one a `path` is all it takes to open the drawer.
  */
-const DESTINATIONS: Destination[] = [
+const DRAWERS: Drawer[] = [
   {
     label: 'Explore energy',
     detail: 'Five renewable sources, mechanism by mechanism',
     Glyph: CompassGlyph,
     path: '/explore',
-    span: 'wide',
   },
-  { label: 'Green tech', detail: 'The hardware of the transition', Glyph: BoltGlyph, span: 'half' },
-  { label: 'Projects', detail: 'What the club is building', Glyph: LayersGlyph, span: 'half' },
-  { label: 'Quiz', detail: 'Test what stuck', Glyph: TargetGlyph, span: 'half' },
-  { label: 'Future vision', detail: 'The grid in 2050', Glyph: HorizonGlyph, span: 'half' },
+  { label: 'Green tech', detail: 'The hardware of the transition', Glyph: BoltGlyph },
+  { label: 'Projects', detail: 'What the club is building', Glyph: LayersGlyph },
+  { label: 'Quiz', detail: 'Test what stuck', Glyph: TargetGlyph },
+  { label: 'Future vision', detail: 'The grid in 2050', Glyph: HorizonGlyph },
   {
     label: 'Join the movement',
     detail: 'Step into the club and start building',
     Glyph: OrbitGlyph,
     path: '/home',
-    span: 'full',
   },
 ];
 
+/** Accession numbers are derived, not decorative: they encode the real count. */
+const accessionNo = (level: number) => `GTC·${String(1874 + level * 3).padStart(4, '0')}`;
+
 function RevisitOverlay({ level, onLeave }: RevisitOverlayProps) {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const stage = level >= 3 ? 3 : level;
+  const record = RECORD[stage] ?? RECORD[1];
+  const sheetRef = useRef<HTMLDivElement | null>(null);
 
   /**
-   * Under reduced motion the gateway is open from the first frame: making the
+   * Under reduced motion the catalogue is open from the first frame: making the
    * reader wait 4.2s for a sealed panel is the timing, and the timing is the
-   * thing being opted out of. Derived here rather than assigned from inside an
-   * effect, which would cost an extra render pass on every mount.
+   * thing being opted out of.
    */
-  const [gatewayOpen, setGatewayOpen] = useState(
+  const [catalogueOpen, setCatalogueOpen] = useState(
     () => stage >= 3 && prefersReducedMotion(),
   );
 
-  /**
-   * Atmosphere. Smoke at the lower levels, rising embers of green once the
-   * gateway stage is reached.
-   *
-   * Rewritten from the original: particles are stamped from a pre-rendered
-   * sprite instead of being drawn with a per-particle `shadowBlur`, which was
-   * costing a full-canvas blur pass per particle per frame. The loop is also
-   * DPR-correct, parked while the tab is hidden, and skipped outright under
-   * reduced motion.
-   */
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) {
-      return;
-    }
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-      return;
-    }
-
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const isGateway = stage >= 3;
-    const tint = isGateway ? '16, 185, 129' : '110, 122, 138';
-
-    let width = 0;
-    let height = 0;
-    let dpr = 1;
-
-    // One sprite, drawn once, stamped many times.
-    const sprite = document.createElement('canvas');
-    const spriteCtx = sprite.getContext('2d');
-    const SPRITE_SIZE = 128;
-    sprite.width = SPRITE_SIZE;
-    sprite.height = SPRITE_SIZE;
-    if (spriteCtx) {
-      const r = SPRITE_SIZE / 2;
-      const grad = spriteCtx.createRadialGradient(r, r, 0, r, r, r);
-      grad.addColorStop(0, `rgba(${tint}, ${isGateway ? 0.9 : 0.34})`);
-      grad.addColorStop(0.45, `rgba(${tint}, ${isGateway ? 0.22 : 0.12})`);
-      grad.addColorStop(1, `rgba(${tint}, 0)`);
-      spriteCtx.fillStyle = grad;
-      spriteCtx.fillRect(0, 0, SPRITE_SIZE, SPRITE_SIZE);
-    }
-
-    type Mote = { x: number; y: number; size: number; vx: number; vy: number; alpha: number };
-    let motes: Mote[] = [];
-
-    const seed = () => {
-      const count = isGateway ? 44 : 26;
-      motes = Array.from({ length: count }, () => ({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        size: isGateway ? Math.random() * 26 + 8 : Math.random() * 180 + 90,
-        vx: (Math.random() - 0.5) * (isGateway ? 0.32 : 0.14),
-        vy: -(Math.random() * (isGateway ? 0.5 : 0.22) + 0.1),
-        alpha: Math.random() * 0.45 + 0.2,
-      }));
-    };
-
-    const resize = () => {
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
-      width = window.innerWidth;
-      height = window.innerHeight;
-      canvas.width = Math.floor(width * dpr);
-      canvas.height = Math.floor(height * dpr);
-      canvas.style.width = `${width}px`;
-      canvas.style.height = `${height}px`;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      if (motes.length === 0) {
-        seed();
-      }
-    };
-
-    const paint = () => {
-      ctx.clearRect(0, 0, width, height);
-      motes.forEach((m) => {
-        ctx.globalAlpha = m.alpha;
-        ctx.drawImage(sprite, m.x - m.size, m.y - m.size, m.size * 2, m.size * 2);
-      });
-      ctx.globalAlpha = 1;
-    };
-
-    resize();
-
-    let frame = 0;
-    const step = () => {
-      motes.forEach((m) => {
-        m.x += m.vx;
-        m.y += m.vy;
-        if (m.y < -m.size) {
-          m.y = height + m.size;
-          m.x = Math.random() * width;
-        }
-      });
-      paint();
-      frame = requestAnimationFrame(step);
-    };
-
-    if (reduceMotion) {
-      paint();
-    } else {
-      frame = requestAnimationFrame(step);
-    }
-
-    const onVisibility = () => {
-      cancelAnimationFrame(frame);
-      if (!document.hidden && !reduceMotion) {
-        frame = requestAnimationFrame(step);
-      }
-    };
-
-    window.addEventListener('resize', resize);
-    document.addEventListener('visibilitychange', onVisibility);
-
-    return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener('resize', resize);
-      document.removeEventListener('visibilitychange', onVisibility);
-    };
-  }, [stage]);
-
-  // Unseal the gateway once the opening lines have landed.
-  useEffect(() => {
-    if (stage < 3 || prefersReducedMotion()) {
-      return;
-    }
-    const timer = window.setTimeout(() => setGatewayOpen(true), GATEWAY_DELAY_MS);
+    if (stage < 3 || prefersReducedMotion()) return;
+    const timer = window.setTimeout(() => setCatalogueOpen(true), CATALOGUE_DELAY_MS);
     return () => window.clearTimeout(timer);
   }, [stage]);
 
-  const enter = (
-    <button type="button" className={styles.cta} onClick={() => onLeave('/home')}>
-      <span className={styles.ctaLabel}>Enter the future</span>
-      <span className={styles.ctaIcon} aria-hidden="true">
-        <ArrowGlyph />
+  /**
+   * The sheet tilts a few degrees toward the pointer, the way a mounted sheet
+   * does when you lift it under the light. Written to a custom property and
+   * read by a transform, so the whole effect is one compositor-only change and
+   * React never re-renders on pointer move.
+   */
+  useEffect(() => {
+    const sheet = sheetRef.current;
+    if (!sheet || prefersReducedMotion()) return;
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+    let frame = 0;
+    const onMove = (event: PointerEvent) => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const x = event.clientX / window.innerWidth - 0.5;
+        const y = event.clientY / window.innerHeight - 0.5;
+        sheet.style.setProperty('--lift-x', `${(-y * 3.2).toFixed(2)}deg`);
+        sheet.style.setProperty('--lift-y', `${(x * 4).toFixed(2)}deg`);
+      });
+    };
+
+    window.addEventListener('pointermove', onMove, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('pointermove', onMove);
+    };
+  }, []);
+
+  const leave = (
+    <button type="button" className={styles.action} onClick={() => onLeave('/home')}>
+      <span className={styles.actionCore}>
+        <span className={styles.actionLabel}>Return to the vault</span>
+        <span className={styles.actionIcon} aria-hidden="true">
+          <ArrowGlyph />
+        </span>
       </span>
     </button>
   );
 
   return (
-    <div className={`${styles.overlay} ${styles[`stage${stage}`]}`}>
-      <canvas ref={canvasRef} className={styles.canvas} aria-hidden="true" />
-      <div className={styles.mesh} aria-hidden="true">
-        <span className={`${styles.orb} ${styles.orbA}`} />
-        <span className={`${styles.orb} ${styles.orbB}`} />
-      </div>
-      <div className={styles.grain} aria-hidden="true" />
+    <div className={`${styles.vault} ${styles[`stage${stage}`]}`}>
+      {/* Vault ground: worked tonal depth, not a gradient wash. Three inert
+          layers — the cold fall of light, the frost bloom, and the grain. */}
+      <span className={styles.coldLight} aria-hidden="true" />
+      <span className={styles.frost} aria-hidden="true" />
+      <span className={styles.grain} aria-hidden="true" />
 
-      <div className={styles.frame}>
-        <div className={styles.column}>
-          {stage === 1 && (
-            <>
-              <span className={`${styles.eyebrow} ${styles.step0}`}>You turned around</span>
-              <p className={`${styles.line} ${styles.step1}`}>
-                Once you have reached for a greener future
-              </p>
-              <p className={`${styles.line} ${styles.lineEmber} ${styles.step2}`}>
-                you do not walk back into the smoke.
-              </p>
-              <p className={`${styles.sub} ${styles.step3}`}>The journey has already begun.</p>
-              <div className={`${styles.actions} ${styles.step4}`}>{enter}</div>
-            </>
-          )}
+      <main className={styles.bench}>
+        {/* ---- The sheet ---- */}
+        <article className={styles.sheet} ref={sheetRef}>
+          <header className={styles.sheetHead}>
+            <p className={styles.institution}>
+              Green Tech Club <span className={styles.institutionSub}>· Herbarium of Energy</span>
+            </p>
+            <p className={styles.accession}>{accessionNo(stage)}</p>
+          </header>
 
-          {stage === 2 && (
-            <>
-              <span className={`${styles.eyebrow} ${styles.step0}`}>Back again</span>
-              <p className={`${styles.line} ${styles.step1}`}>You have seen what was.</p>
-              <p className={`${styles.line} ${styles.lineAccent} ${styles.step2}`}>
-                Now discover what can be.
-              </p>
-              <div className={`${styles.actions} ${styles.step3}`}>{enter}</div>
-            </>
-          )}
+          {/* The specimen: the same city the intro descends through, pressed.
+              Its five fills are re-inked from this module's tokens. */}
+          <div className={styles.mount}>
+            <span className={`${styles.strap} ${styles.strapTop}`} aria-hidden="true" />
+            <span className={`${styles.strap} ${styles.strapLow}`} aria-hidden="true" />
+            <div className={styles.specimen}>
+              <IndustrialSilhouette variant="specimen" />
+            </div>
+            <span className={styles.scaleBar} aria-hidden="true">
+              <i /><i /><i /><i /><i />
+            </span>
+          </div>
 
-          {stage === 3 && (
-            <>
-              <div className={gatewayOpen ? `${styles.prologue} ${styles.prologueOut}` : styles.prologue}>
-                <span className={`${styles.eyebrow} ${styles.step0}`}>You kept coming back</span>
-                <p className={`${styles.line} ${styles.step1}`}>This world once powered us.</p>
-                <p className={`${styles.line} ${styles.lineDim} ${styles.step2}`}>
-                  But we learned its cost.
-                </p>
-                <p className={`${styles.line} ${styles.lineAccent} ${styles.step3}`}>
-                  So the way back is closed, and the way forward is open.
-                </p>
-              </div>
+          {/* The stamp. Rubber-cut caps, violet aniline, pressed on arrival. */}
+          <span className={styles.stamp} aria-hidden="true">
+            <span className={styles.stampInk}>{record.stamp}</span>
+          </span>
 
-              {/* Double-bezel enclosure: outer tray, inner core at a concentric radius. */}
-              <aside
-                className={gatewayOpen ? `${styles.gateway} ${styles.gatewayOpen}` : styles.gateway}
-                aria-hidden={!gatewayOpen}
-              >
-                <div className={styles.gatewayCore}>
-                  <p className={styles.gatewayLabel}>
-                    <span>Gateway</span>
-                    <span className={styles.gatewayCount}>
-                      {DESTINATIONS.filter((d) => d.path).length}/{DESTINATIONS.length} open
+          {/* The determination label: typed, bottom-right, where it always is. */}
+          <footer className={styles.determination}>
+            <p className={styles.detTitle}>Determination</p>
+            <h1 className={styles.detName}>
+              {record.lines.map((line, i) => (
+                <span key={line} className={i === record.lines.length - 1 ? styles.detLast : undefined}>
+                  {line}
+                </span>
+              ))}
+            </h1>
+            <p className={styles.detMeta}>
+              Coll. the visitor · returns recorded: {level}
+            </p>
+          </footer>
+        </article>
+
+        {/* ---- Annotation slips: one per return, newest on top ---- */}
+        <ul className={styles.slips}>
+          {record.annotations.map((a, i) => (
+            <li
+              key={a.hand}
+              className={`${styles.slip} ${a.determined ? styles.slipLive : ''}`}
+              style={{ animationDelay: `${420 + i * 260}ms` }}
+            >
+              <span className={styles.slipHand}>{a.hand}</span>
+              <span className={styles.slipNote}>{a.note}</span>
+            </li>
+          ))}
+        </ul>
+
+        {/* Always reachable, so the reader is never held here waiting. */}
+        <div className={styles.actions}>{leave}</div>
+      </main>
+
+      {/* ---- Level 3: the vault catalogue ---- */}
+      {stage === 3 && (
+        <section
+          className={catalogueOpen ? `${styles.catalogue} ${styles.catalogueOpen}` : styles.catalogue}
+          aria-hidden={!catalogueOpen}
+          aria-label="Vault catalogue"
+        >
+          <p className={styles.catalogueHead}>
+            <span>Vault catalogue</span>
+            <span className={styles.catalogueCount}>
+              {DRAWERS.filter((d) => d.path).length} of {DRAWERS.length} accessioned
+            </span>
+          </p>
+
+          <ul className={styles.drawers}>
+            {DRAWERS.map((drawer, index) => {
+              const { Glyph } = drawer;
+              const body = (
+                <>
+                  <span className={styles.drawerNo}>{String(index + 1).padStart(2, '0')}</span>
+                  <span className={styles.drawerGlyph} aria-hidden="true">
+                    <Glyph />
+                  </span>
+                  <span className={styles.drawerText}>
+                    <span className={styles.drawerLabel}>{drawer.label}</span>
+                    <span className={styles.drawerDetail}>{drawer.detail}</span>
+                  </span>
+                </>
+              );
+
+              if (!drawer.path) {
+                return (
+                  <li key={drawer.label} className={`${styles.drawer} ${styles.drawerSealed}`}>
+                    {body}
+                    <span className={styles.drawerState}>Not yet accessioned</span>
+                  </li>
+                );
+              }
+
+              return (
+                <li key={drawer.label}>
+                  <button
+                    type="button"
+                    className={styles.drawer}
+                    style={{ transitionDelay: `${index * 55}ms` }}
+                    onClick={() => onLeave(drawer.path)}
+                  >
+                    {body}
+                    <span className={styles.drawerPull} aria-hidden="true">
+                      <ArrowGlyph />
                     </span>
-                  </p>
-
-                  <div className={styles.bento}>
-                    {DESTINATIONS.map((destination, index) => {
-                      const { Glyph } = destination;
-                      const body = (
-                        <>
-                          <span className={styles.tileGlyph} aria-hidden="true">
-                            <Glyph />
-                          </span>
-                          <span className={styles.tileLabel}>{destination.label}</span>
-                          <span className={styles.tileDetail}>{destination.detail}</span>
-                        </>
-                      );
-                      const tileClass = `${styles.tile} ${styles[destination.span]}`;
-
-                      if (!destination.path) {
-                        return (
-                          <div
-                            key={destination.label}
-                            className={`${tileClass} ${styles.tileSealed}`}
-                            style={{ transitionDelay: `${index * 60}ms` }}
-                          >
-                            {body}
-                            <span className={styles.tileSeal}>Sealed</span>
-                          </div>
-                        );
-                      }
-
-                      return (
-                        <button
-                          key={destination.label}
-                          type="button"
-                          className={tileClass}
-                          style={{ transitionDelay: `${index * 60}ms` }}
-                          onClick={() => onLeave(destination.path)}
-                        >
-                          {body}
-                          <span className={styles.tileArrow} aria-hidden="true">
-                            <ArrowGlyph />
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  <p className={styles.quote}>
-                    The future is not behind you. It is something we build together.
-                  </p>
-                </div>
-              </aside>
-
-              {/* Always reachable, so the reader is never held here waiting. */}
-              <div className={`${styles.actions} ${styles.step4}`}>{enter}</div>
-            </>
-          )}
-        </div>
-      </div>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
     </div>
   );
 }

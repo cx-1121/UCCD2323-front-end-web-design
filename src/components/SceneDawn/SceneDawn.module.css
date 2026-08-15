@@ -1,0 +1,548 @@
+/* ==========================================================================
+   SceneDawn — the walk out of the smoke.
+
+   Resting state only. Every beat is driven by `buildDawn()` in
+   useScrollTimeline (and, past the answer, by `buildFinale()` in the component
+   itself), both of which select on the `data-dawn` attributes rather than on
+   these hashed class names — so there are deliberately NO @keyframes in this
+   file: the reader's scroll is the clock, and then their answer is.
+
+   Beat map (seconds into the dawn scene, which runs 54s of timeline):
+     0-12    darkness, the smoke thickens
+     7-38    WIND, arriving before any light
+     16-37   smoke shears apart, the first point of light opens
+     37-51   sun breaks through, the sky goes gold
+     44-54   the question, and the only answer to it
+     + the finale, off the clock: full daylight, motes, the club's name
+   ========================================================================== */
+
+.stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #0a0a0a;
+  opacity: 0;
+  /* The stage container passes touches through to the page so mobile keeps its
+     native scroll; only the CTA opts back in, at the bottom of this file. */
+  pointer-events: none;
+  z-index: 4;
+  will-change: opacity;
+}
+
+/* Camera push: a slow creep forward through the whole sequence. */
+.scene {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+/* --------------------------------------------------------------------------
+   Colour curve
+   -------------------------------------------------------------------------- */
+.sky {
+  position: absolute;
+  inset: -10%;
+  display: block;
+  opacity: 0;
+  will-change: opacity;
+}
+
+/* Polluted near-black. Present from the first frame. */
+.skySoot {
+  background: radial-gradient(120% 90% at 50% 62%, #16161a 0%, #0a0a0a 62%);
+  opacity: 1;
+}
+
+/* Deep blue-grey: the first hint that there is a sky up there at all. */
+.skyDeep {
+  background: linear-gradient(180deg, #111827 0%, #10151f 70%, #0d1117 100%);
+}
+
+/* Warm grey: the air starts to hold light again. */
+.skyWarm {
+  background: linear-gradient(180deg, #2f3946 0%, #4a4438 62%, #5b4b39 100%);
+}
+
+/* Gold: first real sunlight. */
+.skyGold {
+  background: linear-gradient(180deg, #7ba9c9 0%, #d9a45f 58%, #e8bd77 100%);
+}
+
+/* Sky blue settling into the green-white the interior routes are built on. */
+.skyClear {
+  background: linear-gradient(180deg, #a8d5e8 0%, #dceee6 55%, #eef6f2 100%);
+}
+
+/* --------------------------------------------------------------------------
+   Smoke — thickens first, then the wind tears it apart
+   -------------------------------------------------------------------------- */
+.smoke {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  filter: blur(60px);
+  will-change: transform, opacity;
+}
+
+.smokeCore {
+  top: 18%;
+  left: 22%;
+  width: 56vw;
+  height: 56vw;
+  background: radial-gradient(circle, rgba(96, 96, 100, 0.85) 0%, rgba(30, 30, 34, 0) 68%);
+}
+
+.smokeLeft {
+  top: 26%;
+  left: -8%;
+  width: 62vw;
+  height: 62vw;
+  background: radial-gradient(circle, rgba(78, 78, 84, 0.8) 0%, rgba(24, 24, 28, 0) 66%);
+}
+
+.smokeRight {
+  top: 22%;
+  right: -10%;
+  width: 58vw;
+  height: 58vw;
+  background: radial-gradient(circle, rgba(88, 88, 94, 0.78) 0%, rgba(24, 24, 28, 0) 66%);
+}
+
+/* --------------------------------------------------------------------------
+   Wind. Deliberately the first thing that moves — before any light at all.
+   -------------------------------------------------------------------------- */
+.gust {
+  position: absolute;
+  left: 0;
+  display: block;
+  width: 46vw;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(226, 232, 240, 0.5) 45%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  filter: blur(0.5px);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.gust1 {
+  top: 34%;
+}
+.gust2 {
+  top: 48%;
+  width: 34vw;
+}
+.gust3 {
+  top: 61%;
+  width: 52vw;
+}
+.gust4 {
+  top: 27%;
+  width: 28vw;
+}
+
+/* --------------------------------------------------------------------------
+   Light
+   -------------------------------------------------------------------------- */
+.sun {
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  display: block;
+  width: 46vmax;
+  height: 46vmax;
+  margin: -23vmax 0 0 -23vmax;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 249, 232, 0.98) 0%,
+    rgba(255, 226, 158, 0.75) 18%,
+    rgba(255, 197, 110, 0.34) 38%,
+    rgba(255, 190, 110, 0) 66%
+  );
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* No transform here on purpose: the timeline owns both the -50% centring
+   (as yPercent) and the scaleX streak, and a CSS transform would be clobbered
+   by the first tween that touches either. */
+.flare {
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  display: block;
+  width: 150vw;
+  height: 12vh;
+  margin-left: -75vw;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 235, 190, 0) 0%,
+    rgba(255, 238, 200, 0.32) 38%,
+    rgba(255, 250, 235, 0.6) 50%,
+    rgba(255, 238, 200, 0.32) 62%,
+    rgba(255, 235, 190, 0) 100%
+  );
+  filter: blur(22px);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* --------------------------------------------------------------------------
+   Life returns last
+   -------------------------------------------------------------------------- */
+.mote {
+  position: absolute;
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 8px rgba(163, 230, 53, 0.55);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.mote1 {
+  top: 74%;
+  left: 22%;
+}
+.mote2 {
+  top: 82%;
+  left: 38%;
+}
+.mote3 {
+  top: 70%;
+  left: 57%;
+}
+.mote4 {
+  top: 86%;
+  left: 71%;
+}
+.mote5 {
+  top: 78%;
+  left: 84%;
+}
+
+/* Heavy at the start, opening up as the world does. */
+.vignette {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: radial-gradient(115% 85% at 50% 50%, transparent 32%, rgba(0, 0, 0, 0.92) 100%);
+  will-change: opacity;
+}
+
+/* --------------------------------------------------------------------------
+   Copy scrims. The sky travels from near-black to pale, so the ink flips
+   halfway through and its readability floor has to flip with it.
+   -------------------------------------------------------------------------- */
+.scrimDark,
+.scrimLight {
+  position: absolute;
+  inset: 0;
+  display: block;
+  z-index: 5;
+  pointer-events: none;
+  will-change: opacity;
+}
+
+.scrimDark {
+  background: radial-gradient(72% 46% at 50% 48%, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0) 100%);
+}
+
+.scrimLight {
+  opacity: 0;
+  background: radial-gradient(78% 52% at 50% 46%, rgba(255, 252, 244, 0.42) 0%, rgba(255, 252, 244, 0) 100%);
+}
+
+/* The last frame of the landing page, and the first frame of the next one.
+   `--surface` is exactly what HomePage paints itself, so the route change lands
+   on a frame that does not move — the dissolve is what carries the reader over,
+   not the navigation. Sits above the copy: it takes the welcome with it. */
+.exitWash {
+  position: absolute;
+  inset: 0;
+  display: block;
+  z-index: 30;
+  pointer-events: none;
+  opacity: 0;
+  background: var(--surface);
+  will-change: opacity;
+}
+
+/* --------------------------------------------------------------------------
+   Subtitles
+   -------------------------------------------------------------------------- */
+.narrative {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 0 8vw;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* The CINEMATIC register — Outfit 800, the same voice as the intro headlines
+   this scene is answering. It was set in `--font-display` (Plus Jakarta Sans),
+   which belongs to the RevisitOverlay's quiet register and made the dawn read
+   as a third, unplaced voice. Tracking is held at the -0.04em floor and the
+   leading is tightened for the heavy weight. */
+.narrativeLine {
+  grid-area: 1 / 1;
+  margin: 0;
+  max-width: 20ch;
+  text-align: center;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.75rem, 4.6vw, 3.75rem);
+  line-height: 1.06;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+  color: #e8eef5;
+  text-shadow: 0 2px 28px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  will-change: transform, opacity, filter;
+}
+
+/* ---- The ink walk ---------------------------------------------------------
+   The ground behind these lines is not one colour; it travels. Each tone is
+   the ink for the light its line actually stands in, measured off the
+   composited layer stack rather than picked from the brand:
+
+     line 1  on #0a0a0c near-black   cool white   (the base above)
+     line 2  on #58503d warm olive   warm white
+     line 3  on #655e4d warm olive   lit white
+     line 4  on #fbedcf warm cream   deep warm dark
+
+   Nothing here is green. The club's colour is spent once, on the brand line
+   below, so it arrives as an event instead of as the fourth green on screen.
+   ------------------------------------------------------------------------- */
+
+/* "There is another way forward." — the wind has turned the air, so the ink
+   turns with it. Same value as the opening line, warm instead of cool. */
+.warming {
+  color: #f2ece0;
+  text-shadow: 0 2px 26px rgba(28, 20, 10, 0.5);
+}
+
+/* "A future powered by possibility." — the first line the sun actually
+   reaches. It is the brightest ink in the sequence, and that is what carries
+   the hope: it used to be mint, which read as a cold colour sitting on a warm
+   field rather than as light falling on the words. */
+.lit {
+  color: #fdf1d8;
+  text-shadow: 0 2px 30px rgba(120, 72, 20, 0.42);
+}
+
+/* "Can you help us to save the world?" — the direct address, landing once the
+   sky is cream. Warm dark rather than the green-black it was: on this ground a
+   green-black reads as a foreign object, and the question is the one line the
+   scroll leaves on screen. */
+.risen {
+  color: #2b1d0d;
+  text-shadow: none;
+}
+
+/* The welcome is never scrolled to: the answer plays it. By then the sky has
+   gone from gold to pale, so it stays dark and only gets darker. */
+.welcome {
+  max-width: 24ch;
+  color: #2b1d0d;
+  text-shadow: none;
+}
+
+/* "Welcome to / Green Tech Club." is one sentence, so its first half is set as
+   the opening of that sentence — a step down in size and weight, tracking left
+   alone. It used to be an uppercase 0.34em micro-label, which turned half a
+   sentence into a kicker and double-marked an emphasis the brand line already
+   carries on its own. */
+.welcomeLead {
+  display: block;
+  /* Proportional to the brand line it opens, but floored: at the mobile end of
+     the display clamp, a bare 0.44em lands at 12.3px, and this is prose, not a
+     micro-label. */
+  font-size: max(1rem, 0.44em);
+  font-weight: 300;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  /* 0.68, not 0.62: this line floors at 1rem on mobile, where it stops
+     counting as large text and owes 4.5:1 rather than 3:1. 0.62 measured
+     3.90:1 on the cream — fine at its 25.9px desktop size, short at 16px.
+     0.68 holds 5.31:1 at any size and still sits well under the brand line. */
+  color: rgba(43, 29, 13, 0.68);
+  margin-bottom: 0.16em;
+}
+
+/* The one green on the landing page. `--signal-deep` is the interior routes'
+   own brand green, so the club's name arrives in the colour it keeps for the
+   rest of the site — and arrives as the first green the reader has seen, which
+   is the whole reason the four lines above it were taken off the palette.
+   6.98:1 on the cream this lands on. */
+.welcomeBrand {
+  display: block;
+  color: var(--signal-deep);
+  letter-spacing: -0.04em;
+}
+
+/* --------------------------------------------------------------------------
+   The answer. Sits directly under the question rather than at the foot of the
+   viewport, because it is a reply to that sentence and not page furniture.
+
+   No translateX(-50%) here: the timeline owns this element's transform and
+   centres it with xPercent, so a CSS transform would only be read once and
+   frozen into pixels.
+   -------------------------------------------------------------------------- */
+.answerContainer {
+  position: absolute;
+  top: 63%;
+  left: 50%;
+  z-index: 20;
+  opacity: 0;
+}
+
+/* ---- Shared control geometry ----------------------------------------------
+   This button and the RevisitOverlay's CTA are the same role — the affirmative
+   that leaves the landing page — so they are one design in two tonal variants,
+   not two designs. The tray padding, both radii, the glyph well, the label
+   role and every transition are identical in both stylesheets; only these four
+   tokens differ. This is the light variant: dark core on a risen gold sky.
+   ------------------------------------------------------------------------- */
+.answer {
+  /* Warm dark, not the green-black it was. It sits on the same cream as the
+     question above it, and the club's green is spent on the brand line alone. */
+  --ctrl-tray: rgba(43, 29, 13, 0.07);
+  --ctrl-tray-hover: rgba(43, 29, 13, 0.12);
+  --ctrl-core: #2b1d0d;
+  --ctrl-core-hover: #3d2a13;
+
+  display: block;
+  padding: 0.3125rem;
+  background: var(--ctrl-tray);
+  border: 1px solid rgba(43, 29, 13, 0.14);
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  /* Opts back in over the stage container's pass-through — the one thing on
+     this scene the reader can touch. */
+  pointer-events: auto;
+  transition:
+    transform 500ms var(--ease-snap),
+    background 500ms var(--ease-snap);
+}
+
+.answer:hover {
+  background: var(--ctrl-tray-hover);
+}
+
+.answer:active {
+  transform: scale(0.98);
+}
+
+/* Pressed and on its way out: the finale is already fading this, so the state
+   only has to stop inviting a second press. */
+.answer:disabled {
+  cursor: default;
+}
+
+.answer:disabled .answerIcon {
+  transform: none;
+}
+
+.answerCore {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4375rem 0.4375rem 0.4375rem 1.25rem;
+  background: var(--ctrl-core);
+  border-radius: var(--r-pill);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 246, 232, 0.16),
+    0 18px 40px -22px rgba(43, 29, 13, 0.55);
+  transition:
+    background 500ms var(--ease-snap),
+    box-shadow 500ms var(--ease-snap);
+}
+
+.answer:hover .answerCore {
+  background: var(--ctrl-core-hover);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 246, 232, 0.22),
+    0 24px 52px -20px rgba(43, 29, 13, 0.6);
+}
+
+/* CONTROL role — the third type role on the page, and the only one shared by
+   both registers besides the micro-label. Display face at 600 against the
+   200-weight lines it sits under, so it never reads as part of the sentence. */
+.answerLabel {
+  font-family: var(--font-display);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: #fdf6e8;
+  white-space: nowrap;
+}
+
+/* Button-in-button: the glyph never sits naked beside the label. */
+.answerIcon {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--r-pill);
+  background: rgba(255, 246, 232, 0.12);
+  color: #fdf6e8;
+  transition:
+    transform 500ms var(--ease-snap),
+    background 500ms var(--ease-snap);
+}
+
+.answerIcon svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.answer:hover .answerIcon {
+  background: rgba(255, 246, 232, 0.22);
+  transform: translate3d(3px, -1px, 0) scale(1.05);
+}
+
+.answer:focus-visible {
+  outline: 2px solid #2b1d0d;
+  outline-offset: 3px;
+}
+
+/* --------------------------------------------------------------------------
+   Mobile: fewer, cheaper layers. Big blurs are the first thing to cost frames.
+   -------------------------------------------------------------------------- */
+@media (max-width: 767px) {
+  .smoke {
+    filter: blur(40px);
+  }
+
+  .smokeCore {
+    display: none;
+  }
+
+  .flare {
+    filter: blur(16px);
+  }
+
+  .mote4,
+  .mote5 {
+    display: none;
+  }
+
+  .narrative {
+    padding: 0 6vw;
+  }
+
+  /* The question wraps to more lines on a narrow column, so the answer has to
+     sit further down to stay clear of it. */
+  .answerContainer {
+    top: 68%;
+  }
+}

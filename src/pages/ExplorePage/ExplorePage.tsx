@@ -73,10 +73,6 @@ function ExplorePage() {
       <div className={styles.container}>
         {/* ---- Editorial hero ---- */}
         <div ref={heroRef} className={styles.hero}>
-          <span className={styles.eyebrow} data-reveal data-reveal-index="0">
-            Field guide
-          </span>
-
           <h1 className={styles.heroTitle} data-reveal data-reveal-index="1">
             The planet is already
             <span className={styles.heroAccent}> generating </span>

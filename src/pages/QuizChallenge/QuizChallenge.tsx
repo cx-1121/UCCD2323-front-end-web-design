@@ -51,9 +51,6 @@ function QuizChallenge() {
           <section className={styles.resultShell} aria-labelledby="quiz-result-title">
             <div className={styles.resultCore}>
               <div className={styles.resultHeader}>
-                <div className={styles.eyebrowTag}>
-                  <span>Challenge Complete</span>
-                </div>
                 <h1 id="quiz-result-title" className={styles.title}>
                   Your Green Tech <span className={styles.titleHighlight}>Knowledge Score</span>
                 </h1>

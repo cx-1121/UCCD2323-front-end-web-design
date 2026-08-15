@@ -62,7 +62,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   Floating nav island
+   Floating nav
    -------------------------------------------------------------------------- */
 .headerBar {
   position: fixed;
@@ -75,12 +75,6 @@
   max-width: calc(100vw - 2rem);
   padding: 0.6875rem 1.5rem 0.6875rem 1.25rem;
   transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.74);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-pill);
-  box-shadow: var(--inner-lip), var(--shadow-soft);
-  backdrop-filter: blur(22px) saturate(140%);
-  -webkit-backdrop-filter: blur(22px) saturate(140%);
   transition:
     transform 650ms var(--ease-fluid),
     opacity 450ms var(--ease-fluid);
@@ -118,36 +112,6 @@
 .hero {
   max-width: 60rem;
   margin-bottom: clamp(3.5rem, 7vw, 6rem);
-}
-
-.eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: clamp(1.5rem, 3vw, 2.25rem);
-  padding: 0.375rem 0.8125rem;
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: 400;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--signal);
-  background: rgba(4, 120, 87, 0.07);
-  border: 1px solid rgba(4, 120, 87, 0.22);
-  border-radius: var(--r-pill);
-}
-
-.liveIndicator {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--signal);
-  animation: dbPulse 2s var(--ease-fluid) infinite;
-}
-
-@keyframes dbPulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%      { opacity: 0.4; transform: scale(0.7); }
 }
 
 .heroTitle {
@@ -322,7 +286,10 @@
   transition: opacity 0.2s ease, transform 0.3s ease;
 }
 
-.kpiTile:hover .flipHint {
+.kpiTile:hover .flipHint,
+.kpiTile:focus-visible .flipHint,
+.chartShell[role='button']:hover .flipHint,
+.chartShell[role='button']:focus-visible .flipHint {
   opacity: 0.95;
   transform: rotate(180deg);
 }

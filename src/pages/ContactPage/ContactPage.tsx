@@ -68,9 +68,6 @@ function ContactPage() {
       <div className={styles.container}>
         {/* ---- Masthead ---- */}
         <header className={styles.hero}>
-          <span className={styles.eyebrow} data-reveal data-reveal-index="0">
-            Get in touch
-          </span>
           <h1 className={styles.heroTitle} data-reveal data-reveal-index="1">
             Let&rsquo;s build
             <span className={styles.heroAccent}> together.</span>

@@ -61,10 +61,6 @@ export default function ProjectsPage() {
             headline animates as one element rather than unmasking line by
             line, which is what the other heroes do. */}
         <section className={styles.heroSection}>
-          <div className={styles.eyebrowTag} data-reveal data-reveal-index="0">
-            <span>Impact &amp; Initiatives</span>
-          </div>
-
           <h1 className={styles.heroTitle} data-reveal data-reveal-index="1">
             <span className={styles.lineInk}>Engineering Tangible</span>
             <span className={`${styles.lineInk} ${styles.heroTitleHighlight}`}>
@@ -237,9 +233,6 @@ export default function ProjectsPage() {
         {/* IMPACT TIMELINE / MILESTONES SECTION */}
         <section className={styles.timelineSection}>
           <div className={styles.sectionHeader} data-reveal data-reveal-index="0">
-            <div className={styles.eyebrowTag}>
-              <span>Project Roadmap &amp; Evolution</span>
-            </div>
             <h2 className={styles.sectionTitle}>Club Engineering Milestones</h2>
             <p className={styles.sectionSub}>
               How student initiatives developed from lab concepts into deployed green infrastructure.

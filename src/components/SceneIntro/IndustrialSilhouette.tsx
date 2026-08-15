@@ -1,19 +1,40 @@
 import styles from './IndustrialSilhouette.module.css';
 
+interface IndustrialSilhouetteProps {
+  /**
+   * `scene` (default) is the intro's background: absolutely positioned at the
+   * foot of the viewport, drifting, with the polluted-city overlay stacked on
+   * top for GSAP to cross-fade.
+   *
+   * `specimen` is the same drawing mounted flat on the revisit surface's
+   * herbarium sheet — no drift, no overlay, and no ids, because the landing
+   * timeline that owns those ids is not mounted on that surface.
+   */
+  variant?: 'scene' | 'specimen';
+}
+
 /**
- * Static industrial-city silhouette background for Scene 1 (Intro).
- * Ported verbatim (as real JSX, not dangerouslySetInnerHTML) from
- * past_landing_page.html lines 110-886: the inline ~800-shape SVG
- * (#industrial-silhouette-container) plus the polluted_city.svg overlay
- * (#industrial-dark-container) that GSAP cross-fades in over it in M2.
- * Purely static/decorative content — no animation logic lives here.
+ * Static industrial-city silhouette. Ported verbatim (as real JSX, not
+ * dangerouslySetInnerHTML) from past_landing_page.html lines 110-886: the
+ * inline ~800-shape SVG (#industrial-silhouette-container) plus the
+ * polluted_city.svg overlay (#industrial-dark-container) that GSAP cross-fades
+ * in over it in M2. Purely static/decorative content — no animation logic
+ * lives here.
+ *
+ * Its five fills are CSS custom properties (see the module), so a caller can
+ * re-ink the whole city without touching these 800 shapes.
  */
-function IndustrialSilhouette() {
+function IndustrialSilhouette({ variant = 'scene' }: IndustrialSilhouetteProps) {
+  const isSpecimen = variant === 'specimen';
+
   return (
     <>
-      <div id="industrial-silhouette-container" className={styles.container}>
+      <div
+        id={isSpecimen ? undefined : 'industrial-silhouette-container'}
+        className={isSpecimen ? styles.specimenContainer : styles.container}
+      >
         <svg
-          className={styles.svg}
+          className={isSpecimen ? styles.specimenSvg : styles.svg}
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 1000 700"
           preserveAspectRatio="xMidYMax meet"
@@ -785,9 +806,11 @@ function IndustrialSilhouette() {
           </g>
         </svg>
       </div>
-      <div id="industrial-dark-container" className={styles.darkContainer}>
-        <img src="/assets/polluted_city.svg" alt="" className={styles.darkImg} />
-      </div>
+      {!isSpecimen && (
+        <div id="industrial-dark-container" className={styles.darkContainer}>
+          <img src="/assets/polluted_city.svg" alt="" className={styles.darkImg} />
+        </div>
+      )}
     </>
   );
 }

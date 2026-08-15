@@ -215,6 +215,14 @@ function ExternalGlyph(props: GlyphProps) {
   );
 }
 
+function CloseGlyph(props: GlyphProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M6.4 6.4 17.6 17.6M17.6 6.4 6.4 17.6" />
+    </svg>
+  );
+}
+
 function ArrowGlyph(props: GlyphProps) {
   return (
     <svg {...base} {...props}>
@@ -247,5 +255,6 @@ export {
   PinGlyph,
   UsersGlyph,
   ExternalGlyph,
+  CloseGlyph,
   ArrowGlyph,
 };

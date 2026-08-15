@@ -11,107 +11,34 @@
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
-  padding: clamp(7rem, 12vw, 10rem) clamp(1rem, 4vw, 3rem) clamp(3rem, 6vw, 5rem);
+  padding: 0 0 clamp(3rem, 6vw, 5rem);
   background: var(--surface);
   color: var(--ink);
   font-family: var(--font-body);
   isolation: isolate;
 }
 
-/* --------------------------------------------------------------------------
-   Fixed atmosphere: residual haze above, dawn bloom below
-   -------------------------------------------------------------------------- */
-.dawn {
+/* The other half of the handover from the landing page's dawn, which ends on a
+   full-screen wash of this exact colour. Fixed and inert, above everything but
+   below nothing that matters — the reader sees one continuous frame across the
+   route change, then it lifts. Duration is mirrored by ARRIVAL_MS in the
+   component, which unmounts this the moment it is transparent. */
+.arrival {
   position: fixed;
   inset: 0;
-  z-index: 0;
-  overflow: hidden;
+  z-index: 40;
   pointer-events: none;
+  background: var(--surface);
+  animation: homeArrival 900ms var(--ease-fluid) forwards;
+  will-change: opacity;
 }
 
-/* The last of the smoke, hanging at the very top edge. Lighter than it was
-   before the transition existed: by the time the reader gets here the
-   cinematic has already done the work of clearing it. */
-.haze {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 38vh;
-  background: linear-gradient(
-    180deg,
-    rgba(70, 84, 78, 0.1) 0%,
-    rgba(70, 84, 78, 0.035) 38%,
-    transparent 100%
-  );
-}
-
-/* The sun the transition ended on, still in the sky. Warm, high and soft. */
-.sunlight {
-  position: absolute;
-  top: -32vh;
-  left: 62%;
-  width: min(120vw, 76rem);
-  height: 92vh;
-  transform: translateX(-50%);
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(255, 246, 224, 0.95) 0%,
-    rgba(255, 233, 183, 0.5) 26%,
-    rgba(255, 224, 168, 0.16) 48%,
-    transparent 70%
-  );
-  filter: blur(50px);
-}
-
-/* Lens flare: one soft horizontal streak, kept far below the type so it never
-   fights the headline for attention. */
-.flare {
-  position: absolute;
-  top: 16vh;
-  left: 50%;
-  width: 150vw;
-  height: 16vh;
-  margin-left: -75vw;
-  transform: translateY(-50%) rotate(-4deg);
-  background: linear-gradient(
-    90deg,
-    rgba(255, 240, 205, 0) 0%,
-    rgba(255, 243, 214, 0.22) 40%,
-    rgba(255, 250, 235, 0.4) 52%,
-    rgba(255, 243, 214, 0.2) 64%,
-    rgba(255, 240, 205, 0) 100%
-  );
-  filter: blur(30px);
-}
-
-/* Light rising to meet it. */
-.bloom {
-  position: absolute;
-  bottom: -34vh;
-  left: 50%;
-  width: min(140vw, 90rem);
-  height: 80vh;
-  transform: translateX(-50%);
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(16, 185, 129, 0.15) 0%,
-    rgba(132, 204, 22, 0.07) 42%,
-    transparent 70%
-  );
-  filter: blur(90px);
-  animation: hpBreathe 22s var(--ease-fluid) infinite alternate;
-  will-change: transform;
-}
-
-@keyframes hpBreathe {
+@keyframes homeArrival {
   from {
-    transform: translateX(-50%) scale(1);
+    opacity: 1;
   }
   to {
-    transform: translateX(-50%) scale(1.14);
+    opacity: 0;
   }
 }
 
@@ -127,7 +54,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   Floating nav island — matches the Explore page exactly
+   Floating nav — matches the Explore page exactly
    -------------------------------------------------------------------------- */
 .headerBar {
   position: fixed;
@@ -140,22 +67,30 @@
   max-width: calc(100vw - 2rem);
   padding: 0.6875rem 1.5rem 0.6875rem 1.25rem;
   transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.74);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-pill);
-  box-shadow:
-    var(--inner-lip),
-    var(--shadow-soft);
-  backdrop-filter: blur(22px) saturate(140%);
-  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  /* Inherited by the links: with no panel between them and the photograph,
+     the shadow is what keeps white type off a sunlit patch of frame. */
+  text-shadow: 0 1px 14px rgba(4, 20, 14, 0.6);
+  transition: text-shadow 400ms var(--ease-fluid);
 
-  /* Retunes the shared HudHeader for paper, same hooks as ExplorePage. */
-  --hud-mark: var(--signal);
+  /* Resting palette, set for the photograph the nav starts out over. */
+  --hud-mark: #6ee7b7;
   --hud-mark-glow: none;
+  --hud-ink: rgba(255, 255, 255, 0.78);
+  --hud-ink-static: #ffffff;
+  --hud-hover: #6ee7b7;
+  --hud-hover-glow: none;
+}
+
+/* Past the hero the links float on bare paper, where white would disappear
+   into --surface — the panel used to cover for that. Same palette as every
+   other interior route, so the nav ends up looking identical to Explore. */
+.headerBarOnPaper {
+  text-shadow: none;
+
+  --hud-mark: var(--signal);
   --hud-ink: var(--ink-soft);
   --hud-ink-static: var(--ink);
   --hud-hover: var(--signal-deep);
-  --hud-hover-glow: none;
 }
 
 .headerBar > header {
@@ -173,54 +108,93 @@
   width: 100%;
   max-width: 78rem;
   margin: 0 auto;
+  padding: 0 clamp(1rem, 4vw, 3rem);
 }
 
 /* --------------------------------------------------------------------------
-   Hero
+   Photographic hero — full-bleed, edge to edge, the height of the viewport.
+   The photograph carries the atmosphere the gradient bloom used to fake.
    -------------------------------------------------------------------------- */
 .hero {
-  max-width: 54rem;
-  margin-bottom: clamp(4rem, 8vw, 7rem);
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: min(100dvh, 92rem);
+  margin-bottom: clamp(4.5rem, 9vw, 8rem);
+  overflow: hidden;
+  isolation: isolate;
+  /* Holds the frame at the photo's own key while the image decodes, so the
+     white type never lands on a white plate. */
+  background-color: #16301f;
 }
 
-.eyebrow {
-  display: inline-block;
-  margin-bottom: clamp(1.5rem, 3vw, 2.25rem);
-  padding: 0.375rem 0.8125rem;
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: 400;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--signal);
-  background: rgba(4, 120, 87, 0.07);
-  border: 1px solid rgba(4, 120, 87, 0.22);
-  border-radius: var(--r-pill);
+.heroPhoto {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 42%;
+}
+
+/* Two crossed washes: vertical, so the nav links at the top and the type at
+   the bottom both clear contrast, and horizontal, so the sunlit right side of
+   the frame stays open while the copy column sits on the darker left. */
+.heroScrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(6, 26, 18, 0.55) 0%,
+      rgba(6, 26, 18, 0.14) 30%,
+      rgba(6, 26, 18, 0.34) 62%,
+      rgba(6, 26, 18, 0.8) 100%
+    ),
+    linear-gradient(
+      90deg,
+      rgba(4, 20, 14, 0.62) 0%,
+      rgba(4, 20, 14, 0.26) 46%,
+      rgba(4, 20, 14, 0) 76%
+    );
+}
+
+.heroInner {
+  position: relative;
+  width: 100%;
+  max-width: 78rem;
+  margin: 0 auto;
+  padding: clamp(12rem, 20vw, 18rem) clamp(1rem, 4vw, 3rem) clamp(4.5rem, 8vw, 8rem);
 }
 
 .title {
-  margin: 0 0 clamp(1.5rem, 3vw, 2.25rem);
+  max-width: 20ch;
+  margin: 0 0 clamp(1.25rem, 2.5vw, 1.875rem);
   font-family: var(--font-display);
   font-size: clamp(2.75rem, 8vw, 6rem);
   font-weight: 200;
   letter-spacing: -0.045em;
   line-height: 0.96;
-  color: var(--ink);
+  color: #ffffff;
+  text-shadow: 0 2px 30px rgba(4, 20, 14, 0.45);
   text-wrap: balance;
 }
 
 .titleAccent {
   font-weight: 500;
-  color: var(--signal);
+  color: #6ee7b7;
 }
 
 .lede {
-  max-width: 46ch;
-  margin: 0;
+  max-width: 44ch;
+  margin: 0 0 clamp(2rem, 4vw, 2.75rem);
   font-size: clamp(1rem, 1.3vw, 1.1875rem);
   font-weight: 300;
   line-height: 1.75;
-  color: var(--ink-soft);
+  color: rgba(255, 255, 255, 0.88);
+  text-shadow: 0 1px 18px rgba(4, 20, 14, 0.55);
   text-wrap: pretty;
 }
 
@@ -367,6 +341,24 @@
 
 .action:active {
   transform: scale(0.98);
+}
+
+/* The hero's own call to action: the same island, one size up, and opaque
+   enough to hold its edge against a photograph rather than paper. */
+.heroCta {
+  padding: 0.5625rem 0.5625rem 0.5625rem 1.5rem;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 20px 46px -20px rgba(3, 22, 15, 0.9);
+}
+
+.heroCta .actionLabel {
+  font-size: 1rem;
+}
+
+.heroCta .actionIcon {
+  width: 2.25rem;
+  height: 2.25rem;
 }
 
 /* Secondary route: same shape, quieter surface. Bordered rather than filled so
@@ -540,7 +532,32 @@
 
 @media (max-width: 767px) {
   .page {
-    padding: 6.5rem 1rem 2.5rem;
+    padding: 0 0 2.5rem;
+  }
+
+  .hero {
+    min-height: min(100dvh, 70rem);
+    margin-bottom: 3rem;
+  }
+
+  .heroInner {
+    padding: 8rem 1rem 3rem;
+  }
+
+  /* Portrait crops the frame hard; holding the horizon keeps the sunbeams in
+     shot instead of filling the plate with trunks. */
+  .heroPhoto {
+    object-position: 58% 40%;
+  }
+
+  .heroScrim {
+    background: linear-gradient(
+      180deg,
+      rgba(6, 26, 18, 0.5) 0%,
+      rgba(6, 26, 18, 0.24) 34%,
+      rgba(6, 26, 18, 0.62) 74%,
+      rgba(6, 26, 18, 0.86) 100%
+    );
   }
 
   .plate {
@@ -563,33 +580,12 @@
     justify-content: space-between;
   }
 
-  .haze {
-    height: 32vh;
-  }
-
-  .bloom {
-    filter: blur(70px);
-    animation: none;
-  }
-
-  .sunlight {
-    filter: blur(38px);
-  }
-
-  .flare {
-    display: none;
-  }
-
   .footer {
     flex-direction: column;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bloom {
-    animation: none;
-  }
-
   .page [data-reveal] {
     opacity: 1;
     filter: none;

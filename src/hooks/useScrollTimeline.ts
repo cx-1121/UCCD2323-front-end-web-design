@@ -7,11 +7,7 @@ import { animState } from '../utils/animState';
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, ScrollToPlugin);
 
-export const totalDuration = 54;
-export const sectionsProgress = [
-  0.0,
-  39 / totalDuration, // Traditional / Fossil
-];
+export const totalDuration = 93;
 
 /**
  * Where each scene starts on the master timeline, in seconds.
@@ -24,15 +20,8 @@ const BEAT = {
   crisis: 0,
   burst: 18,
   exit: 35,
-  traditional: 39,
+  dawn: 39,
 } as const;
-
-declare global {
-  interface Window {
-    scrollToSection?: (index: number) => void;
-    scrollToTop?: (event: Event) => void;
-  }
-}
 
 /**
  * Scene 1 — the air thickens and the headline turns over. Ends at +14s.
@@ -105,23 +94,164 @@ function buildExit() {
   return tl;
 }
 
-/** Scene 4 — the fossil comparison arrives and the CTA settles. Ends at +11s. */
-function buildTraditional() {
-  const tl = gsap.timeline({ defaults: { duration: 3, ease: 'power2.out' } });
+/**
+ * The subtitles that carry the dawn, in order. These ids are rendered by
+ * SceneDawn — the two lists are one contract. "Welcome to Green Tech Club." is
+ * deliberately absent: it is not scrolled to at all, but played by SceneDawn's
+ * own finale once the reader has answered.
+ */
+const DAWN_LINES = ['#dawn-line-1', '#dawn-line-2', '#dawn-line-3', '#dawn-line-4'];
 
+/**
+ * Where each subtitle lands inside the dawn, in seconds. Not an even step: the
+ * lines are pinned to the beats of the sky, not to a metronome — line 2 arrives
+ * with the wind, line 3 as the smoke shears, and the question waits out a long
+ * wordless stretch while the sun actually comes up.
+ */
+const DAWN_LINE_AT = [3, 15, 27, 44];
+/** On-screen dwell, measured from the start of a line's entrance, not its end. */
+const DAWN_LINE_HOLD = 8.8;
+
+/** Every layer of the dawn is selected by its data attribute, never by a
+ *  CSS-module class name — those are hashed at build time. */
+const D = (name: string) => `[data-dawn="${name}"]`;
+
+/**
+ * Scene 4 — Dawn, and the whole second half of the page. Ends at +54s.
+ *
+ * A port of what used to be DawnTransition's CSS keyframes, scrubbed by the
+ * reader's scroll instead of by a 4.6s clock, and then stretched to twice that
+ * again so each beat is walked rather than flicked past. The keyframe
+ * percentages that used to live in the stylesheet are what these absolute
+ * seconds were derived from, which is why the numbers are not round.
+ *
+ * It stops on gold, mid-morning, with the question on screen and the only
+ * answer to it under that. Full daylight, the motes and the club's name are
+ * NOT here: they are `buildFinale()` in SceneDawn, off the scroll entirely,
+ * because they are what the answer buys.
+ */
+function buildDawn() {
+  const tl = gsap.timeline();
+
+  // The intro has already pulled away toward the camera; the dawn opens under
+  // it in the dark it left behind.
+  tl.fromTo('#scene-dawn', { opacity: 0 }, { opacity: 1, duration: 6, ease: 'power1.inOut' }, 0)
+    // Camera push: a slow creep forward through the whole sequence.
+    .fromTo(D('scene'), { scale: 1 }, { scale: 1.12, duration: 54, ease: 'power1.inOut' }, 0);
+
+  // ---- Colour curve. Linear cross-fades: any ease here would read as the
+  //      light stalling, and the sky is the one thing that must not. The walk
+  //      ends on gold — `buildFinale()` owns the last step to clear. ----
+  tl.to(D('sky-soot'), { opacity: 0, duration: 12, ease: 'none' }, 10.8)
+    .fromTo(D('sky-deep'), { opacity: 0 }, { opacity: 1, duration: 10.8, ease: 'none' }, 9.6)
+    .to(D('sky-deep'), { opacity: 0, duration: 8.4, ease: 'none' }, 30)
+    .fromTo(D('sky-warm'), { opacity: 0 }, { opacity: 1, duration: 9.6, ease: 'none' }, 26.4)
+    .to(D('sky-warm'), { opacity: 0, duration: 7.2, ease: 'none' }, 40.8)
+    .fromTo(D('sky-gold'), { opacity: 0 }, { opacity: 1, duration: 9.6, ease: 'none' }, 37.2);
+
+  // ---- Smoke. Beat 1 is the whole trick: it gets worse before it gets
+  //      better, and only the wind changes that. ----
   tl.fromTo(
-    '#scene-traditional',
-    { scale: 1.25, opacity: 0 },
-    { scale: 1.0, opacity: 1, pointerEvents: 'auto' },
+    D('smoke-core'),
+    { x: 0, y: 0, scale: 0.9, opacity: 0.75 },
+    { scale: 1.15, opacity: 1, duration: 10.8, ease: 'power1.out' },
     0,
   )
-    .to('#fossil-question-text', { opacity: 1, scale: 1 }, 5)
-    .fromTo(
-      '#fossil-cta-container',
-      { opacity: 0, scale: 0.9, pointerEvents: 'none' },
-      { opacity: 1, scale: 1, pointerEvents: 'auto' },
-      8,
+    .to(D('smoke-core'), { y: '-6vh', scale: 1.25, opacity: 0.72, duration: 16.8, ease: 'none' }, 10.8)
+    .to(D('smoke-core'), { y: '-22vh', scale: 1.5, opacity: 0.12, duration: 18, ease: 'power1.in' }, 27.6)
+    .to(D('smoke-core'), { y: '-34vh', scale: 1.7, opacity: 0, duration: 8.4, ease: 'none' }, 45.6);
+
+  tl.fromTo(
+    D('smoke-left'),
+    { x: '6vw', y: 0, scale: 0.92, opacity: 0.7 },
+    { x: '2vw', scale: 1.12, opacity: 0.95, duration: 10.8, ease: 'power1.out' },
+    0,
+  )
+    .to(D('smoke-left'), { x: '-22vw', y: '-4vh', scale: 1.3, opacity: 0.6, duration: 20.4, ease: 'power1.in' }, 10.8)
+    .to(D('smoke-left'), { x: '-72vw', y: '-12vh', scale: 1.6, opacity: 0, duration: 22.8, ease: 'none' }, 31.2);
+
+  tl.fromTo(
+    D('smoke-right'),
+    { x: '-6vw', y: 0, scale: 0.94, opacity: 0.68 },
+    { x: '-2vw', scale: 1.14, opacity: 0.95, duration: 10.8, ease: 'power1.out' },
+    0,
+  )
+    .to(D('smoke-right'), { x: '24vw', y: '-3vh', scale: 1.32, opacity: 0.58, duration: 20.4, ease: 'power1.in' }, 10.8)
+    .to(D('smoke-right'), { x: '76vw', y: '-10vh', scale: 1.62, opacity: 0, duration: 22.8, ease: 'none' }, 31.2);
+
+  // ---- Wind, arriving before any light. ----
+  tl.fromTo(
+    D('gust'),
+    { x: '-50vw' },
+    { x: '130vw', duration: 26.4, ease: 'power2.out', stagger: 1.6 },
+    7.2,
+  )
+    .fromTo(D('gust'), { opacity: 0 }, { opacity: 0.85, duration: 4.8, ease: 'none', stagger: 1.6 }, 7.2)
+    .to(D('gust'), { opacity: 0, duration: 16.8, ease: 'none', stagger: 1.6 }, 16.8);
+
+  // ---- Then the light. It rises to full and stays there: the last swell is
+  //      the finale's, not the scroll's. ----
+  tl.fromTo(
+    D('sun'),
+    { scale: 0.06, opacity: 0 },
+    { scale: 0.16, opacity: 0.5, duration: 7.2, ease: 'power2.out' },
+    15.6,
+  )
+    .to(D('sun'), { scale: 0.55, opacity: 0.95, duration: 14.4, ease: 'none' }, 22.8)
+    .to(D('sun'), { scale: 1, opacity: 1, duration: 13.2, ease: 'none' }, 37.2);
+
+  // yPercent carries the centring the stylesheet deliberately left off, so the
+  // scaleX streak below cannot clobber it.
+  tl.fromTo(
+    D('flare'),
+    { yPercent: -50, scaleX: 0.3, opacity: 0 },
+    { scaleX: 1, opacity: 0.9, duration: 10.8, ease: 'power2.out' },
+    31.2,
+  ).to(D('flare'), { opacity: 0.45, duration: 10.8, ease: 'none' }, 42);
+
+  tl.to(D('vignette'), { opacity: 0.55, duration: 25.2, ease: 'none' }, 12)
+    .to(D('vignette'), { opacity: 0, duration: 16.8, ease: 'none' }, 37.2);
+
+  // The ink flips from light to dark as the sky goes gold, so its readability
+  // floor flips with it — both settled before the question arrives at 44.
+  tl.to(D('scrim-dark'), { opacity: 0, duration: 8, ease: 'none' }, 38)
+    .fromTo(D('scrim-light'), { opacity: 0 }, { opacity: 1, duration: 8, ease: 'none' }, 42);
+
+  // ---- Subtitles. All four share one grid cell, so each is pushed back out
+  //      before the next arrives — except the question, which has nowhere to go
+  //      until it is answered. ----
+  DAWN_LINES.forEach((line, i) => {
+    const at = DAWN_LINE_AT[i];
+    const isQuestion = i === DAWN_LINES.length - 1;
+
+    tl.fromTo(
+      line,
+      { opacity: 0, y: 40, filter: 'blur(12px)' },
+      { opacity: 1, y: 0, filter: 'blur(0px)', duration: 4, ease: 'power2.out' },
+      at,
     );
+
+    if (!isQuestion) {
+      tl.to(
+        line,
+        { opacity: 0, y: -40, filter: 'blur(12px)', duration: 3.2, ease: 'power2.in' },
+        at + DAWN_LINE_HOLD,
+      );
+    }
+  });
+
+  // Settles well before the scroll runs out, so the reader is never asked to
+  // hunt for the last pixel of the page to reach it.
+  tl.fromTo(
+    '#dawn-answer',
+    { opacity: 0, scale: 0.9 },
+    { opacity: 1, scale: 1, duration: 3, ease: 'power2.out' },
+    48.5,
+  );
+
+  // Nothing animates over the last 2.5s on purpose: the question and its answer
+  // are left alone at the bottom of the scroll.
+  tl.set({}, {}, 54);
 
   return tl;
 }
@@ -141,13 +271,13 @@ export function buildLandingTimeline(vars?: gsap.TimelineVars) {
     .addLabel('crisis', BEAT.crisis)
     .addLabel('burst', BEAT.burst)
     .addLabel('exit', BEAT.exit)
-    .addLabel('traditional', BEAT.traditional);
+    .addLabel('dawn', BEAT.dawn);
 
   master
     .add(buildCrisis(), 'crisis')
     .add(buildBurst(), 'burst')
     .add(buildExit(), 'exit')
-    .add(buildTraditional(), 'traditional');
+    .add(buildDawn(), 'dawn');
 
   return master;
 }
@@ -174,9 +304,13 @@ export function useScrollTimeline(triggerRef: RefObject<HTMLDivElement>) {
       }
 
       // Starting state.
-      gsap.set('#scene-traditional', { scale: 1.25, opacity: 0, pointerEvents: 'none' });
-      gsap.set('#fossil-question-text', { opacity: 0, scale: 0.95 });
-      gsap.set('#fossil-cta-container', { opacity: 0, scale: 0.95, pointerEvents: 'none' });
+      gsap.set('#scene-dawn', { opacity: 0 });
+      gsap.set([...DAWN_LINES, '#dawn-welcome'], { opacity: 0, y: 40 });
+      // xPercent rather than a CSS translateX: GSAP would otherwise decompose
+      // the stylesheet's -50% into a fixed pixel offset the first time it
+      // touches this element's transform, and the pill would drift off centre
+      // on resize.
+      gsap.set('#dawn-answer', { opacity: 0, scale: 0.9, xPercent: -50 });
       gsap.set(animState, { smokeIntensity: 0.0, smokeSpread: 0.0 });
 
       /**
@@ -206,20 +340,8 @@ export function useScrollTimeline(triggerRef: RefObject<HTMLDivElement>) {
           end: 'bottom bottom',
           scrub: 1.2,
           onUpdate: (self) => {
-            const progress = self.progress;
-            let activeIndex = 0;
-            for (let i = 0; i < sectionsProgress.length; i++) {
-              if (progress >= sectionsProgress[i] - 0.02) {
-                activeIndex = i;
-              }
-            }
-
-            window.dispatchEvent(
-              new CustomEvent('active-section-changed', { detail: { activeIndex } }),
-            );
-
             // Act on the crossing, not on every frame.
-            const shouldHide = progress > 0.02;
+            const shouldHide = self.progress > 0.02;
             if (hintFade && shouldHide !== hintHidden) {
               hintHidden = shouldHide;
               if (shouldHide) {
@@ -232,24 +354,11 @@ export function useScrollTimeline(triggerRef: RefObject<HTMLDivElement>) {
         },
       });
 
-      // Global scroll control bindings, consumed by ProgressHud.
-      window.scrollToSection = (index: number) => {
-        const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-        const targetScroll = scrollHeight * sectionsProgress[index];
-        gsap.to(window, { scrollTo: { y: targetScroll }, duration: 2, ease: 'power3.inOut' });
-      };
-
-      window.scrollToTop = (event: Event) => {
-        event.preventDefault();
-        gsap.to(window, { scrollTo: { y: 0 }, duration: 3, ease: 'power4.inOut' });
-      };
-
-      // The master, its ScrollTrigger and every nested scene are reverted by
-      // useGSAP; only the window bindings need unhooking by hand.
-      return () => {
-        delete window.scrollToSection;
-        delete window.scrollToTop;
-      };
+      /* The section index dispatch, the `scrollToSection` / `scrollToTop`
+         window bindings and the `sectionsProgress` table all went with the
+         scene radar: it was their only consumer. The master, its ScrollTrigger
+         and every nested scene are reverted by useGSAP, so nothing is left to
+         unhook by hand. */
     },
     { scope: triggerRef, dependencies: [triggerRef] },
   );

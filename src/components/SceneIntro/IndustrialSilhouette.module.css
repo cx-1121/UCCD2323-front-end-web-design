@@ -30,25 +30,29 @@
   opacity: 0.29;
 }
 
+/* The five fills are tokenised rather than hardcoded so the same drawing can
+   be mounted as a pressed herbarium specimen on the revisit surface and shift
+   from dead grey-brown to living green. The defaults are the values the intro
+   scene has always used, so nothing about that scene changes. */
 .cls1,
 .cls3 {
-  fill: #658280;
+  fill: var(--city-deep, #658280);
 }
 
 .cls4,
 .cls2 {
-  fill: #b5c3c2;
+  fill: var(--city-pale, #b5c3c2);
 }
 
 .cls5 {
-  fill: #95a9a7;
+  fill: var(--city-mid, #95a9a7);
 }
 
 .cls6,
 .cls7,
 .cls8,
 .cls9 {
-  fill: #fff;
+  fill: var(--city-lit, #fff);
 }
 
 .cls7 {
@@ -60,7 +64,28 @@
 }
 
 .cls11 {
-  fill: #eff0ed;
+  fill: var(--city-lit, #eff0ed);
+}
+
+/* ---- Specimen variant -----------------------------------------------------
+   The same drawing mounted flat on a herbarium sheet: no absolute positioning
+   to fight, no float, and no polluted-city overlay. A pressed specimen does
+   not drift.
+   -------------------------------------------------------------------------- */
+.specimenContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.specimenSvg {
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 
 .cls12 {

@@ -9,6 +9,7 @@ import ProjectsPage from './pages/ProjectsPage/ProjectsPage';
 import DashboardPage from './pages/DashboardPage/DashboardPage';
 import DebugConsole from './components/DebugConsole/DebugConsole';
 import RouteHistoryTracker from './components/RouteHistoryTracker';
+import ScrollToTop from './components/ScrollToTop';
 import CookieConsent from './components/CookieConsent/CookieConsent';
 import ConsentProvider from './context/ConsentProvider';
 import { safeLocal } from './utils/storage';
@@ -64,6 +65,9 @@ function App() {
         {/* Records the previous route so HomePage can tell "walked in from the
           landing page" apart from an ordinary nav click. Renders nothing. */}
         <RouteHistoryTracker />
+        {/* Parks each route at the top on arrival, except on back/forward.
+          Renders nothing. */}
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<RootRouteGuard />} />
           <Route path="/home" element={<HomePage />} />

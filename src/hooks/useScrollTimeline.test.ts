@@ -1,76 +1,128 @@
-import { describe, expect, it } from 'vitest';
-import { buildLandingTimeline, sectionsProgress, totalDuration } from './useScrollTimeline';
+import { afterEach, describe, expect, it } from 'vitest';
+import { cleanup, render } from '@testing-library/react';
+import { createElement } from 'react';
+import App from '../App';
+import { buildLandingTimeline, totalDuration } from './useScrollTimeline';
 
 /**
- * The landing cinematic is a 50-second scrubbed sequence. It was refactored
- * from one flat timeline of ~20 absolutely-positioned tweens into four nested
- * scene timelines placed at labels, and that rewrite must not move a single
- * beat.
+ * The master timeline is built free of ScrollTrigger and of React precisely so
+ * it can be seeked here without a scroller. These assertions are on the dawn —
+ * the act folded in from the old timed DawnTransition — because its four
+ * subtitles and its colour walk are the part with real ordering to get wrong.
  *
- * These are the absolute times from the original flat timeline, transcribed
- * before the change. If a scene is ever retimed, this file is the thing that
- * says so out loud.
+ * `App` is rendered only to put the scene in the document: the timeline targets
+ * it by id and by `data-dawn`, so the markup has to exist before the tweens are
+ * built.
  */
-describe('landing timeline choreography', () => {
-  const scenes = () => {
-    const master = buildLandingTimeline({ paused: true });
-    // Direct children only: the four scene timelines, in build order.
-    const children = master.getChildren(false, false, true);
-    return { master, children };
+
+/** Where the dawn scene starts on the master timeline. Mirrors BEAT.dawn. */
+const DAWN = 39;
+
+const opacityOf = (id: string) => {
+  const el = document.getElementById(id);
+  if (!el) throw new Error(`missing #${id}`);
+  return Number(el.style.opacity || '1');
+};
+
+const dawnLayer = (name: string) => {
+  const el = document.querySelector<HTMLElement>(`[data-dawn="${name}"]`);
+  if (!el) throw new Error(`missing [data-dawn="${name}"]`);
+  return el;
+};
+
+const dawnLayerOpacity = (name: string) => Number(dawnLayer(name).style.opacity || '1');
+
+/**
+ * jsdom applies no stylesheet, so a layer the timeline has never touched reads
+ * back as opaque rather than at its CSS resting state. Asserting that nothing
+ * inline was written is the honest form of "the scroll does not own this".
+ */
+const isUntouchedByScroll = (name: string) => dawnLayer(name).style.opacity === '';
+
+afterEach(cleanup);
+
+describe('landing timeline — dawn', () => {
+  const build = () => {
+    render(createElement(App));
+    return buildLandingTimeline({ paused: true });
   };
 
-  it('places every scene at the time the flat timeline used', () => {
-    const { children } = scenes();
-
-    expect(children).toHaveLength(4);
-
-    const schedule = children.map((scene) => ({
-      start: scene.startTime(),
-      duration: scene.duration(),
-    }));
-
-    expect(schedule).toEqual([
-      { start: 0, duration: 14 }, // crisis      last beat 11s + 3s
-      { start: 18, duration: 14 }, // burst       last beat +8s + 6s
-      { start: 35, duration: 4 }, // exit
-      { start: 39, duration: 11 }, // traditional last beat +8s + 3s
-    ]);
+  it('runs for the full advertised duration', () => {
+    const tl = build();
+    expect(tl.duration()).toBeCloseTo(totalDuration, 5);
+    tl.kill();
   });
 
-  it('runs for exactly as long as it did before the refactor', () => {
-    const { master } = scenes();
-    expect(master.duration()).toBe(50);
+  it('opens the dawn out of the dark the intro left behind', () => {
+    const tl = build();
+
+    tl.seek(DAWN - 1);
+    expect(opacityOf('scene-dawn')).toBeCloseTo(0, 1);
+
+    tl.seek(DAWN + 8);
+    expect(opacityOf('scene-dawn')).toBeCloseTo(1, 1);
+
+    tl.kill();
   });
 
-  it('exposes the scene labels the sequence is written against', () => {
-    const { master } = scenes();
-    expect(master.labels).toMatchObject({
-      crisis: 0,
-      burst: 18,
-      exit: 35,
-      traditional: 39,
+  it('shows exactly one subtitle at each beat, in order', () => {
+    const tl = build();
+    const lines = ['dawn-line-1', 'dawn-line-2', 'dawn-line-3', 'dawn-line-4'];
+    // Mid-dwell for each line: entrances at 3/15/27/44, each over 4s.
+    const beats = [8, 20, 32, 50];
+
+    beats.forEach((offset, i) => {
+      tl.seek(DAWN + offset);
+      expect(opacityOf(lines[i])).toBeGreaterThan(0.9);
+      lines.forEach((other, j) => {
+        if (j !== i) expect(opacityOf(other)).toBeLessThan(0.5);
+      });
     });
+
+    tl.kill();
   });
 
-  /**
-   * Pins a pre-existing discrepancy so a deliberate fix trips this test rather
-   * than slipping through unnoticed.
-   *
-   * `sectionsProgress` is computed against a declared `totalDuration` of 54,
-   * but the timeline's content actually ends at 50. Under `scrub`, scroll
-   * progress maps linearly onto the real duration, so ProgressHud's second dot
-   * targets 72.2% of the scroll range and lands ~2.9s BEFORE the "traditional"
-   * label it is named for. Predates the refactor; left alone deliberately,
-   * because correcting it moves where that dot scrolls to.
-   */
-  it('records that the declared totalDuration overshoots the real one', () => {
-    const { master } = scenes();
+  it('walks the sky to gold and stops there, holding the question', () => {
+    const tl = build();
 
-    expect(totalDuration).toBe(54);
-    expect(master.duration()).toBe(50);
+    tl.seek(DAWN + 4);
+    expect(dawnLayerOpacity('sky-soot')).toBeCloseTo(1, 1);
+    expect(dawnLayerOpacity('sky-gold')).toBeCloseTo(0, 1);
+    expect(opacityOf('dawn-answer')).toBeCloseTo(0, 1);
 
-    const whereTheDotLands = sectionsProgress[1] * master.duration();
-    expect(whereTheDotLands).toBeCloseTo(36.1, 1);
-    expect(whereTheDotLands).not.toBe(master.labels.traditional);
+    // The sun stays shut until the wind has been working for a while.
+    tl.seek(DAWN + 12);
+    expect(dawnLayerOpacity('sun')).toBeCloseTo(0, 1);
+    expect(dawnLayerOpacity('gust')).toBeGreaterThan(0.1);
+
+    // End of the scroll: gold sky, sun risen, question and answer on screen —
+    // and the clear sky, the motes and the welcome all still held back for the
+    // finale, which is not on this timeline at all.
+    tl.seek(totalDuration);
+    expect(dawnLayerOpacity('sky-soot')).toBeCloseTo(0, 1);
+    expect(dawnLayerOpacity('sky-gold')).toBeCloseTo(1, 1);
+    expect(isUntouchedByScroll('sky-clear')).toBe(true);
+    expect(isUntouchedByScroll('mote')).toBe(true);
+    expect(dawnLayerOpacity('sun')).toBeCloseTo(1, 1);
+    expect(dawnLayerOpacity('vignette')).toBeCloseTo(0, 1);
+    expect(opacityOf('dawn-line-4')).toBeCloseTo(1, 1);
+    expect(opacityOf('dawn-answer')).toBeCloseTo(1, 1);
+    expect(opacityOf('dawn-welcome')).toBeCloseTo(0, 1);
+
+    tl.kill();
+  });
+
+  it('rewinds cleanly — scrubbing back restores the opening frame', () => {
+    const tl = build();
+
+    tl.seek(totalDuration);
+    tl.seek(0);
+
+    expect(opacityOf('scene-dawn')).toBeCloseTo(0, 1);
+    expect(opacityOf('dawn-line-4')).toBeCloseTo(0, 1);
+    expect(opacityOf('dawn-answer')).toBeCloseTo(0, 1);
+    expect(dawnLayerOpacity('sky-soot')).toBeCloseTo(1, 1);
+
+    tl.kill();
   });
 });

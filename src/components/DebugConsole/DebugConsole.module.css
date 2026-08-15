@@ -1,166 +1,646 @@
+/* ==========================================================================
+   DebugConsole — Ethereal Glass over an OLED ground.
+
+   Deliberately NOT the site's paper surface: this is instrumentation, not a
+   page, and it has to stay legible floating over both the dark cinematic and
+   the light interior routes. Vantablack core, radial mesh orbs, hairline
+   enclosures, hairline glyphs. Layout: asymmetrical bento for the route table.
+
+   Motion tokens (--ease-fluid / --ease-snap / --ease-glide) come from
+   global.css and are all custom cubic-beziers — nothing here uses ease or
+   linear. Everything animated is transform or opacity.
+   ========================================================================== */
+
 .wrapper {
+  /* Layer stack, tallest first: this console, DevTimeDisplay (9999),
+     CookieConsent (9000), page chrome (≤300). Nothing may sit above the
+     instrumentation, so it takes exactly one step over the highest of them. */
   position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  z-index: 100000;
+  right: clamp(1rem, 3vw, 2rem);
+  bottom: clamp(1rem, 3vw, 2rem);
+  z-index: 10000;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+  gap: 0.875rem;
+  font-family: var(--font-body);
 }
 
-.triggerButton {
+/* --------------------------------------------------------------------------
+   Trigger — double-bezel, right down to the 56px puck
+   -------------------------------------------------------------------------- */
+.trigger {
+  display: grid;
+  place-items: center;
   width: 3.5rem;
   height: 3.5rem;
-  border-radius: 50%;
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  color: #10b981;
-  font-size: 1.5rem;
+  padding: 5px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--r-pill);
+  box-shadow: 0 22px 50px -26px rgba(2, 10, 7, 0.9);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(8px);
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  transition:
+    transform 600ms var(--ease-snap),
+    box-shadow 600ms var(--ease-snap);
 }
 
-.triggerButton:hover {
+.triggerCore {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: #6ee7b7;
+  background: rgba(5, 12, 9, 0.86);
+  border-radius: var(--r-pill);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  transition: transform 700ms var(--ease-fluid);
+}
+
+.triggerCore svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.trigger:hover {
+  transform: translate3d(0, -2px, 0);
+  box-shadow: 0 30px 60px -24px rgba(2, 10, 7, 0.95);
+}
+
+/* Open state turns the X into a plus. The mark turns rather than the whole
+   puck, so the bezel stays square to the viewport while the glyph inside it
+   moves. */
+.triggerOpen .triggerCore {
+  transform: rotate(45deg);
+}
+
+/* Hover scales instead of rotating: rotation is the open/closed signal now,
+   and a 90° turn on a symmetrical X would read as nothing happening at all. */
+.trigger:hover .triggerCore {
+  transform: scale(1.1);
+}
+
+.triggerOpen:hover .triggerCore {
   transform: rotate(45deg) scale(1.1);
-  border-color: #10b981;
-  box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
 }
 
-.panel {
-  margin-bottom: 1rem;
-  width: 280px;
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  padding: 1.25rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(12px);
+.trigger:active {
+  transform: scale(0.97);
+}
+
+.trigger:focus-visible {
+  outline: 2px solid #6ee7b7;
+  outline-offset: 3px;
+}
+
+/* --------------------------------------------------------------------------
+   Panel — outer shell / inner core, concentric radii
+   -------------------------------------------------------------------------- */
+.shell {
+  position: relative;
+  width: min(23rem, calc(100vw - 2rem));
+  padding: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--r-shell);
+  box-shadow: 0 40px 90px -40px rgba(2, 10, 7, 0.95);
+  /* Blur lives here, on the fixed shell — never on .scroll below. */
+  backdrop-filter: blur(26px) saturate(160%);
+  -webkit-backdrop-filter: blur(26px) saturate(160%);
+  isolation: isolate;
+  animation: dcRise 700ms var(--ease-glide) backwards;
+  transform-origin: 100% 100%;
+}
+
+/* Exit. Declared after .shell so it wins the shorthand, and shorter than the
+   entry — a panel being dismissed should get out of the way faster than it
+   arrived. `forwards` holds the last frame so there is no flash of the resting
+   state in the frame between animationend and the unmount. */
+.shellClosing {
+  animation: dcFall 300ms var(--ease-fluid) forwards;
+  pointer-events: none;
+}
+
+.mesh {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  border-radius: var(--r-shell);
+  pointer-events: none;
+}
+
+.orb {
+  position: absolute;
+  width: 16rem;
+  height: 16rem;
+  border-radius: 50%;
+  filter: blur(48px);
+  will-change: transform;
+}
+
+.orbA {
+  top: -6rem;
+  right: -5rem;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.5) 0%, transparent 68%);
+  animation: dcDriftA 19s var(--ease-fluid) infinite alternate;
+}
+
+.orbB {
+  bottom: -7rem;
+  left: -6rem;
+  background: radial-gradient(circle, rgba(45, 212, 191, 0.34) 0%, transparent 70%);
+  animation: dcDriftB 23s var(--ease-fluid) infinite alternate;
+}
+
+.core {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  background: rgba(5, 12, 9, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  /* Outer radius minus the shell's own padding — concentric, not coincidental. */
+  border-radius: calc(var(--r-shell) - 6px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1.25rem 1.25rem 0.875rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .title {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #f8fafc;
   margin: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 0.5rem;
-  letter-spacing: 0.05em;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: #f2f7f4;
+}
+
+.route {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: #6ee7b7;
+  white-space: nowrap;
+}
+
+/* The scrolling region carries no blur and no filter of its own — the shell
+   above it does, and stacking a second one here would repaint on every wheel
+   tick. */
+.scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-height: min(30rem, calc(100dvh - 12rem));
+  padding: 1.25rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Staggered entry. `--step` is set per section in the markup, so the delay is
+   authored next to the content it belongs to rather than by nth-child. */
+.section,
+.tip {
+  animation: dcRise 620ms var(--ease-glide) backwards;
+  animation-delay: calc(90ms + var(--step, 0) * 70ms);
 }
 
 .section {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.625rem;
 }
 
-.section h5 {
-  font-size: 0.8rem;
-  color: #64748b;
-  text-transform: uppercase;
+.legend {
   margin: 0;
-  letter-spacing: 0.05em;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(226, 240, 233, 0.42);
 }
 
-.stateRow {
+/* --------------------------------------------------------------------------
+   State readout
+   -------------------------------------------------------------------------- */
+.readout {
   display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 0;
+  padding: 3px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--r-tile);
+}
+
+.row {
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  font-size: 0.85rem;
-  color: #94a3b8;
-  background: rgba(0, 0, 0, 0.2);
-  padding: 0.4rem 0.6rem;
-  border-radius: 4px;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: calc(var(--r-tile) - 3px);
 }
 
-.trueText {
-  color: #10b981;
-  font-weight: 700;
+.row dt {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: rgba(226, 240, 233, 0.55);
 }
 
-.falseText {
-  color: #ef4444;
-  font-weight: 700;
+.row dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
 }
 
-.countText {
-  color: #38bdf8;
-  font-weight: 700;
+.on {
+  color: #6ee7b7;
 }
 
-.btnGrid {
+.off {
+  color: #fca5a5;
+}
+
+.count {
+  color: #7dd3fc;
+}
+
+/* --------------------------------------------------------------------------
+   Route bento
+   -------------------------------------------------------------------------- */
+.bento {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+  padding: 3px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--r-tile);
+}
+
+.tile {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-}
-
-.cmdBtn {
-  padding: 0.5rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #cbd5e1;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 6px;
+  padding: 0.75rem;
+  text-align: left;
+  color: rgba(226, 240, 233, 0.85);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid transparent;
+  border-radius: calc(var(--r-tile) - 3px);
   cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: center;
+  transition:
+    transform 500ms var(--ease-snap),
+    background 500ms var(--ease-snap),
+    border-color 500ms var(--ease-snap);
 }
 
-.cmdBtn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: #f8fafc;
+/* Page zero: the one tile that rewrites stored state, so it gets the width. */
+.tileWide {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-.dangerBtn {
-  color: #fca5a5;
-  border-color: rgba(239, 68, 68, 0.3);
-  background: rgba(239, 68, 68, 0.05);
+.tileIndex {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  color: rgba(226, 240, 233, 0.35);
+  transition: color 500ms var(--ease-snap);
 }
 
-.dangerBtn:hover {
-  background: #ef4444;
-  color: #ffffff;
-  border-color: #ef4444;
-  box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+.tileWide .tileIndex {
+  order: -1;
 }
 
-.homeBtn {
-  color: #a7f3d0;
-  border-color: rgba(16, 185, 129, 0.3);
-  background: rgba(16, 185, 129, 0.05);
+.tileGlyph {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  color: #6ee7b7;
+  background: rgba(110, 231, 183, 0.09);
+  border: 1px solid rgba(110, 231, 183, 0.18);
+  border-radius: var(--r-pill);
+  transition: transform 600ms var(--ease-fluid);
 }
 
-.homeBtn:hover {
-  background: #10b981;
-  color: #061510;
-  border-color: #10b981;
-  box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+.tileGlyph svg {
+  width: 0.9375rem;
+  height: 0.9375rem;
+}
+
+.tileText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.tileLabel {
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.tileNote {
+  overflow: hidden;
+  font-size: 0.6875rem;
+  font-weight: 300;
+  color: rgba(226, 240, 233, 0.45);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tile:hover {
+  transform: translate3d(0, -2px, 0);
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(110, 231, 183, 0.28);
+}
+
+.tile:hover .tileIndex {
+  color: #6ee7b7;
+}
+
+.tile:hover .tileGlyph {
+  transform: scale(1.08);
+}
+
+.tile:active {
+  transform: scale(0.98);
+}
+
+.tile:focus-visible {
+  outline: 2px solid #6ee7b7;
+  outline-offset: 2px;
+}
+
+/* Where you already are. Marked, and inert-looking, so the panel doubles as a
+   position readout rather than eight identical buttons. */
+.tileCurrent {
+  background: rgba(110, 231, 183, 0.12);
+  border-color: rgba(110, 231, 183, 0.34);
+}
+
+.tileCurrent .tileIndex {
+  color: #6ee7b7;
+}
+
+/* --------------------------------------------------------------------------
+   Revisit levels
+   -------------------------------------------------------------------------- */
+.levels {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+  padding: 3px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--r-tile);
+}
+
+.level {
+  padding: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: rgba(226, 240, 233, 0.75);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid transparent;
+  border-radius: calc(var(--r-tile) - 3px);
+  cursor: pointer;
+  transition:
+    transform 500ms var(--ease-snap),
+    background 500ms var(--ease-snap),
+    border-color 500ms var(--ease-snap);
+}
+
+.level:hover {
+  transform: translate3d(0, -2px, 0);
+  color: #6ee7b7;
+  background: rgba(110, 231, 183, 0.1);
+  border-color: rgba(110, 231, 183, 0.28);
+}
+
+.level:active {
+  transform: scale(0.97);
+}
+
+.level:focus-visible {
+  outline: 2px solid #6ee7b7;
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   Commands — island pill with a nested icon capsule
+   -------------------------------------------------------------------------- */
+.command {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.375rem 0.375rem 0.375rem 1rem;
+  color: rgba(226, 240, 233, 0.9);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  transition:
+    transform 500ms var(--ease-snap),
+    background 500ms var(--ease-snap),
+    border-color 500ms var(--ease-snap);
+}
+
+.commandLabel {
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.commandIcon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  background: rgba(255, 255, 255, 0.09);
+  border-radius: var(--r-pill);
+  transition:
+    transform 500ms var(--ease-snap),
+    background 500ms var(--ease-snap);
+}
+
+.commandIcon svg {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.command:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+/* Kinetic tension: the capsule leaves before the pill does. */
+.command:hover .commandIcon {
+  transform: translate3d(3px, -1px, 0) scale(1.06);
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.command:active {
+  transform: scale(0.98);
+}
+
+.command:focus-visible {
+  outline: 2px solid #6ee7b7;
+  outline-offset: 3px;
+}
+
+.commandDanger {
+  color: #fecaca;
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.26);
+}
+
+.commandDanger:hover {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: rgba(239, 68, 68, 0.42);
+}
+
+.commandDanger .commandIcon {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.commandDanger:hover .commandIcon {
+  background: rgba(239, 68, 68, 0.32);
 }
 
 .tip {
-  font-size: 0.75rem;
-  color: #475569;
-  line-height: 1.4;
-  font-style: italic;
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 300;
+  line-height: 1.6;
+  color: rgba(226, 240, 233, 0.34);
 }
 
-@keyframes slideUp {
+/* --------------------------------------------------------------------------
+   Keyframes — transform/opacity only
+   -------------------------------------------------------------------------- */
+@keyframes dcRise {
   from {
     opacity: 0;
-    transform: translateY(15px);
+    transform: translate3d(0, 14px, 0);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Settles back toward the trigger it came from rather than straight down, so
+   the dismissal reads as the panel returning to its puck. */
+@keyframes dcFall {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0) scale(0.96);
+  }
+}
+
+@keyframes dcDriftA {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(-1.5rem, 1.75rem, 0) scale(1.16);
+  }
+}
+
+@keyframes dcDriftB {
+  from {
+    transform: translate3d(0, 0, 0) scale(1.1);
+  }
+  to {
+    transform: translate3d(1.75rem, -1.5rem, 0) scale(1);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Narrow viewports: the panel spans the screen and the bento goes single file,
+   so the tiles stay comfortably above a 44px touch target.
+   -------------------------------------------------------------------------- */
+@media (max-width: 767px) {
+  .wrapper {
+    left: 1rem;
+    right: 1rem;
+    align-items: stretch;
+  }
+
+  .shell {
+    width: 100%;
+  }
+
+  .trigger {
+    align-self: flex-end;
+  }
+
+  .bento {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tile {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 0.75rem;
+  }
+
+  .tile .tileIndex {
+    order: -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orbA,
+  .orbB {
+    animation: none;
+  }
+
+  .shell,
+  .section,
+  .tip {
+    animation: none;
+  }
+
+  .trigger:hover,
+  .trigger:hover .triggerCore,
+  .tile:hover,
+  .level:hover,
+  .command:hover .commandIcon {
+    transform: none;
+  }
+
+  /* Restated after the reset above: the 45° turn is what tells the two states
+     apart, not decoration, so it survives — it just no longer animates. */
+  .triggerOpen .triggerCore,
+  .triggerOpen:hover .triggerCore {
+    transform: rotate(45deg);
   }
 }

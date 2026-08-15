@@ -25,6 +25,9 @@ export const ENERGY_CACHE_KEY = `${NAMESPACE}:cache:energy:v1`;
 /** TTL cache for the World Bank carbon snapshot (day-long TTL, yearly data). */
 export const CARBON_CACHE_KEY = `${NAMESPACE}:cache:carbon:v1`;
 
+/** Emitters chart unit: absolute totals or per-capita. */
+export const DASHBOARD_EMITTERS_MODE_KEY = `${NAMESPACE}:dashboard:emitters-mode:v1`;
+
 /* ── localStorage keys (persist across sessions) ────────────────────────── */
 
 /** Set once the visitor has left the landing sequence for the main site. */

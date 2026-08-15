@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import HudHeader from '../../components/HudHeader/HudHeader';
 import { useBodyBackground } from '../../hooks/useBodyBackground';
 import { useHideOnScroll } from '../../hooks/useHideOnScroll';
@@ -6,6 +6,8 @@ import { useReveal } from '../../hooks/useReveal';
 import { useCarbonLiveData } from '../../hooks/useCarbonLiveData';
 import { useLiveEnergyApi } from '../../hooks/useLiveEnergyApi';
 import type { EmitterRow, EnergyMixRow, SectorYear } from '../../api/types';
+import { safeSession } from '../../utils/storage';
+import { DASHBOARD_EMITTERS_MODE_KEY } from '../../utils/storageKeys';
 import styles from './DashboardPage.module.css';
 
 /* ── Helpers ──────────────────────────────────────────────────────────── */
@@ -367,8 +369,27 @@ function LiveEnergyPanel() {
 
 /* ── Top emitters bar chart ──────────────────────────────────────────── */
 
+type EmittersMode = 'total' | 'perCapita';
+
+/**
+ * Reads the remembered unit back. sessionStorage is user-writable, so the
+ * stored string is checked against the two legal values rather than trusted —
+ * a hand-edited entry falls back to the default instead of putting the chart
+ * into a state neither branch below handles.
+ */
+function readStoredMode(): EmittersMode {
+  const stored = safeSession.get(DASHBOARD_EMITTERS_MODE_KEY);
+  return stored === 'perCapita' || stored === 'total' ? stored : 'total';
+}
+
 function EmittersChart({ data, year }: { data: EmitterRow[]; year: number }) {
-  const [mode, setMode] = useState<'total' | 'perCapita'>('total');
+  /* Per-tab, so the reader who was comparing per-capita figures finds them
+     still selected on their way back — and a fresh tab starts on totals. */
+  const [mode, setMode] = useState<EmittersMode>(readStoredMode);
+
+  useEffect(() => {
+    safeSession.set(DASHBOARD_EMITTERS_MODE_KEY, mode);
+  }, [mode]);
 
   const sorted = [...data].sort((a, b) =>
     mode === 'total' ? b.total - a.total : b.perCapita - a.perCapita,
@@ -669,10 +690,6 @@ function DashboardPage() {
       <div className={styles.container}>
         {/* ---- Hero ---- */}
         <header className={styles.hero}>
-          <span className={styles.eyebrow} data-reveal data-reveal-index="0">
-            <span className={styles.liveIndicator} />
-            Live tracking
-          </span>
           <h1 className={styles.heroTitle} data-reveal data-reveal-index="1">
             Global carbon
             <span className={styles.heroAccent}> footprint</span>

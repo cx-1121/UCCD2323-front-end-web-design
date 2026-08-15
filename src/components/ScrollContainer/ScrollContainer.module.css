@@ -1,12 +1,15 @@
+/* Scroll fuel. Scaled with the master timeline when the dawn was folded in and
+   then slowed to half speed (54s -> 93s of choreography), so the same gesture
+   now buys half as much of it and the subtitles are read at a walking pace. */
 .scrollContainer {
   width: 100%;
-  height: 350vh; /* PC scroll fuel length */
+  height: 630vh; /* PC scroll fuel length */
   position: relative;
 }
 
 @media (max-width: 768px) {
   .scrollContainer {
-    height: 220vh; /* Mobile scroll fuel length */
+    height: 400vh; /* Mobile scroll fuel length */
   }
 }
 

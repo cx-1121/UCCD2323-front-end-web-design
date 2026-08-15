@@ -1,5 +1,26 @@
-/* Ported from past_landing_page.css: "Scene 1: Intro" text rules
-   (past_landing_page.css:338-390) */
+/* ==========================================================================
+   Scene 1 intro copy — the CINEMATIC register.
+
+   The landing page runs two deliberate typographic registers. This is the loud
+   one: Outfit at 800/900, tight, urgent, shouted over industrial noise. The
+   RevisitOverlay carries the quiet one (Plus Jakarta Sans 200) and the two are
+   not meant to converge — only the micro-label role is shared across both.
+
+   Ported from past_landing_page.css:338-390, then tuned:
+   - gradient-clipped text replaced with solid ink. Emphasis here comes from
+     weight and scale, and `-webkit-background-clip` had no standard fallback,
+     so the site's opening headline rendered invisible in any engine that
+     ignored the prefixed pair. It also made the copy unselectable.
+   - `letter-spacing: -1px` replaced with em tracking. A pixel value on a
+     clamped size loosens as the type grows (-0.031em at 2rem, -0.016em at
+     4rem) — backwards for display, which wants to tighten as it scales.
+   - `!important` dropped, and the cascade fixed instead. Those flags were
+     beating `#intro-text-container h1` (1,0,1), which outranks a bare
+     `#intro-carbon-title` (1,0,0) — so every per-title rule below is scoped
+     under the container to reach (1,1,0) honestly. The same collision meant
+     `.fossilTitle` had never applied at all: that headline was rendering at
+     the 4rem/800 display spec instead of its own 2.2rem/600 sentence spec.
+   ========================================================================== */
 .introText {
   text-align: center;
   max-width: 800px;
@@ -11,53 +32,63 @@
   width: 100%;
   padding: 0 clamp(1rem, 5vw, 2rem);
   pointer-events: none;
+
+  /* One ember, taken from the midpoint of the gradient this scene used to
+     clip into its headlines (#b71c1c -> #e65100). Clears 3:1 on the scene's
+     near-black ground at display sizes. */
+  --intro-ember: #d9482a;
+  --intro-ink: #f1f5f9;
 }
 
+/* Display role. Heavy faces carry their own optical weight, so the leading is
+   tighter than the legacy 1.1 and the tracking is held at the -0.04em floor. */
 :global(#intro-text-container) h1 {
+  margin-bottom: 1.5rem;
+  font-family: 'Outfit', sans-serif;
   font-size: clamp(2rem, 8vw, 4rem);
   font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -1px;
-  margin-bottom: 1.5rem;
-  background: linear-gradient(to right, #f8fafc, #64748b);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  color: var(--intro-ink);
+  text-wrap: balance;
 }
 
-:global(#intro-carbon-title) {
-  background: linear-gradient(135deg, #b71c1c 0%, #e65100 100%) !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  filter: drop-shadow(0 0 35px rgba(230, 81, 0, 0.4));
+/* The rupture. It is the one word in the sequence set heavier than its
+   neighbours, and the burst tween does the rest — no second marker needed. */
+:global(#intro-text-container) .carbonTitle {
   font-weight: 900;
-}
-
-:global(#intro-fossil-title) {
+  letter-spacing: -0.04em;
+  color: var(--intro-ember);
   filter: drop-shadow(0 0 35px rgba(230, 81, 0, 0.4));
 }
 
-.fossilPart1,
-.fossilPart2 {
+:global(#intro-text-container) .fossilPart1,
+:global(#intro-text-container) .fossilPart2 {
   display: inline-block;
-  background: linear-gradient(135deg, #b71c1c 0%, #e65100 100%) !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
+  color: var(--intro-ember);
 }
 
-.fossilPart2 {
+/* Reset target for the timeline, which greys this half out as the scene turns
+   (`.fossil-part-2` in buildBurst). */
+:global(#intro-text-container) .fossilPart2 {
   filter: grayscale(0) brightness(1);
 }
 
+/* Lede role. Light weight against the heavy display is the whole contrast; it
+   never needs to compete on size. */
 :global(#intro-text-container) p {
-  font-size: clamp(1.2rem, 4vw, 1.8rem);
-  color: #94a3b8;
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(1.15rem, 3.4vw, 1.6rem);
   font-weight: 300;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: #a5b4c4;
 }
 
 /* Resting-state layout that was inline style="" in the legacy markup
    (past_landing_page.html lines 94-105) — moved into the module for
-   traceability; values are unchanged. GSAP (M2) will tween opacity/transform
-   on these same elements via their ids. */
+   traceability; values are unchanged. GSAP tweens opacity/transform on these
+   same elements via their ids. */
 .titleWrapper {
   position: relative;
   min-height: clamp(5rem, 10vw, 8rem);
@@ -81,17 +112,25 @@
   pointer-events: none;
 }
 
-.fossilTitle {
+/* The one headline that is a sentence rather than a statement, so it steps
+   down a full size and weight and opens its leading back up to read as prose.
+   Scoped under the container to out-rank the base h1 rule — without that it
+   silently inherits the 4rem/800 display spec, which is what it was doing
+   before this pass. */
+:global(#intro-text-container) .fossilTitle {
   position: absolute;
   margin: 0 auto;
   width: 100%;
   max-width: 800px;
   opacity: 0;
   pointer-events: none;
-  font-size: clamp(1.2rem, 3.5vw, 2.2rem);
+  /* 1.5x the size it was ported at (1.2 / 3.5vw / 2.2). It is the line the
+     whole crisis half resolves onto, and it was reading a step below the
+     headlines it answers. */
+  font-size: clamp(1.8rem, 5.25vw, 3.3rem);
   font-weight: 600;
-  line-height: 1.4;
-  text-transform: none;
-  letter-spacing: 0;
+  line-height: 1.32;
+  letter-spacing: -0.02em;
+  filter: drop-shadow(0 0 35px rgba(230, 81, 0, 0.4));
   z-index: 20;
 }

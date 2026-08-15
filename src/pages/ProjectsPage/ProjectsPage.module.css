@@ -24,7 +24,7 @@
   padding-top: 5rem;
 }
 
-/* ── Unified Floating Glass-Pill Navigation Island ── */
+/* ── Unified floating navigation, unpanelled: the links sit straight on the page ── */
 .headerBar {
   position: fixed;
   top: clamp(0.875rem, 2vw, 1.5rem);
@@ -36,20 +36,12 @@
   max-width: calc(100vw - 2rem);
   padding: 0.6875rem 1.5rem 0.6875rem 1.25rem;
   transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.74);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-pill);
-  box-shadow:
-    var(--inner-lip),
-    var(--shadow-soft);
   --hud-mark: var(--signal);
   --hud-mark-glow: none;
   --hud-ink: var(--ink-soft);
   --hud-ink-static: var(--ink);
   --hud-hover: var(--signal-deep);
   --hud-hover-glow: none;
-  backdrop-filter: blur(22px) saturate(140%);
-  -webkit-backdrop-filter: blur(22px) saturate(140%);
   /* Pre-launch resting state: parked above the fold line, dropped in once the
      curtain starts moving. */
   opacity: 0;
@@ -98,22 +90,6 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-}
-
-.eyebrowTag {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 1rem;
-  background-color: var(--surface-mint);
-  border: 1px solid var(--hairline-strong);
-  border-radius: var(--r-pill);
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  color: var(--signal-deep);
-  margin-bottom: 1.5rem;
 }
 
 .heroTitle {
@@ -1138,10 +1114,6 @@
   justify-content: space-between;
   gap: 1.5rem;
   margin-bottom: 2.5rem;
-}
-
-.curtainTop .eyebrowTag {
-  margin-bottom: 0;
 }
 
 .curtainCounter {
