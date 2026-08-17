@@ -21,7 +21,11 @@
 
   background: var(--card);
   border: 1px solid var(--hairline);
-  border-radius: var(--r-card);
+  /* Square. It holds content, so it is an object, and objects in this system
+     have no radius — only controls do. It was --r-card (1.75rem), which put
+     the one rounded container in the interior on the element that floats over
+     every route. */
+  border-radius: var(--r-paper);
   /* No backdrop-filter: the ground it used to show through is opaque, so the
      blur was compositing a layer nobody could see. */
   box-shadow: var(--shadow-lift);
@@ -54,10 +58,10 @@
   display: block;
   margin-bottom: 0.35rem;
 
-  font-family: var(--font-mono);
+  font-family: var(--typed);
   font-size: 0.6875rem;
-  font-weight: 500;
-  letter-spacing: 0.14em;
+  font-weight: 400;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   /* --ink-faint clears 4.5:1 on --core at this size (token comment, global.css) */
   color: var(--ink-faint);
@@ -65,15 +69,16 @@
 
 .title {
   margin-bottom: 0.4rem;
-  font-family: var(--font-display);
+  font-family: var(--stamped);
   font-size: 1.0625rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: var(--ink);
 }
 
 .body {
-  font-family: var(--font-body);
+  font-family: var(--set);
   font-size: 0.8125rem;
   line-height: 1.55;
   color: var(--ink-soft);
@@ -88,10 +93,13 @@
 .accept,
 .decline {
   padding: 0.6875rem 1.375rem;
-  font-family: var(--font-body);
+  font-family: var(--stamped);
   font-size: 0.8125rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  /* Rounded, and the only rounded thing here: a control belongs to the site
+     rather than to the object it sits on. */
   border-radius: var(--r-pill);
   cursor: pointer;
   transition:

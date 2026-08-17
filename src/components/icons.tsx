@@ -215,15 +215,6 @@ function ExternalGlyph(props: GlyphProps) {
   );
 }
 
-/* Three filing rules, not a hamburger: the control opens a drawer run. */
-function MenuGlyph(props: GlyphProps) {
-  return (
-    <svg {...base} {...props}>
-      <path d="M4 7.5h16M4 12h16M4 16.5h10" />
-    </svg>
-  );
-}
-
 function CloseGlyph(props: GlyphProps) {
   return (
     <svg {...base} {...props}>
@@ -264,7 +255,6 @@ export {
   PinGlyph,
   UsersGlyph,
   ExternalGlyph,
-  MenuGlyph,
   CloseGlyph,
   ArrowGlyph,
 };

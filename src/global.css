@@ -32,16 +32,22 @@
   /* ------------------------------------------------------------------------
      ONE CARD, NEVER TWO.
 
-     These four tokens used to describe a shell wrapping a core: an outer
-     tinted tray with its own border and radius, holding an inner raised panel
-     with ANOTHER border, another radius and an inset lip. Every component that
-     followed the system therefore drew a card inside a card — two grounds, two
-     borders, two radii and a highlight to hold one block of content — and nine
-     stylesheets followed it.
+     There used to be five tokens here describing a shell wrapping a core: an
+     outer tinted tray with its own border and radius, holding an inner raised
+     panel with ANOTHER border, another radius and an inset lip. Every
+     component that followed the system therefore drew a card inside a card —
+     two grounds, two borders, two radii and a highlight to hold one block of
+     content — and nine stylesheets followed it.
 
-     The tray is now inert. `--core` is the only ground a container paints and
-     `--r-card` is the only radius it uses, so the concentric pair collapses to
-     a single container wherever the old names are still consumed.
+     Those five were made inert rather than deleted, so surfaces still written
+     against the old names would collapse to one container without edits.
+     Every one of those surfaces has since been rewritten, so `--shell`,
+     `--core`, `--inner-lip`, `--r-shell` and `--r-core` are gone: a shim with
+     no consumer is just a second vocabulary for the same card. `--card` and
+     `--r-card` are what a container uses, and there is only one of it.
+
+     `--shadow-soft`, `--signal-teal` and `--signal-lime` went the same way, all
+     measured at zero uses across src.
 
      A card is for content that is genuinely independent or clickable. Grouping
      is spacing, headings, alignment and `--hairline` rules — none of which
@@ -50,22 +56,12 @@
   --card: var(--surface-raised);
   --r-card: 1.75rem;
 
-  /* Retained so the surfaces still on the old names collapse without edits.
-     `--shell` paints nothing, and the shell radius matches the card radius so
-     no concentric outline can form. Prefer --card / --r-card in new work. */
-  --shell: transparent;
-  --core: var(--card);
-  --inner-lip: none;
-
-  /* Shadows tinted to the background hue. No pure-black shadow on light. */
-  --shadow-soft: 0 18px 40px -28px rgba(6, 44, 30, 0.3);
+  /* Shadow tinted to the background hue. No pure-black shadow on light. */
   --shadow-lift: 0 30px 70px -46px rgba(6, 44, 30, 0.45);
 
   /* Signal — emerald primary, deepened to clear AA on paper */
   --signal: #047857;
   --signal-deep: #065f46;
-  --signal-teal: #0f766e;
-  --signal-lime: #4d7c0f;
 
   /* Ink */
   --ink: #0c1a13;
@@ -75,11 +71,9 @@
      the same alpha lands closer to the background luminance. */
   --ink-faint: rgba(12, 26, 19, 0.66);
 
-  /* One container radius, plus the pill for controls. The shell/core pair are
-     aliases of it: concentric radii only exist to make a card sit inside
-     another card, which is the thing being removed. */
-  --r-shell: var(--r-card);
-  --r-core: var(--r-card);
+  /* One container radius, one nested step for the debug console's bento, and
+     the pill for controls. The --r-shell / --r-core aliases are gone with the
+     concentric system they existed for. */
   --r-tile: 1.375rem;
   --r-pill: 999px;
 
@@ -88,10 +82,15 @@
   --ease-glide: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-snap: cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* Type */
-  --font-display: 'Plus Jakarta Sans', 'Outfit', sans-serif;
-  --font-body: 'Outfit', 'Montserrat', sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  /* Type lives in styles/chapters.css now, as three roles with three jobs:
+     --stamped (Archivo Narrow) for headings and controls, --typed (Courier
+     Prime) for every instrument reading, --set (Outfit) for prose.
+
+     The --font-display / --font-body / --font-mono trio that used to sit here
+     is gone. --font-body was Outfit already, so it was a second name for a
+     face the system had; the other two named Plus Jakarta Sans and JetBrains
+     Mono, families that were still being downloaded by every visitor and set
+     by nothing any route rendered. */
 }
 
 * {
@@ -105,7 +104,9 @@ html {
 }
 
 body {
-  font-family: 'Outfit', 'Montserrat', sans-serif;
+  /* Montserrat was in this stack and is not among the loaded families, so it
+     was a fallback the browser could never resolve. */
+  font-family: 'Outfit', sans-serif;
   background-color: #05070f;
   color: #f8fafc;
   overflow-x: hidden;

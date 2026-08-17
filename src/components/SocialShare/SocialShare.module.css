@@ -11,7 +11,7 @@
 }
 
 .label {
-  font-family: var(--font-mono);
+  font-family: var(--typed);
   font-size: 0.625rem;
   font-weight: 500;
   letter-spacing: 0.12em;
@@ -42,7 +42,7 @@
   display: inline-flex;
   align-items: center;
   padding: 0.25rem 0.75rem;
-  font-family: var(--font-body);
+  font-family: var(--set);
   font-size: 0.75rem;
   font-weight: 600;
   line-height: 1.5;
@@ -60,7 +60,7 @@
 
 .fallbackBtn {
   padding: 0.3125rem 0.8125rem;
-  font-family: var(--font-body);
+  font-family: var(--set);
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--ink-soft);

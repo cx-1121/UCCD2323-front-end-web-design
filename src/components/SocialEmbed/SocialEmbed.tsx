@@ -60,69 +60,67 @@ function SocialEmbed() {
     };
   }, [canLoadThirdParty]);
 
+  /* One panel, no wrapper. The `.shell` element these used to sit inside drew
+     nothing but a shadow around a container that already had a border and a
+     ground — a card around a card, which is the habit the interior removed
+     everywhere else. The shadow now belongs to the panel that casts it. */
   if (!canLoadThirdParty) {
     return (
-      <div className={styles.shell}>
-        <div className={styles.placeholder}>
-          <span className={styles.eyebrow}>Social feed</span>
-          <h3 className={styles.placeholderTitle}>Live updates from @{FEED_HANDLE}</h3>
-          <p className={styles.placeholderBody}>
-            {status === 'denied'
-              ? 'You declined social cookies, so nothing is loaded from X. Enable them to see the feed here — you can change your mind at any time.'
-              : 'This panel embeds a live feed from X. Nothing is requested from their servers until you allow it.'}
-          </p>
-          <div className={styles.placeholderActions}>
-            <button type="button" className={styles.enableBtn} onClick={grant}>
-              Enable social embeds
-            </button>
-            <a
-              className={styles.externalLink}
-              href={FEED_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Open on X instead ↗
-            </a>
-          </div>
+      <div className={styles.placeholder}>
+        <span className={styles.eyebrow}>Social feed</span>
+        <h3 className={styles.placeholderTitle}>Live updates from @{FEED_HANDLE}</h3>
+        <p className={styles.placeholderBody}>
+          {status === 'denied'
+            ? 'You declined social cookies, so nothing is loaded from X. Enable them to see the feed here — you can change your mind at any time.'
+            : 'This panel embeds a live feed from X. Nothing is requested from their servers until you allow it.'}
+        </p>
+        <div className={styles.placeholderActions}>
+          <button type="button" className={styles.enableBtn} onClick={grant}>
+            Enable social embeds
+          </button>
+          <a
+            className={styles.externalLink}
+            href={FEED_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Open on X instead ↗
+          </a>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={styles.shell}>
-      <div className={styles.core} ref={containerRef}>
-        <span className={styles.eyebrow}>Social feed · @{FEED_HANDLE}</span>
+    <div className={styles.core} ref={containerRef}>
+      <span className={styles.eyebrow}>Social feed · @{FEED_HANDLE}</span>
 
-        {state === 'unavailable' ? (
-          <p className={styles.placeholderBody}>
-            The X widget could not be loaded — a content blocker or network policy is likely
-            blocking it.{' '}
-            <a
-              className={styles.externalLink}
-              href={FEED_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Open the feed on X ↗
-            </a>
-          </p>
-        ) : (
-          <>
-            {/* widgets.js replaces this anchor with the timeline iframe. Until
-                then — and forever, if it is blocked — it stays a working link. */}
-            <a
-              className="twitter-timeline"
-              data-height={FEED_HEIGHT}
-              data-dnt="true"
-              data-chrome="noheader nofooter transparent"
-              href={FEED_URL}
-            >
-              Posts from @{FEED_HANDLE}
-            </a>
-          </>
-        )}
-      </div>
+      {state === 'unavailable' ? (
+        <p className={styles.placeholderBody}>
+          The X widget could not be loaded — a content blocker or network policy is likely
+          blocking it.{' '}
+          <a
+            className={styles.externalLink}
+            href={FEED_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Open the feed on X ↗
+          </a>
+        </p>
+      ) : (
+        /* widgets.js replaces this anchor with the timeline iframe. Until then
+           — and forever, if it is blocked — it stays a working link. */
+        <a
+          className="twitter-timeline"
+          data-height={FEED_HEIGHT}
+          data-dnt="true"
+          data-chrome="noheader nofooter transparent"
+          href={FEED_URL}
+        >
+          Posts from @{FEED_HANDLE}
+        </a>
+      )}
     </div>
   );
 }

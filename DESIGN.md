@@ -105,6 +105,7 @@ typography:
 rounded:
   paper: "0px"
   pill: "999px"
+  tile: "1.375rem"
   card: "1.75rem"
 spacing:
   tight: "0.625rem"
@@ -295,9 +296,11 @@ Shadows split by ground rather than by stop. On a dark ground the shadow is blac
 
 Two form languages, and which one applies is decided by what the thing *is*, not by where it sits.
 
-**Square (`0px`) — everything that is an artifact.** Sheets, slips, drawers, plates, panels, mounts, form fields, badges, chart tracks. A rounded specimen sheet is not a specimen sheet.
+**Square (`0px`) — everything that is an artifact.** Sheets, slips, drawers, plates, panels, mounts, form fields, badges, chart tracks, and the consent banner. A rounded specimen sheet is not a specimen sheet.
 
 **Pill (`999px`) — everything that is a control.** Buttons, toggles, segmented controls. A control belongs to the site rather than to the artifact, and the radius is what keeps it distinguishable from the square paper it sits on.
+
+**Rounded (`1.75rem` card / `1.375rem` tile) — the debug console only.** It is deliberately not the site's paper surface: it is instrumentation floating over both the dark cinematic and the light interior, and it says so by being the one glass, rounded, concentric thing in the build.
 
 Borders are hairlines: a single 1px cut edge on an object, a 2px left rule where a sheet was held in a filing run, and nothing thicker. The one legal exception is the stamp's 3px box, which is the impression of a rubber die.
 
@@ -377,8 +380,20 @@ Archivo Narrow 700 caps in a 3px box, rotated `−8deg` about its right edge, ma
 
 ## Not canonized
 
-Two things the build carries that are **not** system rules, recorded as defects rather than as decisions.
+**The drift this section used to record is gone.** Six shared components —
+`CookieConsent`, `SocialEmbed`, `ScrollHint`, `SocialShare`, `DebugConsole` and
+`SceneDawn` — composed from the pre-redesign token layer and have been moved
+onto the three type roles and the square panel. A seventh, `EnergySection`, was
+imported by nothing and was deleted rather than converted. Plus Jakarta Sans and
+JetBrains Mono are no longer downloaded: `index.html` now requests exactly the
+three families this file documents, in one request instead of two.
 
-**Seven components have not been brought across.** `CookieConsent`, `SocialEmbed`, `EnergySection`, `ScrollHint`, `SocialShare`, `DebugConsole` and `SceneDawn` still compose from the pre-redesign token layer — `--font-display` (Plus Jakarta Sans), `--font-mono` (JetBrains Mono), and the `--card` / `--r-card` container tokens. All seven routes and the accession grammar use the three type roles above. This is drift, not a second tier: it means two typefaces ship to every visitor that no route actually sets. Convert them to `--stamped` / `--typed` / `--set` and the square panel, then drop the two fonts from `index.html`.
+The compatibility layer went with them. `--shell`, `--core`, `--inner-lip`,
+`--r-shell` and `--r-core` were kept inert so old surfaces would collapse to one
+container without edits; every such surface has been rewritten, so they are
+deleted, along with `--shadow-soft`, `--signal-teal`, `--signal-lime` and the
+three `--font-*` tokens — all measured at zero uses.
+
+One thing remains worth knowing, and it is a fact rather than a defect:
 
 **The Dashboard restates the focus ring.** The interior's one focus ring (`2px solid var(--living)`, 3px offset) is scoped to `[data-chapter]`. Any surface that pins the ladder tokens directly instead of declaring a stop — `/dashboard` does — does not inherit it and must restate the rule. Either is fine; knowing which one you are on is not optional.

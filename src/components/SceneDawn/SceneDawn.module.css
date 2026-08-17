@@ -460,13 +460,21 @@
 }
 
 /* CONTROL role — the third type role on the page, and the only one shared by
-   both registers besides the micro-label. Display face at 600 against the
-   200-weight lines it sits under, so it never reads as part of the sentence. */
+   both registers besides the micro-label. It never reads as part of the
+   sentence it sits under, which is the whole job.
+
+   Now literally the site's control role rather than a lookalike: `--stamped`
+   at 0.9375rem is exactly what `Action` sets on every other surface. It was
+   `--font-display` (Plus Jakarta Sans) — a family loaded across five weights
+   for this one label and two headings in a debug overlay, and set nowhere any
+   route could see it. The cinematic's own voice is untouched: the narrative
+   lines above are Outfit 800 and stay that way. */
 .answerLabel {
-  font-family: var(--font-display);
+  font-family: var(--stamped);
   font-size: 0.9375rem;
-  font-weight: 600;
-  letter-spacing: -0.005em;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: #fdf6e8;
   white-space: nowrap;
 }

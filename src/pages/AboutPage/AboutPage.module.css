@@ -309,14 +309,10 @@
   gap: clamp(1rem, 2.5vw, 1.375rem);
   padding-top: clamp(1.25rem, 3vw, 2rem);
   border-top: 1px solid var(--rule);
-
-  /* The embed is a shared component still composing from the global paper
-     tokens. Re-pointing them here puts it on the chapter's own paper, square
-     with every other object in the interior, without touching a file three
-     other surfaces also mount. */
-  --core: var(--object);
-  --r-core: var(--r-paper);
-  --hairline: var(--object-edge);
+  /* No token re-pointing here any more. The embed used to compose from the
+     global paper tokens and had to be pushed onto the chapter's paper from
+     outside; it now reads `--object` and `--r-paper` itself, like every other
+     object in the interior. */
 }
 
 /* ==========================================================================

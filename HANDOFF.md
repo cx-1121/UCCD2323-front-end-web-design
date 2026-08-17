@@ -258,11 +258,23 @@ dialog. Dashboard's assertions are text/role based.
   the **three-world** structure (cinematic / paper interior / vault) rather than
   merging the last two, so the ladder is documented as the one sanctioned
   passage between the vault and the paper world, not as proof they are one.
-- **Seven components never got converted, and DESIGN.md now records it.**
-  `CookieConsent`, `SocialEmbed`, `EnergySection`, `ScrollHint`, `SocialShare`,
-  `DebugConsole` and `SceneDawn` still compose from the pre-redesign token layer
-  — `--font-display` (Plus Jakarta Sans), `--font-mono` (JetBrains Mono) and the
-  `--card` / `--r-card` container tokens — while all seven routes and the
-  accession grammar use `--stamped` / `--typed` / `--set`. The cost is concrete:
-  **two typefaces ship to every visitor that no route actually sets.** Convert
-  them, then drop both families from `index.html`. This is the next job.
+- **The shared components are converted and the dead fonts are gone.** Six were
+  moved onto `--stamped` / `--typed` / `--set` and the square panel;
+  `EnergySection` was imported by nothing and was deleted instead (467 lines).
+  `index.html` now requests three families in one call rather than five in two.
+  The `--shell` / `--core` / `--inner-lip` / `--r-shell` / `--r-core`
+  compatibility layer is deleted with them, plus `--shadow-soft`,
+  `--signal-teal`, `--signal-lime`, the three `--font-*` tokens and the unused
+  `MenuGlyph` — every one measured at zero uses first.
+
+- **⚠️ `src/hooks/useCountUp.ts` was deleted outside a session while still
+  imported, and it broke the whole interior.** `Accession.tsx:4` imports it and
+  `:454` calls it, so the unresolved import killed that module — and every
+  route that composes from the accession grammar with it. It has been restored
+  from `7fef64a`. Two things hid the breakage and are worth knowing about:
+  **`tsc -b` is incremental** and reported clean from a stale `.tsbuildinfo`,
+  and **a long-running dev server holds its transformed module graph in
+  memory**, so the browser kept rendering a file that no longer existed on
+  disk. Use `npx tsc -b --force` and `npx vite build` before believing a green
+  gate after any file deletion. `useBootSequence.ts` is also deleted and that
+  one is correct — it is imported by nothing.

@@ -1,47 +1,59 @@
-/* Embedded social feed. Uses the site's double-bezel enclosure so the widget
-   (or its placeholder) reads as a designed panel rather than a pasted embed. */
+/* Embedded social feed.
 
-/* Layout only. The tray it used to draw — tinted ground, second border,
-   second radius around a card that already had all three — was framing, not
-   hierarchy. */
-.shell {
-  box-shadow: var(--shadow-soft);
-}
+   Composes from the accession grammar like everything else in the interior:
+   the three type roles, and one square panel on the chapter's own paper. It
+   used to sit on the pre-redesign token layer — `--font-display` (Plus Jakarta
+   Sans), `--font-mono` (JetBrains Mono), `--core` / `--r-core` — which meant a
+   panel on the About page carried a rounded corner and two typefaces no route
+   sets. The `.shell` wrapper it drew the shadow on is gone with them; a
+   container that exists to hold one shadow around one container is the
+   double-bezel habit wearing a smaller coat.
+
+   Mounted only inside a Chapter, so `--object` and `--object-edge` resolve to
+   whatever stop it stands on. Fallbacks are the paper defaults, for the case
+   where it is ever mounted outside one. */
 
 .core,
 .placeholder {
   display: flex;
   flex-direction: column;
-  gap: 0.625rem;
-  padding: 1.25rem 1.375rem;
-  background: var(--core);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-core);
-  box-shadow: var(--inner-lip);
+  gap: 0.75rem;
+  padding: clamp(1.125rem, 2.4vw, 1.5rem);
+  background: var(--object, #ffffff);
+  border: 1px solid var(--object-edge, var(--hairline));
+  border-radius: var(--r-paper);
+  box-shadow: var(--shadow-object, none);
 }
 
+/* INSTRUMENT role. A source credit on a panel, in the voice the site records
+   facts in — not a label above the heading below it. */
 .eyebrow {
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  font-weight: 500;
-  letter-spacing: 0.12em;
+  font-family: var(--typed);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--ink-faint);
+  color: var(--object-faint, var(--ink-faint));
 }
 
+/* PLATE role. Archivo Narrow ships 600/700 only, so the display face's 600 and
+   negative tracking do not survive the swap: caps at 0.04em is what this face
+   wants at heading scale. */
 .placeholderTitle {
-  font-family: var(--font-display);
+  font-family: var(--stamped);
   font-size: 1.0625rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--ink);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--object-ink, var(--ink));
 }
 
 .placeholderBody {
-  font-family: var(--font-body);
-  font-size: 0.8125rem;
+  font-family: var(--set);
+  font-size: 0.875rem;
   line-height: 1.6;
-  color: var(--ink-soft);
+  color: var(--object-ink, var(--ink-soft));
+  text-wrap: pretty;
 }
 
 .placeholderActions {
@@ -52,43 +64,48 @@
   margin-top: 0.25rem;
 }
 
+/* CONTROL role, and the site's one control shape: rounded, because a control
+   belongs to the site rather than to the artifact it sits on. */
 .enableBtn {
   padding: 0.5625rem 1.125rem;
-  font-family: var(--font-body);
+  font-family: var(--stamped);
   font-size: 0.8125rem;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: #ffffff;
-  background: var(--signal);
-  border: 1px solid var(--signal);
+  background: var(--living-ink);
+  border: 1px solid var(--living-ink);
   border-radius: var(--r-pill);
   cursor: pointer;
   transition:
-    background-color 220ms var(--ease-fluid),
+    background-color 220ms var(--ease-glide),
     transform 220ms var(--ease-snap);
 }
 
 .enableBtn:hover {
-  background: var(--signal-deep);
+  background: var(--living);
+  border-color: var(--living);
   transform: translateY(-1px);
 }
 
 .externalLink {
-  font-family: var(--font-body);
+  font-family: var(--set);
   font-size: 0.8125rem;
   font-weight: 500;
-  color: var(--signal-deep);
+  color: var(--accent-ink, var(--signal-deep));
   text-decoration: none;
   border-bottom: 1px solid transparent;
-  transition: border-color 220ms var(--ease-fluid);
+  transition: border-color 220ms var(--ease-glide);
 }
 
 .externalLink:hover {
-  border-bottom-color: var(--signal-deep);
+  border-bottom-color: currentColor;
 }
 
 .enableBtn:focus-visible,
 .externalLink:focus-visible {
-  outline: 2px solid var(--signal);
+  outline: 2px solid var(--living);
   outline-offset: 3px;
 }
 
