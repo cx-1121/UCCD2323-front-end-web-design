@@ -21,6 +21,7 @@ import { useSettle } from '../../components/accession/useSettle';
 import { energySources, type EnergySource } from '../../data/EnergySources';
 import { useBodyBackground } from '../../hooks/useBodyBackground';
 import { useCurrentChapter } from '../../hooks/useCurrentChapter';
+import { useHideOnScroll } from '../../hooks/useHideOnScroll';
 import styles from './ExplorePage.module.css';
 
 /**
@@ -220,6 +221,7 @@ function Plate({
 function ExplorePage() {
   const pageRef = useSettle<HTMLElement>();
   const navStop = useCurrentChapter();
+  const navHidden = useHideOnScroll(220);
   useBodyBackground('#e9dfd0');
 
   /**
@@ -293,7 +295,10 @@ function ExplorePage() {
           The index. Sticky in the margin on a wide screen, a strip on a
           narrow one — the same information, composed twice.
           ================================================================== */}
-      <nav className={styles.index} aria-label="Sources">
+      <nav
+        className={`${styles.index} ${navHidden ? styles.indexNavHidden : ''}`}
+        aria-label="Sources"
+      >
         <p className={styles.indexHead}>Plates</p>
         <ul className={styles.indexList}>
           {energySources.map((source, i) => (

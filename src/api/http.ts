@@ -35,7 +35,7 @@ const HTTP_SERVER_ERROR_FLOOR = 500;
  * Converts jQuery's failure info into an ApiError object.
  */
 export function toApiError(
-  jqXHR: Pick<jQuery.jqXHR, 'status' | 'statusText'>,
+  jqXHR: Pick<JQuery.jqXHR, 'status' | 'statusText'>,
   textStatus: string,
   errorThrown?: string,
 ): ApiError {

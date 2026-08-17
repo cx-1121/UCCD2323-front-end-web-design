@@ -317,6 +317,8 @@ export function Stamp({
   top?: string;
   children: ReactNode;
 }) {
+  const [ref, inView] = useInView<HTMLSpanElement>('0px 0px -10% 0px');
+
   const content = (
     <span
       className={[styles.stamp, living && styles.stampLiving].filter(Boolean).join(' ')}
@@ -331,7 +333,10 @@ export function Stamp({
 
   return (
     <span
-      className={styles.stampPressed}
+      ref={ref}
+      className={[styles.stampPressed, inView && styles.stampPressedActive]
+        .filter(Boolean)
+        .join(' ')}
       style={top ? ({ '--stamp-top': top } as CSSProperties) : undefined}
       aria-hidden="true"
     >

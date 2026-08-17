@@ -225,21 +225,29 @@
 .mixBar {
   grid-area: bar;
   display: flex;
-  height: 0.625rem;
+  height: 0.8125rem;
   overflow: hidden;
   background: color-mix(in srgb, var(--ink) 8%, transparent);
   outline: 1px solid var(--rule);
   outline-offset: 0;
 }
 
-/* No transition on width. The segments are laid out from percentages, so
-   animating them is a layout animation on five stacked flex rows — thrash for
-   a change the reader only sees once, when the live figures replace the
-   bundled ones. The bars land at their measured width. */
-.mixFossil,
-.mixNuclear,
-.mixRenew {
+.mixSegment {
   height: 100%;
+  cursor: pointer;
+  transition: opacity 180ms var(--ease-snap, ease), filter 180ms var(--ease-snap, ease);
+  position: relative;
+}
+
+.mixSegment:hover,
+.mixSegment.mixActive {
+  filter: brightness(1.25) saturate(1.1);
+  opacity: 1 !important;
+  z-index: 1;
+}
+
+.mixSegment.mixMuted {
+  opacity: 0.38;
 }
 
 .mixFossil {
@@ -254,11 +262,22 @@
   background: var(--living);
 }
 
+.mixOther {
+  background: color-mix(in srgb, var(--ink) 26%, transparent);
+}
+
 .mixValue {
   grid-area: value;
-  font-size: 0.75rem;
-  letter-spacing: 0.06em;
-  color: var(--ink-faint);
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  font-family: var(--typed);
+  transition: color 150ms ease;
+}
+
+.mixValue strong {
+  color: var(--ink);
+  font-weight: 700;
 }
 
 .mixKey {
@@ -274,12 +293,37 @@
   color: var(--ink-faint);
 }
 
+.keyButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  padding: 0.25rem 0.5rem;
+  margin: -0.25rem -0.25rem;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: background 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+
+.keyButton:hover,
+.keyButton.keyActive {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+  border-color: var(--rule);
+}
+
 .keyFossil,
 .keyNuclear,
-.keyRenew {
+.keyRenew,
+.keyOther {
   width: 0.75rem;
   height: 0.75rem;
-  margin-right: -0.3125rem;
+  flex: none;
 }
 
 .keyFossil {
@@ -292,6 +336,10 @@
 
 .keyRenew {
   background: var(--living);
+}
+
+.keyOther {
+  background: color-mix(in srgb, var(--ink) 26%, transparent);
 }
 
 .keyNote {
@@ -329,6 +377,13 @@
 
 .costSheet {
   position: relative;
+}
+
+.costSheet :global(.stamp) {
+  font-size: clamp(1.15rem, 3.2vw, 2.4rem);
+  letter-spacing: 0.08em;
+  padding: 0.22em 0.55em;
+  border-width: 3px;
 }
 
 .specimen {
@@ -392,7 +447,8 @@
      full opacity was competing with the one sentence the chapter exists for. */
   justify-content: flex-start;
   padding-top: clamp(4rem, 14vh, 9rem);
-  min-height: 92svh;
+  min-height: 100vh;
+  height: 100vh;
   overflow: hidden;
   isolation: isolate;
 }
@@ -449,7 +505,6 @@
 }
 
 .rays {
-  transform-origin: 50% 50%;
   opacity: 0;
 }
 
@@ -630,7 +685,8 @@
   }
 
   .turnScene {
-    min-height: 108svh;
+    min-height: 100vh;
+    height: 100vh;
   }
 
   .sunWrap {

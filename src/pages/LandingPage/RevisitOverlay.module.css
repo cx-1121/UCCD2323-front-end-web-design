@@ -712,39 +712,39 @@ button.drawer:hover .drawerPull {
 }
 
 /* --------------------------------------------------------------------------
-   Wide: the sheet holds the frame and the slips paste off its left edge
+   Wide: the sheet holds the frame on the left, slips and actions on the right
    -------------------------------------------------------------------------- */
 @media (min-width: 60rem) {
   .bench {
     display: grid;
-    grid-template-columns: minmax(0, 15rem) minmax(0, 31rem);
+    grid-template-columns: minmax(0, 31rem) minmax(0, 15rem);
     align-items: center;
     gap: clamp(1.5rem, 3vw, 2.5rem);
     max-width: 50rem;
   }
 
   .sheet {
-    grid-column: 2;
+    grid-column: 1;
     grid-row: 1 / span 2;
   }
 
   .slips {
-    grid-column: 1;
+    grid-column: 2;
     grid-row: 1;
     align-self: end;
   }
 
   /* Pasted paper is never perfectly square to the sheet. */
   .slip {
-    transform: rotate(-0.8deg);
+    transform: rotate(0.8deg);
   }
 
   .slip:not(:last-child) {
-    transform: rotate(0.9deg);
+    transform: rotate(-0.9deg);
   }
 
   .actions {
-    grid-column: 1;
+    grid-column: 2;
     grid-row: 2;
     justify-content: flex-start;
     align-self: start;

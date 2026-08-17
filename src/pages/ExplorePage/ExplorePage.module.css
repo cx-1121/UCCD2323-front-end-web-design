@@ -71,32 +71,19 @@
    ========================================================================== */
 .index {
   position: sticky;
-  /* Parks below the fixed header rather than under it. The header sits at
-     clamp(1rem, 2vw, 2rem) and stands about 1.5rem tall, so this is that sum
-     plus a little air — at `top: 0` the two rows printed over each other. */
+  /* Parks below the fixed header rather than under it. When the header hides,
+     it transitions smoothly up to the top. */
   top: clamp(3.25rem, 5vw, 4.25rem);
   z-index: 60;
   padding: 0.625rem clamp(1.25rem, 5vw, 2.5rem);
-  background: color-mix(in srgb, var(--g-firstlight) 92%, transparent);
-  border-bottom: 1px solid var(--hairline);
-  backdrop-filter: blur(8px);
-  transition: background var(--turn-ms) var(--ease-turn);
+  background: transparent;
+  border-bottom: 0;
+  backdrop-filter: none;
+  transition: top 360ms var(--ease-glide);
 }
 
-/* The strip sits outside the chapters, so it cannot inherit the stop it is
-   floating over — it reads the one the page already tracks for the header.
-   Without this it stayed cream while the ground climbed to near-white
-   beneath it, and a warm band on a cool ground reads as a mistake. */
-.page[data-nav-stop='daylight'] .index {
-  background: color-mix(in srgb, var(--g-daylight) 92%, transparent);
-}
-
-.page[data-nav-stop='sky'] .index {
-  background: color-mix(in srgb, var(--g-sky) 92%, transparent);
-}
-
-.page[data-nav-stop='living'] .index {
-  background: color-mix(in srgb, var(--g-living) 92%, transparent);
+.indexNavHidden {
+  top: clamp(0.5rem, 1.5vw, 0.75rem);
 }
 
 .indexHead {

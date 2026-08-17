@@ -74,6 +74,10 @@ const latest = <T,>(series: T[]): T | undefined => series[series.length - 1];
 function HomePage() {
   const navigationType = useNavigationType();
   const { snapshot, source } = useCarbonFigures();
+  const [activeMixSource, setActiveMixSource] = useState<{
+    country?: string;
+    type: 'fossil' | 'nuclear' | 'renewables' | 'other';
+  } | null>(null);
 
   /**
    * The dawn hands over mid-dissolve on a full-screen wash of this page's own
@@ -131,7 +135,7 @@ function HomePage() {
 
           if (still) {
             gsap.set(`.${styles.sun}`, { yPercent: -14, scale: 1, opacity: 1 });
-            gsap.set(`.${styles.rays}`, { opacity: 0.7 });
+            gsap.set(`.${styles.rays}`, { opacity: 0.7, scale: 1, transformOrigin: '200px 200px' });
             return;
           }
 
@@ -140,14 +144,16 @@ function HomePage() {
               .timeline({
                 scrollTrigger: {
                   trigger: turnRef.current,
-                  start: 'top bottom',
-                  end: 'bottom top',
-                  scrub: 1.1,
+                  start: 'top top',
+                  end: '+=100%',
+                  pin: true,
+                  scrub: 1,
+                  anticipatePin: 1,
                 },
               })
               .fromTo(
                 `.${styles.sun}`,
-                { yPercent: 55, scale: 0.82, opacity: 0.35 },
+                { yPercent: 70, scale: 0.78, opacity: 0.15 },
                 /* Negative is up. The disc's rest position clears the horizon
                    rule — a sun that stops under its own horizon reads as
                    setting, which is the opposite of this chapter — while
@@ -156,7 +162,12 @@ function HomePage() {
                 { yPercent: -14, scale: 1, opacity: 1, ease: 'none' },
                 0,
               )
-              .fromTo(`.${styles.rays}`, { opacity: 0, scale: 0.7 }, { opacity: 0.7, scale: 1, ease: 'none' }, 0.15)
+              .fromTo(
+                `.${styles.rays}`,
+                { opacity: 0, scale: 0.6, transformOrigin: '200px 200px' },
+                { opacity: 0.8, scale: 1, transformOrigin: '200px 200px', ease: 'none' },
+                0.1,
+              )
               .fromTo(`.${styles.turnGlow}`, { opacity: 0 }, { opacity: 1, ease: 'none' }, 0);
           }
 
@@ -174,7 +185,7 @@ function HomePage() {
                 scrollTrigger: { trigger: turnRef.current, start: 'top 72%' },
               },
             );
-            gsap.set(`.${styles.rays}`, { opacity: 0.55 });
+            gsap.set(`.${styles.rays}`, { opacity: 0.55, scale: 1, transformOrigin: '200px 200px' });
           }
         },
       );
@@ -315,30 +326,110 @@ function HomePage() {
             <Instrument ruled>Electricity mix · {mixYear}</Instrument>
 
             <ul className={styles.mix}>
-              {snapshot.energyMix.map((row) => (
-                <li key={row.country} className={styles.mixRow}>
-                  <span className={styles.mixCountry}>{row.country}</span>
-                  <span className={styles.mixBar} aria-hidden="true">
-                    <span className={styles.mixFossil} style={{ width: `${row.fossil}%` }} />
-                    <span className={styles.mixNuclear} style={{ width: `${row.nuclear}%` }} />
-                    <span className={styles.mixRenew} style={{ width: `${row.renewables}%` }} />
-                  </span>
-                  <span className={styles.mixValue} data-figure>
-                    {row.fossil.toFixed(1)}% fossil
-                  </span>
-                </li>
-              ))}
+              {snapshot.energyMix.map((row) => {
+                const otherPercent =
+                  row.other > 0
+                    ? row.other
+                    : Math.max(0, 100 - (row.fossil + row.nuclear + row.renewables));
+
+                const currentType =
+                  (activeMixSource?.country === row.country || !activeMixSource?.country) &&
+                  activeMixSource?.type
+                    ? activeMixSource.type
+                    : 'fossil';
+
+                const currentValue = (
+                  currentType === 'other' ? otherPercent : row[currentType]
+                ).toFixed(1);
+
+                return (
+                  <li key={row.country} className={styles.mixRow}>
+                    <span className={styles.mixCountry}>{row.country}</span>
+                    <span
+                      className={styles.mixBar}
+                      role="group"
+                      aria-label={`${row.country} electricity mix`}
+                    >
+                      <span
+                        className={`${styles.mixSegment} ${styles.mixFossil} ${activeMixSource?.type && activeMixSource.type !== 'fossil' && (activeMixSource.country === row.country || !activeMixSource.country) ? styles.mixMuted : ''} ${activeMixSource?.type === 'fossil' && (activeMixSource.country === row.country || !activeMixSource.country) ? styles.mixActive : ''}`}
+                        style={{ width: `${row.fossil}%` }}
+                        title={`${row.country} · Fossil: ${row.fossil.toFixed(1)}%`}
+                        onMouseEnter={() => setActiveMixSource({ country: row.country, type: 'fossil' })}
+                        onMouseLeave={() => setActiveMixSource(null)}
+                      />
+                      <span
+                        className={`${styles.mixSegment} ${styles.mixNuclear} ${activeMixSource?.type && activeMixSource.type !== 'nuclear' && (activeMixSource.country === row.country || !activeMixSource.country) ? styles.mixMuted : ''} ${activeMixSource?.type === 'nuclear' && (activeMixSource.country === row.country || !activeMixSource.country) ? styles.mixActive : ''}`}
+                        style={{ width: `${row.nuclear}%` }}
+                        title={`${row.country} · Nuclear: ${row.nuclear.toFixed(1)}%`}
+                        onMouseEnter={() => setActiveMixSource({ country: row.country, type: 'nuclear' })}
+                        onMouseLeave={() => setActiveMixSource(null)}
+                      />
+                      <span
+                        className={`${styles.mixSegment} ${styles.mixRenew} ${activeMixSource?.type && activeMixSource.type !== 'renewables' && (activeMixSource.country === row.country || !activeMixSource.country) ? styles.mixMuted : ''} ${activeMixSource?.type === 'renewables' && (activeMixSource.country === row.country || !activeMixSource.country) ? styles.mixActive : ''}`}
+                        style={{ width: `${row.renewables}%` }}
+                        title={`${row.country} · Renewables: ${row.renewables.toFixed(1)}%`}
+                        onMouseEnter={() => setActiveMixSource({ country: row.country, type: 'renewables' })}
+                        onMouseLeave={() => setActiveMixSource(null)}
+                      />
+                      {otherPercent > 0 && (
+                        <span
+                          className={`${styles.mixSegment} ${styles.mixOther} ${activeMixSource?.type && activeMixSource.type !== 'other' && (activeMixSource.country === row.country || !activeMixSource.country) ? styles.mixMuted : ''} ${activeMixSource?.type === 'other' && (activeMixSource.country === row.country || !activeMixSource.country) ? styles.mixActive : ''}`}
+                          style={{ width: `${otherPercent}%` }}
+                          title={`${row.country} · Other: ${otherPercent.toFixed(1)}%`}
+                          onMouseEnter={() => setActiveMixSource({ country: row.country, type: 'other' })}
+                          onMouseLeave={() => setActiveMixSource(null)}
+                        />
+                      )}
+                    </span>
+                    <span className={styles.mixValue} data-figure>
+                      <strong>{currentValue}%</strong> {currentType}
+                    </span>
+                  </li>
+                );
+              })}
             </ul>
 
-            <p className={styles.mixKey}>
-              <span className={styles.keyFossil} /> Fossil
-              <span className={styles.keyNuclear} /> Nuclear
-              <span className={styles.keyRenew} /> Renewables
+            <div className={styles.mixKey}>
+              <button
+                type="button"
+                className={`${styles.keyButton} ${activeMixSource?.type === 'fossil' && !activeMixSource.country ? styles.keyActive : ''}`}
+                onMouseEnter={() => setActiveMixSource({ type: 'fossil' })}
+                onMouseLeave={() => setActiveMixSource(null)}
+                onClick={() => setActiveMixSource((prev) => (prev?.type === 'fossil' && !prev.country ? null : { type: 'fossil' }))}
+              >
+                <span className={styles.keyFossil} /> Fossil
+              </button>
+              <button
+                type="button"
+                className={`${styles.keyButton} ${activeMixSource?.type === 'nuclear' && !activeMixSource.country ? styles.keyActive : ''}`}
+                onMouseEnter={() => setActiveMixSource({ type: 'nuclear' })}
+                onMouseLeave={() => setActiveMixSource(null)}
+                onClick={() => setActiveMixSource((prev) => (prev?.type === 'nuclear' && !prev.country ? null : { type: 'nuclear' }))}
+              >
+                <span className={styles.keyNuclear} /> Nuclear
+              </button>
+              <button
+                type="button"
+                className={`${styles.keyButton} ${activeMixSource?.type === 'renewables' && !activeMixSource.country ? styles.keyActive : ''}`}
+                onMouseEnter={() => setActiveMixSource({ type: 'renewables' })}
+                onMouseLeave={() => setActiveMixSource(null)}
+                onClick={() => setActiveMixSource((prev) => (prev?.type === 'renewables' && !prev.country ? null : { type: 'renewables' }))}
+              >
+                <span className={styles.keyRenew} /> Renewables
+              </button>
+              <button
+                type="button"
+                className={`${styles.keyButton} ${activeMixSource?.type === 'other' && !activeMixSource.country ? styles.keyActive : ''}`}
+                onMouseEnter={() => setActiveMixSource({ type: 'other' })}
+                onMouseLeave={() => setActiveMixSource(null)}
+                onClick={() => setActiveMixSource((prev) => (prev?.type === 'other' && !prev.country ? null : { type: 'other' }))}
+              >
+                <span className={styles.keyOther} /> Other
+              </button>
               <span className={styles.keyNote}>
-                Shares are of electricity generated, and do not always reach 100% —
-                the unattributed remainder is carried rather than normalised away.
+                Shares are of electricity generated. &lsquo;Other&rsquo; is a calculated fill (the unattributed remainder to 100%) rather than an individually reported source from the primary data.
               </span>
-            </p>
+            </div>
 
             <div className={styles.blockAction}>
               <Action to="/dashboard">Open the live dashboard</Action>

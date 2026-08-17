@@ -225,34 +225,40 @@ export function BiomassScene() {
 
       {/* Growing: the plant takes carbon out of the air */}
       <g className={styles.leaf}>
-        <path className={styles.rule} d="M96 240 v-40" />
-        <path className={styles.live} d="M96 214 q-22-6-26-28 q22 2 26 28z" />
-        <path className={styles.live} d="M96 226 q22-8 26-30 q-22 2-26 30z" />
+        <path className={styles.rule} d="M96 246 v-44" />
+        <path className={styles.live} d="M96 218 q-22-6-26-28 q22 2 26 28z" />
+        <path className={styles.live} d="M96 230 q22-8 26-30 q-22 2-26 30z" />
       </g>
-      <path className={styles.hair} d="M74 186 q6-9 14-5M112 180 q7-8 14-3" />
+      {/* CO2 uptake / cloud arcs over the plant */}
+      <path
+        className={styles.hair}
+        d="M60 192 q-4-24 22-26 q14 -2 18 12 q8 -14 24 -10 q12 4 8 24"
+      />
 
-      {/* Harvest and fuel */}
-      <path className={styles.rule} d="M168 232 h44 l-6 -26 h-32 z" />
-      <path className={styles.hair} d="M176 214 h28M174 222 h32" />
+      {/* Harvest and fuel pile — centered directly inside the carbon loop */}
+      <g>
+        <path className={styles.rule} d="M172 168 L180 132 h40 L228 168 Z" />
+        <path className={styles.hair} d="M178 143 h44M175 152 h50M174 160 h52" />
+      </g>
 
       {/* Combustion: heat to steam to generator */}
-      <rect className={styles.rule} x="234" y="180" width="52" height="52" rx="3" />
+      <rect className={styles.rule} x="234" y="184" width="52" height="52" rx="3" />
       <path
         className={styles.accentField}
-        d="M260 224 q-11-7-9-19 q4 5 8 4 q-3-11 6-17 q-2 12 7 17 q4 7 -1 13 q-4 4 -11 2z"
+        d="M260 228 q-11-7-9-19 q4 5 8 4 q-3-11 6-17 q-2 12 7 17 q4 7 -1 13 q-4 4 -11 2z"
       />
-      <path className={styles.hair} d="M286 196 h20 q8 0 8 8 v14" />
+      <path className={styles.hair} d="M286 200 h22 q6 0 6 6 v14" />
 
       {/* Generator and grid */}
-      <rect className={styles.rule} x="298" y="218" width="32" height="26" rx="2" />
-      <path className={`${styles.liveLine} ${styles.current}`} d="M330 231 L362 231" />
-      <circle className={styles.live} cx="366" cy="231" r="3.5" />
+      <rect className={styles.rule} x="298" y="220" width="32" height="26" rx="2" />
+      <path className={`${styles.liveLine} ${styles.current}`} d="M330 233 L362 233" />
+      <circle className={styles.live} cx="366" cy="233" r="3.5" />
 
       {/* Released carbon returning to the plant — the loop closing */}
-      <path className={styles.hair} d="M256 178 q-4-16 6-26M268 176 q-2-13 8-22" />
+      <path className={styles.hair} d="M256 182 q-4-16 6-26M268 180 q-2-13 8-22" />
       <text
         x="200"
-        y="58"
+        y="46"
         textAnchor="middle"
         fill="var(--ink-faint)"
         fontFamily="var(--typed)"
@@ -262,6 +268,7 @@ export function BiomassScene() {
         CO₂ RETURNS
       </text>
 
+      {/* Ground line */}
       <path className={styles.rule} d="M40 246 h320" />
     </svg>
   );
