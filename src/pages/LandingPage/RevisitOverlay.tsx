@@ -168,11 +168,9 @@ function RevisitOverlay({ level, onLeave }: RevisitOverlayProps) {
 
   const leave = (
     <button type="button" className={styles.action} onClick={() => onLeave('/home')}>
-      <span className={styles.actionCore}>
-        <span className={styles.actionLabel}>Return to the vault</span>
-        <span className={styles.actionIcon} aria-hidden="true">
-          <ArrowGlyph />
-        </span>
+      <span className={styles.actionLabel}>Return to the vault</span>
+      <span className={styles.actionIcon} aria-hidden="true">
+        <ArrowGlyph />
       </span>
     </button>
   );

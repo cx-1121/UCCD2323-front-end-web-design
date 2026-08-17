@@ -1,13 +1,9 @@
-import { useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import gsap from 'gsap';
-import { useGSAP } from '@gsap/react';
+import { useHideOnScroll } from '../../hooks/useHideOnScroll';
 import styles from './HudHeader.module.css';
 
-gsap.registerPlugin(useGSAP);
-
 /**
- * The site's four top-level sections. Explore and the cinematic intro are
+ * The site's five top-level sections. Explore and the cinematic intro are
  * deliberately NOT here: they are reached from the HomePage cards, so the
  * header stays a stable frame rather than a second route list.
  *
@@ -24,27 +20,29 @@ const NAV_LINKS: { label: string; to?: string }[] = [
   { label: 'About', to: '/about' },
 ];
 
-type HudHeaderProps = {
-  /**
-   * 'interactive' (default) — the landing-page behaviour: a RE:FUTURE wordmark
-   * that has to be clicked before the navigation animates in.
-   * 'static' — navigation is always on screen, with no wordmark, no
-   * "tap to navigate" hint, and no click affordance.
-   */
-  variant?: 'interactive' | 'static';
-};
-
-function HudHeader({ variant = 'interactive' }: HudHeaderProps) {
-  const headerRef = useRef<HTMLElement>(null);
-  /**
-   * State rather than a ref: contextSafe re-wraps a fresh closure on every
-   * render, so there is no staleness to avoid, and reading a ref inside that
-   * callback trips the compiler's "no refs during render" rule, which cannot
-   * see that contextSafe only wraps the function instead of calling it.
-   */
-  const [unlocked, setUnlocked] = useState(false);
-  const isStatic = variant === 'static';
+/**
+ * The interior header: wordmark left, navigation centred.
+ *
+ * There used to be a second `interactive` variant here — a clickable triangle
+ * that rotated, wiped a line across, and staggered the links in via GSAP. No
+ * caller ever asked for it: every route mounts this header plainly, and the
+ * landing cinematic carries no navigation at all by design. It has been
+ * removed along with the tokens that only ever dressed it.
+ */
+function HudHeader() {
   const { pathname, hash } = useLocation();
+
+  /**
+   * Parks on the way down, returns on the way up.
+   *
+   * The header draws no ground of its own, so anything scrolling beneath it
+   * printed straight through the labels. A scrim would fix that only on a
+   * page with one background colour — Explore's ground climbs through four
+   * stops, so no single tint is correct for all of it, and a frosted bar
+   * would put glass between the reader and a site whose argument is a change
+   * of light. Getting out of the way costs nothing and works on every ground.
+   */
+  const hidden = useHideOnScroll(220);
 
   /**
    * Hash-aware active detection. NavLink cannot express this: it matches
@@ -58,114 +56,40 @@ function HudHeader({ variant = 'interactive' }: HudHeaderProps) {
     return toHash ? hash === `#${toHash}` : hash === '';
   };
 
-  /**
-   * Scoped to the header element, so every selector below resolves inside this
-   * component instead of querying the whole document. That matters here: the
-   * class names are CSS Module hashes, but the lookups were still global.
-   */
-  const { contextSafe } = useGSAP(
-    () => {
-      if (isStatic) {
-        return;
-      }
-      gsap.set(`.${styles.logo} svg`, { transformOrigin: '50% 50%' });
-    },
-    { scope: headerRef, dependencies: [isStatic] },
-  );
-
-  /**
-   * contextSafe is what makes this correct. These tweens are created when the
-   * reader clicks, long after useGSAP has run, so without it they belong to no
-   * context and survive unmount: nothing reverts them, and the inline styles
-   * they write stay on detached nodes.
-   */
-  const handleLogoClick = contextSafe(() => {
-    const nextState = !unlocked;
-    setUnlocked(nextState);
-
-    if (nextState) {
-      gsap.to(`.${styles.logo} svg`, { rotation: 90, duration: 1.2, ease: "back.out(2)" });
-      gsap.to(`.${styles.logoTextGroup}`, { x: 30, opacity: 0, duration: 0.8, ease: "power2.out" });
-
-      gsap.set(`.${styles.logoLine}`, { x: 0, width: 0, opacity: 1 });
-      const lineTl = gsap.timeline();
-      lineTl.to(`.${styles.logoLine}`, { width: "120px", duration: 0.4, ease: "power1.out", delay: 0.2 })
-            .to(`.${styles.logoLine}`, { x: 120, width: 0, opacity: 0, duration: 0.5, ease: "power1.inOut" });
-
-      gsap.set(`.${styles.globalNav}`, { pointerEvents: "auto" });
-      gsap.to(`.${styles.globalNav} .${styles.navItem}`, {
-        opacity: 1,
-        x: 0,
-        duration: 0.5,
-        stagger: 0.1,
-        ease: "power2.out",
-        delay: 0.4,
-      });
-    } else {
-      gsap.set(`.${styles.globalNav}`, { pointerEvents: "none" });
-      gsap.to(`.${styles.globalNav} .${styles.navItem}`, {
-        opacity: 0,
-        x: -15,
-        duration: 0.4,
-        stagger: 0.08,
-        ease: "power2.in",
-      });
-
-      gsap.set(`.${styles.logoLine}`, { x: 0, width: 0, opacity: 1 });
-      gsap.to(`.${styles.logo} svg`, { rotation: 0, duration: 1.2, ease: "back.out(2)", delay: 0.1 });
-      gsap.to(`.${styles.logoTextGroup}`, { x: 0, opacity: 1, duration: 0.8, ease: "power2.out", delay: 0.1 });
-    }
-  });
-
   return (
-    <header ref={headerRef} className={styles.hudHeader}>
-      <div
-        className={isStatic ? styles.logoStatic : styles.logo}
-        onClick={isStatic ? undefined : handleLogoClick}
-      >
-        <svg viewBox="0 0 24 24">
-          <path d="M12 2L2 22h9V12h2v10h9L12 2z" />
-        </svg>
+    <header className={hidden ? `${styles.hudHeader} ${styles.hudHidden}` : styles.hudHeader}>
+      <Link to="/home" className={styles.wordmark}>
+        RE:FUTURE
+      </Link>
 
-        {!isStatic && (
-          <>
-            <div className={styles.logoTextGroup}>
-              <span className={styles.logoText}>RE:FUTURE</span>
-              <span className={styles.logoSubtext}>• Tap to navigate</span>
-            </div>
-            <div className={styles.logoLine} />
-          </>
-        )}
-
-        <nav className={isStatic ? styles.staticNav : styles.globalNav}>
-          {NAV_LINKS.map((link) => {
-            const base = isStatic
-              ? `${styles.navItem} ${styles.navItemVisible}`
-              : styles.navItem;
-
-            if (!link.to) {
-              return (
-                <span key={link.label} className={`${base} ${styles.navItemPending}`}>
-                  {link.label}
-                </span>
-              );
-            }
-
-            const current = isCurrent(link.to);
-
+      <nav className={styles.staticNav} aria-label="Sections">
+        {NAV_LINKS.map((link) => {
+          if (!link.to) {
             return (
-              <Link
-                key={link.label}
-                to={link.to}
-                className={current ? `${base} ${styles.navItemActive}` : base}
-                aria-current={current ? 'page' : undefined}
-              >
+              <span key={link.label} className={`${styles.navItem} ${styles.navItemPending}`}>
                 {link.label}
-              </Link>
+              </span>
             );
-          })}
-        </nav>
-      </div>
+          }
+
+          const current = isCurrent(link.to);
+
+          return (
+            <Link
+              key={link.label}
+              to={link.to}
+              className={current ? `${styles.navItem} ${styles.navItemActive}` : styles.navItem}
+              aria-current={current ? 'page' : undefined}
+            >
+              {link.label}
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* Balances the wordmark's track so the centre track is the true centre
+          of the header. */}
+      <span className={styles.railEnd} aria-hidden="true" />
     </header>
   );
 }

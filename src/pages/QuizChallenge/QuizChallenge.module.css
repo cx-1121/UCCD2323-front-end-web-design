@@ -1,779 +1,518 @@
 /* ==========================================================================
-   QuizChallenge.module.css
-   High-End Visual Design & UI-UX Pro Max Principles:
-   - Paper Stack & Ethereal Mint theme matching global.css design tokens
-   - Double-Bezel Architecture (Doppelrand nested outer shell + inner core)
-   - Button-in-Button Island CTAs with trailing vector icons
-   - Fluid spring transitions (--ease-fluid)
-   - Mobile responsive collapse (< 768px)
+   QUIZ — the world you are raising.
+
+   The page's chapter is a function of the score, so every colour here comes
+   from the ladder and changes as the reader answers. Nothing below names a
+   hue; the whole page greens because the stop under it moved.
+
+   No cards. The old version ran a double-bezel question panel holding a grid
+   of four option boxes, a feedback panel, a row of score cards and ten review
+   panels. Grouping here is a rule, a typed head and space.
    ========================================================================== */
 
 .page {
-  min-height: 100vh;
-  min-height: 100dvh;
-  background-color: var(--surface);
-  color: var(--ink);
-  font-family: var(--font-body);
   position: relative;
-  overflow-x: hidden;
-  padding-top: 5rem;
+  min-height: 100vh;
+  background: var(--g-soot);
+  transition: background var(--turn-ms) var(--ease-turn);
 }
 
-/* ── Unified floating navigation, unpanelled: the links sit straight on the page ── */
-.headerBar {
-  position: fixed;
-  top: clamp(0.875rem, 2vw, 1.5rem);
-  left: 50%;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  width: max-content;
-  max-width: calc(100vw - 2rem);
-  padding: 0.6875rem 1.5rem 0.6875rem 1.25rem;
-  transform: translateX(-50%);
-  --hud-mark: var(--signal);
-  --hud-mark-glow: none;
+/* The header inks with the ladder, exactly as on Home. */
+.page[data-nav-stop='soot'],
+.page[data-nav-stop='haze'] {
+  --hud-ink: rgba(246, 248, 246, 0.68);
+  --hud-ink-static: rgba(246, 248, 246, 0.92);
+  --hud-hover: var(--living);
+}
+
+.page[data-nav-stop='firstlight'],
+.page[data-nav-stop='daylight'],
+.page[data-nav-stop='sky'],
+.page[data-nav-stop='living'] {
   --hud-ink: var(--ink-soft);
   --hud-ink-static: var(--ink);
   --hud-hover: var(--signal-deep);
   --hud-hover-glow: none;
-  transition:
-    transform 650ms var(--ease-fluid),
-    opacity 450ms var(--ease-fluid);
 }
 
-.headerBarHidden {
-  transform: translateX(-50%) translate3d(0, calc(-100% - clamp(0.875rem, 2vw, 1.5rem)), 0);
-  opacity: 0;
-  pointer-events: none;
-}
-
-.headerBar > header {
-  position: static;
-  inset: auto;
-  width: 100%;
-}
-
-/* Page Container Width Constraint */
-.container {
-  width: 100%;
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 2.5rem 1.5rem 6rem 1.5rem;
-  position: relative;
-  z-index: 1;
-}
-
-/* Background Atmosphere Ambient Bloom */
-.ambientGlow {
-  position: fixed;
-  top: -15vh;
-  right: -10vw;
-  width: min(45rem, 80vw);
-  height: min(45rem, 80vw);
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(16, 185, 129, 0.12) 0%,
-    rgba(4, 120, 87, 0.04) 50%,
-    transparent 70%
-  );
-  filter: blur(80px);
-  pointer-events: none;
-  z-index: 0;
+.runChapter,
+.resultChapter {
+  min-height: 100svh;
+  padding-top: clamp(5.5rem, 13vh, 8rem);
 }
 
 /* ==========================================================================
-   1. HERO INTRO & HEADER
+   The run
    ========================================================================== */
-
-.intro {
-  text-align: center;
-  max-width: 720px;
-  margin: 0 auto 3rem auto;
-}
-
-.title {
-  font-family: var(--font-display);
-  font-size: clamp(2.25rem, 5vw, 3.75rem);
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.025em;
-  color: var(--ink);
-  margin-bottom: 1rem;
-}
-
-.titleHighlight {
-  background: linear-gradient(135deg, var(--signal) 0%, var(--signal-teal) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.subtitle {
-  font-size: clamp(1rem, 1.8vw, 1.15rem);
-  line-height: 1.6;
-  color: var(--ink-soft);
-}
-
-/* ==========================================================================
-   2. PROGRESS BAR & META
-   ========================================================================== */
-
-.progressMeta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.65rem;
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--ink-faint);
-}
-
-.progressScore {
-  color: var(--signal-deep);
-  font-weight: 700;
-}
-
-.progressTrack {
-  height: 0.5rem;
-  margin-bottom: 2rem;
-  border-radius: var(--r-pill);
-  background-color: var(--shell);
-  border: 1px solid var(--hairline);
-  overflow: hidden;
-  padding: 1px;
-}
-
-.progressFill {
-  height: 100%;
-  border-radius: var(--r-pill);
-  background: linear-gradient(90deg, var(--signal) 0%, var(--signal-teal) 100%);
-  box-shadow: 0 0 12px rgba(4, 120, 87, 0.3);
-  transition: width 0.4s var(--ease-fluid);
-}
-
-/* ==========================================================================
-   3. QUESTION CARD (DOUBLE-BEZEL DOPPELRAND)
-   ========================================================================== */
-
-.questionShell {
-  background-color: var(--shell);
-  border: 1px solid var(--hairline-strong);
-  border-radius: var(--r-shell);
-  padding: 0.6rem;
-  box-shadow: var(--shadow-lift);
-}
-
-.questionCore {
-  background-color: var(--surface-raised);
-  border-radius: var(--r-core);
-  box-shadow: var(--inner-lip), var(--shadow-soft);
-  padding: clamp(1.75rem, 4vw, 2.75rem);
-}
-
-.questionMeta {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1.25rem;
-}
-
-.difficultyPill {
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 0.25rem 0.65rem;
-  border-radius: var(--r-pill);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-.diffEasy {
-  background-color: rgba(4, 120, 87, 0.1);
-  color: var(--signal-deep);
-  border: 1px solid rgba(4, 120, 87, 0.2);
-}
-
-.diffMedium {
-  background-color: rgba(15, 118, 110, 0.1);
-  color: var(--signal-teal);
-  border: 1px solid rgba(15, 118, 110, 0.2);
-}
-
-.diffHard {
-  background-color: rgba(77, 124, 15, 0.1);
-  color: var(--signal-lime);
-  border: 1px solid rgba(77, 124, 15, 0.2);
-}
-
-.topicTag {
-  font-size: 0.75rem;
-  font-family: var(--font-mono);
-  color: var(--ink-faint);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.questionPrompt {
-  font-family: var(--font-display);
-  font-size: clamp(1.35rem, 3vw, 1.85rem);
-  font-weight: 700;
-  line-height: 1.3;
-  color: var(--ink);
-  margin-bottom: 2rem;
-}
-
-/* Option Grid Layout */
-.optionGrid {
+.run {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
+  gap: clamp(2rem, 5vw, 3rem);
+  align-items: start;
 }
 
-.optionShell {
-  background-color: var(--surface);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-tile);
-  padding: 0.35rem;
-  transition: all 0.3s var(--ease-fluid);
-}
-
-.optionButton {
-  width: 100%;
-  min-height: 4.5rem;
+/* ---- Resume offer ---- */
+.resume {
   display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.85rem 1.1rem;
-  background-color: var(--surface-raised);
-  border: 1px solid var(--hairline);
-  border-radius: calc(var(--r-tile) - 4px);
-  font-family: var(--font-body);
-  font-size: 0.9375rem;
-  font-weight: 500;
-  color: var(--ink);
-  text-align: left;
-  cursor: pointer;
-  box-shadow: var(--inner-lip);
-  transition: all 0.25s var(--ease-fluid);
-}
-
-.optionButton:hover:not(:disabled) {
-  transform: translateY(-2px);
-  border-color: var(--signal);
-  color: var(--signal-deep);
-  box-shadow: 0 4px 16px rgba(4, 120, 87, 0.12);
-}
-
-.optionButton:focus-visible {
-  outline: 2px solid var(--signal);
-  outline-offset: 2px;
-}
-
-.optionButton:disabled {
-  cursor: default;
-}
-
-.optionLetter {
-  width: 2.2rem;
-  height: 2.2rem;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--r-pill);
-  background-color: var(--shell);
-  border: 1px solid var(--hairline);
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--ink-faint);
-  transition: all 0.25s var(--ease-fluid);
-}
-
-.optionButton:hover:not(:disabled) .optionLetter {
-  background-color: var(--surface-mint);
-  color: var(--signal-deep);
-  border-color: rgba(4, 120, 87, 0.25);
-}
-
-/* Selected & Feedback States */
-.selectedOption {
-  border-color: var(--signal) !important;
-  background-color: var(--surface-mint) !important;
-}
-
-.selectedOption .optionLetter {
-  background-color: var(--signal-deep) !important;
-  color: #ffffff !important;
-  border-color: var(--signal-deep) !important;
-}
-
-.correctOption {
-  border-color: var(--signal) !important;
-  background-color: rgba(4, 120, 87, 0.08) !important;
-  box-shadow: 0 0 0 2px var(--signal) !important;
-}
-
-.correctOption .optionLetter {
-  background-color: var(--signal) !important;
-  color: #ffffff !important;
-}
-
-.incorrectOption {
-  border-color: #e11d48 !important;
-  background-color: rgba(225, 29, 72, 0.06) !important;
-  box-shadow: 0 0 0 2px #e11d48 !important;
-}
-
-.incorrectOption .optionLetter {
-  background-color: #e11d48 !important;
-  color: #ffffff !important;
-}
-
-/* ==========================================================================
-   4. ANSWER EXPLANATION FEEDBACK BLOCK
-   ========================================================================== */
-
-.feedbackBlock {
-  padding: 1.25rem 1.5rem;
-  border-radius: var(--r-tile);
-  border: 1px solid var(--hairline);
-  margin-bottom: 2rem;
-  animation: fadeIn 0.3s var(--ease-fluid);
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.correctFeedback {
-  background-color: var(--surface-mint);
-  border-color: rgba(4, 120, 87, 0.3);
-  color: var(--signal-deep);
-}
-
-.incorrectFeedback {
-  background-color: rgba(225, 29, 72, 0.06);
-  border-color: rgba(225, 29, 72, 0.25);
-  color: #9f1239;
-}
-
-.feedbackTitle {
-  font-family: var(--font-display);
-  font-size: 1.1rem;
-  font-weight: 800;
-  margin-bottom: 0.4rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.feedbackText {
-  font-size: 0.9375rem;
-  line-height: 1.6;
-  color: var(--ink-soft);
-}
-
-/* ==========================================================================
-   5. CARD FOOTER & ISLAND CTA BUTTONS
-   ========================================================================== */
-
-.cardFooter {
-  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--hairline);
-}
-
-.helperText {
-  font-size: 0.85rem;
-  color: var(--ink-faint);
-}
-
-.primaryButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: var(--r-pill);
-  background-color: var(--signal-deep);
-  color: #ffffff;
-  font-family: var(--font-body);
-  font-size: 0.9375rem;
-  font-weight: 700;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s var(--ease-fluid);
-  box-shadow: 0 4px 16px rgba(6, 95, 70, 0.25);
-}
-
-.primaryButton:hover:not(:disabled) {
-  transform: translateY(-2px);
-  background-color: var(--signal);
-  box-shadow: 0 8px 24px rgba(6, 95, 70, 0.35);
-}
-
-.primaryButton:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.btnIconWrapper {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.3s var(--ease-fluid);
-}
-
-.primaryButton:hover:not(:disabled) .btnIconWrapper {
-  transform: translateX(3px);
-}
-
-/* ==========================================================================
-   6. RESULT PANEL (DOUBLE-BEZEL SUMMARY)
-   ========================================================================== */
-
-.resultShell {
-  background-color: var(--shell);
-  border: 1px solid var(--hairline-strong);
-  border-radius: var(--r-shell);
-  padding: 0.65rem;
-  box-shadow: var(--shadow-lift);
-}
-
-.resultCore {
-  background-color: var(--surface-raised);
-  border-radius: var(--r-core);
-  box-shadow: var(--inner-lip), var(--shadow-soft);
-  padding: clamp(2rem, 5vw, 4rem);
-  text-align: center;
-}
-
-.resultHeader {
-  margin-bottom: 2.5rem;
-}
-
-.scoreHero {
-  font-family: var(--font-display);
-  font-size: clamp(4rem, 12vw, 7rem);
-  font-weight: 800;
-  line-height: 1;
-  background: linear-gradient(135deg, var(--signal) 0%, var(--signal-teal) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin: 1rem 0;
-}
-
-.scoreDenom {
-  font-size: 0.35em;
-  color: var(--ink-faint);
-  -webkit-text-fill-color: var(--ink-faint);
-}
-
-.resultMessage {
-  font-size: 1.1rem;
-  color: var(--ink-soft);
-  line-height: 1.6;
-  max-width: 580px;
-  margin: 0 auto;
-}
-
-/* Score Breakdown Grid */
-.scoreGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.25rem;
-  margin-bottom: 3rem;
-}
-
-.scoreCardShell {
-  background-color: var(--shell);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-tile);
-  padding: 0.35rem;
-}
-
-.scoreCardCore {
-  background-color: var(--surface);
-  border-radius: calc(var(--r-tile) - 4px);
-  padding: 1.25rem 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.scoreCardLabel {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-}
-
-.scoreCardVal {
-  font-family: var(--font-display);
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--signal-deep);
-}
-
-/* Question Review List */
-.reviewList {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  text-align: left;
-  margin-bottom: 3rem;
-}
-
-.reviewItemShell {
-  background-color: var(--surface);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-tile);
-  padding: 1.25rem 1.5rem;
-}
-
-.reviewHeading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--ink-faint);
-  text-transform: uppercase;
-}
-
-.correctText {
-  color: var(--signal-deep);
-  font-weight: 800;
-}
-
-.incorrectText {
-  color: #e11d48;
-  font-weight: 800;
-}
-
-.reviewPrompt {
-  font-family: var(--font-display);
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--ink);
-  margin-bottom: 0.35rem;
-}
-
-.correctAnswerText {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #e11d48;
-  margin-bottom: 0.35rem;
-}
-
-.reviewExplanation {
-  font-size: 0.85rem;
-  color: var(--ink-soft);
-  line-height: 1.5;
-}
-
-.resultActions {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1.25rem;
-}
-
-.ghostLink {
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: var(--ink-soft);
-  text-decoration: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: var(--r-pill);
-  transition: all 0.25s ease;
-}
-
-.ghostLink:hover {
-  color: var(--ink);
-  background-color: var(--shell);
-}
-
-/* ==========================================================================
-   7. RESPONSIVE BREAKPOINTS (Mobile Collapse)
-   ========================================================================== */
-
-@media (max-width: 768px) {
-  .optionGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .scoreGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .cardFooter {
-    flex-direction: column;
-    align-items: stretch;
-    text-align: center;
-  }
-
-  .primaryButton {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .resultActions {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .ghostLink {
-    width: 100%;
-    text-align: center;
-  }
-}
-
-/* ── Resume offer (sessionStorage recovery, FR-STO-005) ─────────────────── */
-
-.resumeBar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.25rem;
-  margin-bottom: 1.5rem;
-  padding: 0.9375rem 1.25rem;
-
-  background: var(--surface-mint);
-  border: 1px solid var(--hairline-strong);
-  border-radius: var(--r-tile);
-  box-shadow: var(--inner-lip);
-
-  animation: resume-settle 460ms var(--ease-glide) both;
+  gap: 0.75rem 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--rule);
 }
 
 .resumeCopy {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1875rem;
-  min-width: 0;
-}
-
-.resumeTitle {
-  font-family: var(--font-display);
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--ink);
-}
-
-.resumeText {
-  font-size: 0.8125rem;
-  line-height: 1.45;
+  margin: 0;
+  max-width: 52ch;
+  font-family: var(--set);
+  font-size: 0.9375rem;
+  line-height: 1.6;
   color: var(--ink-soft);
+}
+
+.resumeCopy strong {
+  color: var(--ink);
 }
 
 .resumeActions {
   display: flex;
-  flex-shrink: 0;
+  gap: 1.25rem;
+}
+
+/* A text control, not a button-shaped object: two secondary choices on a
+   dismissible strip do not each need an enclosure. */
+.textButton {
+  padding: 0;
+  font-family: var(--stamped);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  cursor: pointer;
+  transition: border-color 300ms var(--ease-glide);
+}
+
+.textButton:hover {
+  border-bottom-color: var(--living);
+}
+
+/* ---- The world ---- */
+.world {
+  display: grid;
+  gap: clamp(1rem, 2.5vw, 1.5rem);
+}
+
+/* Stacked, the drawing sits above the question, so it must not push the
+   question itself off the screen — a 4:3 scene at full column width was
+   taking most of the viewport before the reader saw what they were answering.
+   Capped and centred; the SVG letterboxes itself. */
+.world > svg {
+  max-height: 30vh;
+}
+
+.standing {
+  display: grid;
   gap: 0.5rem;
 }
 
-.resumeConfirm,
-.resumeDismiss {
-  padding: 0.5625rem 1.125rem;
-  font-family: var(--font-body);
-  font-size: 0.8125rem;
-  font-weight: 600;
-  border-radius: var(--r-pill);
+.standingScore {
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
+  margin: 0;
+  font-family: var(--typed);
+  font-size: clamp(2.25rem, 6vw, 3.25rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+
+.standingDenom {
+  font-size: 0.36em;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--ink-faint);
+}
+
+.standingNote {
+  margin: 0;
+  max-width: 34ch;
+  font-family: var(--set);
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  text-wrap: pretty;
+}
+
+/* ==========================================================================
+   The question
+   ========================================================================== */
+.question {
+  display: grid;
+  gap: clamp(1rem, 2.5vw, 1.5rem);
+  align-content: start;
+}
+
+.questionMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  font-family: var(--typed);
+  font-size: 0.6875rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.questionTags {
+  color: var(--accent);
+}
+
+/* A hairline that fills, not a rounded capsule with a rounded capsule in it. */
+.progressTrack {
+  position: relative;
+  height: 2px;
+  background: color-mix(in srgb, var(--ink) 14%, transparent);
+}
+
+.progressFill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--living);
+  transition: width 600ms var(--ease-glide);
+}
+
+.prompt {
+  margin-top: 0.25rem;
+  text-wrap: balance;
+}
+
+/* ---- Options: a filing run ---- */
+.options {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  width: 100%;
+  padding: clamp(0.8125rem, 2vw, 1rem) clamp(0.875rem, 2vw, 1.125rem);
+  font-family: var(--set);
+  font-size: 1rem;
+  line-height: 1.45;
+  text-align: left;
+  color: var(--ink);
+  background: color-mix(in srgb, var(--ink) 5%, transparent);
+  border: 0;
+  border-left: 2px solid var(--rule);
   cursor: pointer;
   transition:
-    transform 240ms var(--ease-snap),
-    background-color 240ms var(--ease-fluid),
-    border-color 240ms var(--ease-fluid);
+    background 320ms var(--ease-glide),
+    border-color 320ms var(--ease-glide),
+    padding-left 320ms var(--ease-glide);
 }
 
-.resumeConfirm {
-  background: var(--signal);
-  border: 1px solid var(--signal);
-  color: #ffffff;
+.option:hover:not(:disabled) {
+  padding-left: calc(clamp(0.875rem, 2vw, 1.125rem) + 0.5rem);
+  background: color-mix(in srgb, var(--ink) 9%, transparent);
+  border-left-color: var(--ink-faint);
 }
 
-.resumeConfirm:hover {
-  background: var(--signal-deep);
-  border-color: var(--signal-deep);
-  transform: translateY(-1px);
+.option:disabled {
+  cursor: default;
 }
 
-.resumeDismiss {
-  background: transparent;
-  border: 1px solid var(--hairline-strong);
+.optionLetter {
+  flex: none;
+  width: 1.25rem;
+  font-family: var(--typed);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+}
+
+/* Resolved states. Each carries a border AND a ground change, so the answer
+   never reads by colour alone. */
+.optionSelected {
+  border-left-color: var(--ink);
+}
+
+.optionCorrect {
+  background: color-mix(in srgb, var(--living) 16%, transparent);
+  border-left-color: var(--living);
+}
+
+.optionCorrect .optionLetter {
+  color: var(--living-ink);
+}
+
+.optionWrong {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border-left-color: var(--accent);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--accent);
+}
+
+/* ---- Feedback ---- */
+.feedback {
+  display: grid;
+  gap: 0.5rem;
+  padding-left: clamp(0.875rem, 2vw, 1.125rem);
+  border-left: 2px solid var(--rule);
+}
+
+.feedbackCorrect {
+  border-left-color: var(--living);
+}
+
+.feedbackWrong {
+  border-left-color: var(--accent);
+}
+
+.feedbackTitle {
+  margin: 0;
+  font-family: var(--stamped);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.feedbackAnswer,
+.feedbackText {
+  margin: 0;
+  max-width: 62ch;
+  font-family: var(--set);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  text-wrap: pretty;
+}
+
+.feedbackAnswer strong {
+  color: var(--ink);
+}
+
+.runFooter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: clamp(0.75rem, 2vw, 1rem);
+  border-top: 1px solid var(--rule);
+}
+
+/* ==========================================================================
+   Result
+   ========================================================================== */
+.resultStack {
+  display: grid;
+  gap: clamp(2.5rem, 6vw, 4rem);
+}
+
+.determination {
+  display: grid;
+  gap: clamp(1.75rem, 4vw, 2.5rem);
+  align-items: start;
+}
+
+.resultSheet {
+  position: relative;
+}
+
+.resultWorld {
+  margin: clamp(0.5rem, 2vw, 1rem) 0;
+}
+
+.resultScore {
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
+  margin: 0.75rem 0 0.25rem;
+  font-family: var(--typed);
+  font-size: clamp(2.5rem, 7vw, 3.75rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--object-ink);
+}
+
+.resultDenom {
+  font-size: 0.34em;
+  font-weight: 400;
+  color: var(--object-faint);
+}
+
+.resultCopy {
+  display: grid;
+  gap: clamp(0.875rem, 2.5vw, 1.25rem);
+  align-content: start;
+}
+
+/* Three readings on ruled rows. They were three cards. */
+.byDifficulty {
+  display: grid;
+  border-top: 1px solid var(--rule);
+}
+
+.difficultyRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6875rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.difficultyLabel {
+  font-family: var(--stamped);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--ink-soft);
 }
 
-.resumeDismiss:hover {
-  border-color: var(--ink-soft);
+.difficultyValue {
+  font-size: 1.0625rem;
+  font-weight: 700;
   color: var(--ink);
-  transform: translateY(-1px);
 }
 
-.resumeConfirm:focus-visible,
-.resumeDismiss:focus-visible {
-  outline: 2px solid var(--signal);
-  outline-offset: 3px;
+.resultActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
 }
 
-@keyframes resume-settle {
-  from {
-    opacity: 0;
-    transform: translateY(-0.5rem);
+/* ---- Review ---- */
+.review {
+  display: grid;
+  gap: 1rem;
+}
+
+.reviewList {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.reviewItem {
+  display: grid;
+  gap: 0.4375rem;
+  padding: clamp(1rem, 2.5vw, 1.25rem) 0;
+  border-top: 1px solid var(--rule);
+}
+
+.reviewMeta {
+  display: flex;
+  align-items: baseline;
+  gap: 0.875rem;
+  margin: 0;
+  font-family: var(--typed);
+  font-size: 0.6875rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.correctText {
+  color: var(--living-ink);
+}
+
+.incorrectText {
+  color: var(--accent);
+}
+
+.reviewPrompt {
+  margin: 0;
+  max-width: 62ch;
+  font-family: var(--stamped);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+
+.correctAnswerText,
+.reviewExplanation {
+  margin: 0;
+  max-width: 68ch;
+  font-family: var(--set);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  text-wrap: pretty;
+}
+
+.correctAnswerText {
+  color: var(--living-ink);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   WIDE — the world stands beside the question rather than above it, so a
+   correct answer changes something the reader is already looking at.
+   ========================================================================== */
+@media (min-width: 50rem) {
+  .run {
+    grid-template-columns: minmax(0, 17rem) minmax(0, 1fr);
+    gap: clamp(2rem, 4vw, 4rem);
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  /* Beside the question it has its own column and no longer competes for
+     vertical space, so the cap comes off. */
+  .world > svg {
+    max-height: none;
+  }
+
+  .resume {
+    grid-column: 1 / -1;
+  }
+
+  /* Held in view while the questions scroll past it: the specimen is the
+     reward, and a reward below the fold is not one. */
+  .world {
+    position: sticky;
+    top: 7rem;
+  }
+
+  .determination {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
   }
 }
 
-@media (max-width: 768px) {
-  .resumeBar {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.875rem;
-  }
-
-  .resumeActions {
-    flex-direction: row-reverse;
-  }
-
-  .resumeConfirm,
-  .resumeDismiss {
-    flex: 1 1 0;
+@media (min-width: 72rem) {
+  .run {
+    grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .resumeBar {
-    animation: none;
+  .world {
+    position: static;
   }
 
-  .resumeConfirm,
-  .resumeDismiss {
+  .progressFill,
+  .page {
     transition: none;
-  }
-
-  .resumeConfirm:hover,
-  .resumeDismiss:hover {
-    transform: none;
   }
 }

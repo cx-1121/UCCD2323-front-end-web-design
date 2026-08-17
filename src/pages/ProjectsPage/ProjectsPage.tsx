@@ -1,20 +1,77 @@
-import type { CSSProperties } from 'react';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import HudHeader from '../../components/HudHeader/HudHeader';
 import SocialShare from '../../components/SocialShare/SocialShare';
+import {
+  Action,
+  Bench,
+  Chapter,
+  Instrument,
+  Prose,
+  Settle,
+  Stamp,
+  Stamped,
+  Typed,
+} from '../../components/accession/Accession';
+import { useSettle } from '../../components/accession/useSettle';
+import { CloseGlyph } from '../../components/icons';
 import { useProjects } from '../../hooks/useProjects';
-import { useHideOnScroll } from '../../hooks/useHideOnScroll';
 import { useBodyBackground } from '../../hooks/useBodyBackground';
-import { useReveal } from '../../hooks/useReveal';
 import { PROJECT_CATEGORIES } from '../../data/projectsData';
 import type { ProjectCategory } from '../../data/projectsData';
 import styles from './ProjectsPage.module.css';
 
 /**
- * High-End Projects Page component for Green Tech Club.
- * Highlights student engineering innovations, research papers,
- * eco competitions, and campus sustainability campaigns.
+ * PROJECTS — the impact record.
+ *
+ * The brief was explicit: not a 3x3 card grid. Each project is presented, one
+ * at a time, as a full-width editorial plate with the record on one side and
+ * the reading on the other, alternating down the page — so scrolling feels
+ * like work being shown rather than a catalogue being browsed.
+ *
+ * The plate is authored rather than photographed. The club has no photography
+ * for these, and a stock image of somebody else's solar farm would be a
+ * decorative lie about work that actually happened; the record itself — its
+ * accession number, its status stamp, and its measured impact set at figure
+ * scale — is the honest visual, and it is the one this design language
+ * already speaks.
+ *
+ * Product logic is untouched: `useProjects` still owns filtering, search and
+ * the detail dialog.
  */
+
+/** Milestones. Preserved verbatim from the previous page — club record, not copy. */
+const MILESTONES = [
+  {
+    no: '01',
+    year: '2023 — Phase I',
+    title: 'Lab Research & Prototyping',
+    detail:
+      'Formed hardware and software working groups to design renewable energy monitoring hardware and low-cost sensor arrays.',
+  },
+  {
+    no: '02',
+    year: '2024 — Phase II',
+    title: 'Eco Competition Success',
+    detail:
+      'Built the Helios-I Solar Racing Prototype and completed 12 building carbon audit assessments for campus facilities.',
+  },
+  {
+    no: '03',
+    year: '2025 — Phase III',
+    title: 'Campus IoT & AI Integration',
+    detail:
+      'Deployed the Digital Twin IoT grid and EcoVision AI waste sorting units across central campus dining facilities.',
+  },
+  {
+    no: '04',
+    year: '2026 — Phase IV',
+    title: 'Off-Grid Hydrogen Scaling',
+    detail:
+      'Scaling benchtop metal hydride hydrogen storage systems for off-grid power resilience research.',
+  },
+];
+
 export default function ProjectsPage() {
   const {
     activeCategory,
@@ -27,430 +84,378 @@ export default function ProjectsPage() {
     filteredProjects,
     totalProjectsCount,
     resetFilters,
-    gridEpoch,
-    isRefreshing,
   } = useProjects();
 
-  const navHidden = useHideOnScroll(140);
-  const mainRef = useReveal<HTMLElement>(styles.revealed);
+  const pageRef = useSettle<HTMLElement>();
+  useBodyBackground('#e9dfd0');
 
-  // The app-wide body is dark for the cinematic landing route; without this the
-  // overscroll bounce bleeds near-black past the page box.
-  useBodyBackground('#f7f8fa');
+  /**
+   * While a record is open it is the only thing on screen: the page behind it
+   * must not scroll, and Escape must close it. Neither was true before — the
+   * whole project list scrolled away underneath the dialog, and the only way
+   * out was the close button.
+   */
+  useEffect(() => {
+    if (!selectedProject) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') closeProjectDetail();
+    };
+    window.addEventListener('keydown', onKey);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [selectedProject, closeProjectDetail]);
 
   return (
-    <div className={styles.pageContainer}>
-      {/* HUD Header Bar */}
-      <div
-        className={`${styles.headerBar} ${styles.headerBarLaunched} ${
-          navHidden ? styles.headerBarHidden : ''
-        }`}
-        data-hidden={navHidden || undefined}
-      >
-        <HudHeader variant="static" />
-      </div>
+    <main ref={pageRef} className={styles.page}>
+      <HudHeader />
 
-      <main
-        ref={mainRef}
-        className={`${styles.contentWrapper} ${styles.launched}`}
-      >
-        {/* HERO SECTION
-            Uses the same entry choreography as every other interior page:
-            useReveal's IntersectionObserver toggles `.revealed`, and the
-            transition under `.contentWrapper [data-reveal]` carries it. The
-            headline animates as one element rather than unmasking line by
-            line, which is what the other heroes do. */}
-        <section className={styles.heroSection}>
-          <h1 className={styles.heroTitle} data-reveal data-reveal-index="1">
-            <span className={styles.lineInk}>Engineering Tangible</span>
-            <span className={`${styles.lineInk} ${styles.heroTitleHighlight}`}>
-              Climate Solutions
-            </span>
-          </h1>
+      {/* ==================================================================
+          Opening
+          ================================================================== */}
+      <Chapter stop="firstlight" to="daylight" aria-label="Projects" className={styles.open}>
+        <Bench className={styles.openStack}>
+          <Settle index={1} onMount>
+            <Instrument ruled>
+              Green Tech Club · {totalProjectsCount} accessioned
+            </Instrument>
+            <Stamped as="h1" scale="display" className={styles.title}>
+              <span>Engineering Tangible</span>{' '}
+              <span className={styles.titleLive}>Climate Solutions</span>
+            </Stamped>
+          </Settle>
 
-          <p className={styles.heroSubtext} data-reveal data-reveal-index="2">
-            From IoT microgrid digital twins to ultralight solar vehicles and AI waste sorters —
-            explore how student researchers and engineers turn green tech theories into campus-wide impact.
-          </p>
-        </section>
+          <Settle index={2} onMount>
+            <Typed
+              lines={[
+                'Every record here is something that was actually built.',
+                ['None of it is a render.', true],
+              ]}
+            />
+          </Settle>
 
-        {/* SEARCH & CATEGORY FILTER CONTROL BAR */}
-        <section className={styles.controlsSection} data-launch style={{ '--i': 8 } as CSSProperties}>
-          <div className={styles.filterHeader}>
-            <div className={styles.categoryBar} role="tablist" aria-label="Project Categories">
-              {PROJECT_CATEGORIES.map((cat) => {
-                const isActive = activeCategory === cat;
-                const count =
-                  cat === 'All'
-                    ? totalProjectsCount
-                    : filteredProjects.filter((p) => p.category === cat).length;
+          <Settle index={3} onMount>
+            <Prose>
+              From IoT microgrid digital twins to ultralight solar vehicles and AI waste
+              sorters — explore how student researchers and engineers turn green tech
+              theories into campus-wide impact.
+            </Prose>
+          </Settle>
 
+          {/* ---- Filters. A ruled tab row and one rule of an input; the old
+                  version put both inside their own bezelled shells. ---- */}
+          <Settle index={4} className={styles.controls}>
+            <div className={styles.tabs} role="tablist" aria-label="Project categories">
+              {PROJECT_CATEGORIES.map((category: ProjectCategory) => {
+                const isActive = activeCategory === category;
                 return (
                   <button
-                    key={cat}
+                    key={category}
+                    type="button"
                     role="tab"
                     aria-selected={isActive}
-                    className={`${styles.categoryPill} ${
-                      isActive ? styles.categoryPillActive : ''
-                    }`}
-                    onClick={() => setActiveCategory(cat as ProjectCategory)}
+                    className={isActive ? `${styles.tab} ${styles.tabActive}` : styles.tab}
+                    onClick={() => setActiveCategory(category)}
                   >
-                    <span>{cat}</span>
-                    <span className={styles.categoryCount}>{count}</span>
+                    {category}
                   </button>
                 );
               })}
             </div>
 
-            {/* Search Input Box */}
-            <div className={styles.searchBoxShell}>
-              <svg className={styles.searchIcon} viewBox="0 0 24 24">
-                <circle cx="11" cy="11" r="8" strokeWidth="2" />
-                <path d="M21 21l-4.35-4.35" strokeWidth="2" strokeLinecap="round" />
-              </svg>
+            <div className={styles.search}>
               <input
-                type="text"
+                type="search"
                 className={styles.searchInput}
                 placeholder="Search projects, technologies..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                aria-label="Search projects"
               />
-              {searchQuery && (
-                <button
-                  className={styles.clearSearchBtn}
-                  onClick={() => setSearchQuery('')}
-                  aria-label="Clear search"
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" />
-                  </svg>
-                </button>
-              )}
             </div>
-          </div>
-        </section>
+          </Settle>
+        </Bench>
+      </Chapter>
 
-        {/* ASYMMETRICAL BENTO GRID SHOWCASE */}
-        <div
-          className={`${styles.gridStage} ${isRefreshing ? styles.gridStageRefreshing : ''}`}
-          aria-busy={isRefreshing || undefined}
-        >
-          <div className={styles.scanSweep} aria-hidden="true" />
-
-          <section key={gridEpoch} className={styles.bentoGrid}>
-            {filteredProjects.length === 0 ? (
-              <div className={styles.emptyState} style={{ '--i': 0 } as CSSProperties}>
-                <h3 className={styles.emptyStateTitle}>No matching projects found</h3>
-                <p className={styles.emptyStateSub}>
-                  Try adjusting your search query or filter to explore other student initiatives.
-                </p>
-                <button className={styles.categoryPill} onClick={resetFilters}>
-                  Reset Filters
-                </button>
-              </div>
-            ) : (
-              filteredProjects.map((project, index) => {
-                const spanClass =
-                  project.bentoSpan === 'wide'
-                    ? styles.spanWide
-                    : project.bentoSpan === 'tall'
-                    ? styles.spanTall
-                    : '';
-
-                const statusStyle =
-                  project.status === 'Active'
-                    ? styles.statusActive
-                    : project.status === 'Completed'
-                    ? styles.statusCompleted
-                    : styles.statusScaling;
-
-                return (
-                  <article
-                    key={project.id}
-                    className={`${styles.projectCardShell} ${spanClass}`}
-                    style={{ '--i': index } as CSSProperties}
-                    onClick={() => openProjectDetail(project)}
+      {/* ==================================================================
+          The records, alternating
+          ================================================================== */}
+      <Chapter stop="daylight" from="firstlight" to="living" aria-label="Project records">
+        <Bench>
+          {filteredProjects.length === 0 ? (
+            <div className={styles.empty}>
+              <Stamped as="p" scale="section">
+                Nothing accessioned under that
+              </Stamped>
+              <Prose>
+                Try adjusting your search query or filter to explore other student
+                initiatives.
+              </Prose>
+              <Action onClick={resetFilters} ghost>
+                Clear filters
+              </Action>
+            </div>
+          ) : (
+            <ol className={styles.records}>
+              {filteredProjects.map((project, index) => (
+                <li key={project.id}>
+                  <Settle
+                    as="article"
+                    index={1}
+                    className={
+                      index % 2 === 1 ? `${styles.record} ${styles.recordFlip}` : styles.record
+                    }
                   >
-                    <div className={styles.projectCardCore}>
-                      <div>
-                        {/* Card Header: Category & Status */}
-                        <div className={styles.cardHeader}>
-                          <span className={styles.categoryBadge}>{project.category}</span>
-                          <span className={`${styles.statusBadge} ${statusStyle}`}>
-                            <span className={styles.statusDot} />
-                            {project.status}
-                          </span>
-                        </div>
+                    {/* ---- The plate ---- */}
+                    <div className={styles.plate}>
+                      <p className={styles.plateNo} aria-hidden="true">
+                        {String(index + 1).padStart(2, '0')}
+                      </p>
 
-                        {/* Card Body */}
-                        <div className={styles.cardBody}>
-                          <h2 className={styles.projectTitle}>{project.title}</h2>
-                          <div className={styles.projectTagline}>{project.tagline}</div>
-                          <p className={styles.projectSummary}>{project.summary}</p>
-                        </div>
+                      <div className={styles.plateStamp}>
+                        <Stamp living={project.status === 'Active'}>{project.status}</Stamp>
+                      </div>
 
-                        {/* Key Metric Preview */}
-                        {project.impactMetrics && project.impactMetrics.length > 0 && (
-                          <div className={styles.cardMetricsRow}>
-                            {project.impactMetrics.slice(0, 2).map((metric) => (
-                              <div key={metric.label} className={styles.cardMetricItem}>
-                                <span className={styles.cardMetricVal}>
-                                  {metric.value} {metric.unit}
-                                </span>
-                                <span className={styles.cardMetricLbl}>{metric.label}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* Tech Stack Pills */}
-                        <div className={styles.techTagList}>
-                          {project.techStack.map((tech) => (
-                            <span key={tech} className={styles.techTag}>
-                              {tech}
-                            </span>
+                      {project.impactMetrics.length > 0 && (
+                        <dl className={styles.plateFigures}>
+                          {project.impactMetrics.slice(0, 2).map((metric) => (
+                            <div key={metric.label} className={styles.plateFigure}>
+                              <dt className={styles.plateFigureLabel}>{metric.label}</dt>
+                              <dd className={styles.plateFigureValue} data-figure>
+                                {metric.value}
+                                {metric.unit && (
+                                  <span className={styles.plateFigureUnit}> {metric.unit}</span>
+                                )}
+                              </dd>
+                            </div>
                           ))}
-                        </div>
-                      </div>
-
-                      {/* Button-in-Button Island CTA */}
-                      <div className={styles.ctaButton}>
-                        <span>Explore Technical Specs</span>
-                        <div className={styles.btnIconWrapper}>
-                          <svg className={styles.btnIcon} viewBox="0 0 24 24">
-                            <path d="M7 17L17 7M17 7H7M17 7V17" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        </div>
-                      </div>
+                        </dl>
+                      )}
                     </div>
-                  </article>
-                );
-              })
-            )}
-          </section>
-        </div>
 
-        {/* IMPACT TIMELINE / MILESTONES SECTION */}
-        <section className={styles.timelineSection}>
-          <div className={styles.sectionHeader} data-reveal data-reveal-index="0">
-            <h2 className={styles.sectionTitle}>Club Engineering Milestones</h2>
-            <p className={styles.sectionSub}>
-              How student initiatives developed from lab concepts into deployed green infrastructure.
-            </p>
-          </div>
+                    {/* ---- The reading ---- */}
+                    <div className={styles.recordCopy}>
+                      <Instrument ruled>
+                        {project.category} · {project.year}
+                      </Instrument>
 
-          <div className={styles.timelineTrack}>
-            <div className={styles.timelineItemShell} data-reveal data-reveal-index="1">
-              <div className={styles.timelineBadge}>01</div>
-              <div className={styles.timelineYear}>2023 – Phase I</div>
-              <h3 className={styles.timelineItemTitle}>Lab Research & Prototyping</h3>
-              <p className={styles.timelineItemDesc}>
-                Formed hardware and software working groups to design renewable energy monitoring hardware and low-cost sensor arrays.
-              </p>
-            </div>
+                      {/* The heading is the control: clicking the project's
+                          name is what opens its record, so the button wraps
+                          the heading rather than sitting beside it. */}
+                      <button
+                        type="button"
+                        className={styles.recordOpen}
+                        onClick={() => openProjectDetail(project)}
+                      >
+                        <Stamped as="h3" scale="section" className={styles.recordTitle}>
+                          {project.title}
+                        </Stamped>
+                      </button>
 
-            <div className={styles.timelineItemShell} data-reveal data-reveal-index="2">
-              <div className={styles.timelineBadge}>02</div>
-              <div className={styles.timelineYear}>2024 – Phase II</div>
-              <h3 className={styles.timelineItemTitle}>Eco Competition Success</h3>
-              <p className={styles.timelineItemDesc}>
-                Built the Helios-I Solar Racing Prototype and completed 12 building carbon audit assessments for campus facilities.
-              </p>
-            </div>
+                      <p className={styles.recordTagline}>{project.tagline}</p>
+                      <Prose>{project.summary}</Prose>
 
-            <div className={styles.timelineItemShell} data-reveal data-reveal-index="3">
-              <div className={styles.timelineBadge}>03</div>
-              <div className={styles.timelineYear}>2025 – Phase III</div>
-              <h3 className={styles.timelineItemTitle}>Campus IoT & AI Integration</h3>
-              <p className={styles.timelineItemDesc}>
-                Deployed the Digital Twin IoT grid and EcoVision AI waste sorting units across central campus dining facilities.
-              </p>
-            </div>
+                      <p className={styles.stack}>
+                        {project.techStack.map((tech) => (
+                          <span key={tech} className={styles.stackItem}>
+                            {tech}
+                          </span>
+                        ))}
+                      </p>
 
-            <div className={styles.timelineItemShell} data-reveal data-reveal-index="4">
-              <div className={styles.timelineBadge}>04</div>
-              <div className={styles.timelineYear}>2026 – Phase IV</div>
-              <h3 className={styles.timelineItemTitle}>Off-Grid Hydrogen Scaling</h3>
-              <p className={styles.timelineItemDesc}>
-                Scaling benchtop metal hydride hydrogen storage systems for off-grid power resilience research.
-              </p>
-            </div>
-          </div>
-        </section>
+                      <Action onClick={() => openProjectDetail(project)} ghost>
+                        Open the record
+                      </Action>
+                    </div>
+                  </Settle>
+                </li>
+              ))}
+            </ol>
+          )}
+        </Bench>
+      </Chapter>
 
-        {/* COLLABORATION / PROJECT PITCH CTA CARD */}
-        <section className={styles.collaborationSection}>
-          <div className={styles.collabShell} data-reveal data-reveal-index="0">
-            <div className={styles.collabCore}>
-              <div className={styles.collabText}>
-                <h2 className={styles.collabTitle}>Have a Green Tech Idea or Research Proposal?</h2>
-                <p className={styles.collabBody}>
-                  We provide lab access, hardware funding, technical mentorship, and a community of passionate student engineers to turn your green energy concept into reality.
-                </p>
-              </div>
+      {/* ==================================================================
+          Milestones and the invitation
+          ================================================================== */}
+      <Chapter stop="living" from="daylight" aria-label="Milestones" className={styles.close}>
+        <Bench className={styles.closeStack}>
+          <Settle index={1}>
+            <Instrument ruled>Club engineering milestones</Instrument>
+            <Prose>
+              How student initiatives developed from lab concepts into deployed green
+              infrastructure.
+            </Prose>
+          </Settle>
 
-              <Link to="/contact" className={styles.collabActionBtn}>
-                <span>Propose a Project</span>
-                <span className={styles.collabActionIcon}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </span>
-              </Link>
-            </div>
-          </div>
-        </section>
-      </main>
+          <Settle index={2}>
+            <ol className={styles.milestones}>
+              {MILESTONES.map((milestone) => (
+                <li key={milestone.no} className={styles.milestone}>
+                  <span className={styles.milestoneNo}>{milestone.no}</span>
+                  <div className={styles.milestoneBody}>
+                    <p className={styles.milestoneYear}>{milestone.year}</p>
+                    <h3 className={styles.milestoneTitle}>{milestone.title}</h3>
+                    <p className={styles.milestoneDetail}>{milestone.detail}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </Settle>
 
-      {/* INTERACTIVE PROJECT DETAIL MODAL / DRAWER */}
+          <Settle index={3} className={styles.invite}>
+            <Typed
+              lines={[
+                'Have a green tech idea or research proposal?',
+                ['Bring it. The lab is already here.', true],
+              ]}
+            />
+            <Prose>
+              We provide lab access, hardware funding, technical mentorship, and a
+              community of passionate student engineers to turn your green energy concept
+              into reality.
+            </Prose>
+            <Action to="/contact">Propose a project</Action>
+          </Settle>
+        </Bench>
+      </Chapter>
+
+      {/* ==================================================================
+          The record, opened
+          ================================================================== */}
       {selectedProject && (
         <div
-          className={styles.modalBackdrop}
+          className={styles.backdrop}
           onClick={closeProjectDetail}
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-project-title"
         >
-          <div className={styles.modalShell} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalCore}>
-              {/* Modal Header */}
-              <div className={styles.modalHeader}>
-                <div className={styles.modalTitleGroup}>
-                  <div className={styles.modalBadgeRow}>
-                    <span className={styles.categoryBadge}>{selectedProject.category}</span>
-                    <span className={styles.techTag}>{selectedProject.year}</span>
-                  </div>
-                  <h2 id="modal-project-title" className={styles.modalTitle}>
-                    {selectedProject.title}
-                  </h2>
-                  <p className={styles.modalTagline}>{selectedProject.tagline}</p>
-                </div>
-
-                <button
-                  className={styles.closeBtn}
-                  onClick={closeProjectDetail}
-                  aria-label="Close dialog"
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </button>
+          <div
+            className={styles.dialog}
+            data-chapter="living"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <header className={styles.dialogHead}>
+              <div>
+                <Instrument>
+                  {selectedProject.category} · {selectedProject.year}
+                </Instrument>
+                <h2 id="modal-project-title" className={styles.dialogTitle}>
+                  {selectedProject.title}
+                </h2>
+                <p className={styles.dialogTagline}>{selectedProject.tagline}</p>
               </div>
 
-              {/* Problem & Solution Breakdown */}
-              <div className={styles.modalBodyBlock} style={{ '--i': 0 } as CSSProperties}>
-                <h3 className={styles.modalSectionTitle}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--signal)" strokeWidth="2">
-                    <circle cx="12" cy="12" r="10" />
-                    <path d="M12 8v4M12 16h.01" />
-                  </svg>
-                  Problem Statement
-                </h3>
-                <p className={styles.modalText}>{selectedProject.problemStatement}</p>
-              </div>
+              <button
+                type="button"
+                className={styles.dialogClose}
+                onClick={closeProjectDetail}
+                aria-label="Close dialog"
+              >
+                <CloseGlyph />
+              </button>
+            </header>
 
-              <div className={styles.modalBodyBlock} style={{ '--i': 1 } as CSSProperties}>
-                <h3 className={styles.modalSectionTitle}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--signal-teal)" strokeWidth="2">
-                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
-                  </svg>
-                  Engineering Solution
-                </h3>
-                <p className={styles.modalText}>{selectedProject.solutionDetails}</p>
-              </div>
+            <div className={styles.dialogBody}>
+              <section className={styles.dialogBlock}>
+                <Instrument ruled>Problem Statement</Instrument>
+                <Prose>{selectedProject.problemStatement}</Prose>
+              </section>
 
-              {/* Verified Metrics */}
-              {selectedProject.impactMetrics && selectedProject.impactMetrics.length > 0 && (
-                <div className={styles.modalBodyBlock} style={{ '--i': 2 } as CSSProperties}>
-                  <h3 className={styles.modalSectionTitle}>Verified Impact Metrics</h3>
-                  <div className={styles.modalMetricsGrid}>
-                    {selectedProject.impactMetrics.map((m) => (
-                      <div key={m.label} className={styles.modalMetricTile}>
-                        <span className={styles.cardMetricVal}>
-                          {m.value} {m.unit}
-                        </span>
-                        <span className={styles.cardMetricLbl}>{m.label}</span>
+              <section className={styles.dialogBlock}>
+                <Instrument ruled>Engineering Solution</Instrument>
+                <Prose>{selectedProject.solutionDetails}</Prose>
+              </section>
+
+              {selectedProject.impactMetrics.length > 0 && (
+                <section className={styles.dialogBlock}>
+                  <Instrument ruled>Verified Impact Metrics</Instrument>
+                  <dl className={styles.dialogFigures}>
+                    {selectedProject.impactMetrics.map((metric) => (
+                      <div key={metric.label} className={styles.dialogFigure}>
+                        <dd className={styles.dialogFigureValue} data-figure>
+                          {metric.value}
+                          {metric.unit && <span> {metric.unit}</span>}
+                        </dd>
+                        <dt className={styles.dialogFigureLabel}>{metric.label}</dt>
                       </div>
                     ))}
-                  </div>
-                </div>
+                  </dl>
+                </section>
               )}
 
-              {/* Contributors / Team Roster */}
-              <div className={styles.modalBodyBlock} style={{ '--i': 3 } as CSSProperties}>
-                <h3 className={styles.modalSectionTitle}>Project Team & Leads</h3>
-                <div className={styles.contributorsList}>
-                  {selectedProject.contributors.map((c) => (
-                    <div key={c.name} className={styles.contributorItem}>
-                      <div className={styles.contributorAvatar}>
-                        {c.name.split(' ').map((n) => n[0]).slice(0, 2).join('')}
-                      </div>
-                      <div>
-                        <div className={styles.contributorName}>{c.name}</div>
-                        <div className={styles.contributorRole}>{c.role}</div>
-                      </div>
-                    </div>
+              <section className={styles.dialogBlock}>
+                <Instrument ruled>Project Team &amp; Leads</Instrument>
+                <ul className={styles.team}>
+                  {selectedProject.contributors.map((contributor) => (
+                    <li key={contributor.name} className={styles.teamMember}>
+                      {/* Rendered verbatim; the caps are styling, not content. */}
+                      <span className={styles.teamName}>{contributor.name}</span>
+                      <span className={styles.teamRole}>{contributor.role}</span>
+                    </li>
                   ))}
-                </div>
-              </div>
+                </ul>
+              </section>
 
-              {/* Tech Stack */}
-              <div className={styles.modalBodyBlock} style={{ '--i': 4 } as CSSProperties}>
-                <h3 className={styles.modalSectionTitle}>Technologies & Stack</h3>
-                <div className={styles.techTagList}>
+              <section className={styles.dialogBlock}>
+                <Instrument ruled>Technologies &amp; Stack</Instrument>
+                <p className={styles.stack}>
                   {selectedProject.techStack.map((tech) => (
-                    <span key={tech} className={styles.techTag}>
+                    <span key={tech} className={styles.stackItem}>
                       {tech}
                     </span>
                   ))}
-                </div>
-              </div>
+                </p>
+              </section>
 
-              {/* Resource & Repository Links */}
-              <div className={styles.modalLinksRow} style={{ '--i': 5 } as CSSProperties}>
-                {selectedProject.githubUrl && (
-                  <div className={styles.modalLinkBtn}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
-                    </svg>
-                    <span>View GitHub Repository</span>
-                  </div>
-                )}
-                {selectedProject.paperUrl && (
-                  <div className={styles.modalLinkBtn}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                      <polyline points="14 2 14 8 20 8" />
-                      <line x1="16" y1="13" x2="8" y2="13" />
-                      <line x1="16" y1="17" x2="8" y2="17" />
-                    </svg>
-                    <span>Read Research Paper</span>
-                  </div>
-                )}
-                {selectedProject.demoUrl && (
-                  <div className={styles.modalLinkBtn}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                      <polyline points="15 3 21 3 21 9" />
-                      <line x1="10" y1="14" x2="21" y2="3" />
-                    </svg>
-                    <span>Live Interactive Demo</span>
-                  </div>
-                )}
-              </div>
+              {(selectedProject.githubUrl || selectedProject.paperUrl || selectedProject.demoUrl) && (
+                <section className={styles.dialogBlock}>
+                  <Instrument ruled>Resources</Instrument>
+                  <ul className={styles.resources}>
+                    {selectedProject.githubUrl && (
+                      <li>
+                        <a className={styles.resource} href={selectedProject.githubUrl} target="_blank" rel="noreferrer">
+                          View GitHub repository
+                        </a>
+                      </li>
+                    )}
+                    {selectedProject.paperUrl && (
+                      <li>
+                        <a className={styles.resource} href={selectedProject.paperUrl} target="_blank" rel="noreferrer">
+                          Read the paper
+                        </a>
+                      </li>
+                    )}
+                    {selectedProject.demoUrl && (
+                      <li>
+                        <a className={styles.resource} href={selectedProject.demoUrl} target="_blank" rel="noreferrer">
+                          See the demo
+                        </a>
+                      </li>
+                    )}
+                  </ul>
+                </section>
+              )}
 
-              {/* Share the specific project, not the page: the modal is not a
-                  route, so window.location would point at /projects for every
-                  one of them. */}
               <SocialShare
                 label="Share this project"
-                title={`${selectedProject.title} — ${selectedProject.tagline}`}
-                url={`${window.location.origin}/projects?project=${selectedProject.id}`}
+                title={`${selectedProject.title} — Green Tech Club`}
               />
             </div>
           </div>
         </div>
       )}
-    </div>
+
+      <p className={styles.footNote}>
+        <Link to="/contact">Propose a project</Link>
+      </p>
+    </main>
   );
 }

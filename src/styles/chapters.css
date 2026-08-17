@@ -1,0 +1,423 @@
+/* ==========================================================================
+   THE LADDER — the interior's colour arc, expressed as one mechanism.
+
+   The revisit surface (`/?replay=true`) established this project's material
+   world: a seed vault at -18C, holding pressed specimens of the fossil
+   century. The interior routes are the rest of that institution's holdings,
+   and the story the site tells — fossil prosperity, crisis, renewal — is told
+   here as ONE physical event: the vault warms and opens.
+
+   So the dark-to-light progression is not eight hand-painted palettes. It is
+   a ladder of eight stops, each a complete set of the same semantic tokens.
+   A section declares where on the ladder it stands:
+
+       <section data-chapter="soot">
+
+   and every component inside it re-inks itself. Moving a section along the
+   arc is a one-word edit, and no component ever names a literal colour.
+
+       stacks -> soot -> haze -> thaw -> firstlight -> daylight -> sky -> living
+       cold dark   smoke   smog   the crossing   sunrise   morning   noon   green
+
+   THE CROSSING RULE. Stops 0-2 are dark grounds and stops 4-7 are light
+   grounds; both carry body text safely. `thaw` is the one stop that is
+   neither — it is the mid-tone the ground passes THROUGH, and a mid-tone
+   ground cannot hold 4.5:1 small text against any ink. Nothing on a `thaw`
+   ground may be smaller than display scale or set anywhere but on an object
+   (a sheet, a slip, a plate) that carries its own ground. This is the same
+   discipline the landing dawn already runs under, where the ink walks cool
+   white -> warm white -> lit white -> warm dark as the sky changes beneath it.
+
+   ONE COLOUR, TWO INKS. Every accent is declared twice: `--accent` is the lit
+   value, correct on that stop's ground, and `--accent-ink` is the same hue as
+   ink on that stop's paper object. A lit thing in the dark and ink on paper
+   are not the same colour, and one value fails contrast on one of the two.
+   Every ratio below is measured against the ground it actually lands on.
+
+   The last stop is deliberately the incumbent paper interior — `--surface`,
+   `--ink` and `--signal` from global.css, unchanged. The arc does not discard
+   the system the project already had; it arrives at it.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Roles shared by every stop. These never change as the ladder climbs — they
+   are the grammar the revisit surface set, and the grammar is what carries
+   across the site, not the colour.
+   -------------------------------------------------------------------------- */
+:root {
+  /* Typed. Courier Prime is not monospace-as-technical: a determination label
+     on a specimen sheet is literally typewritten, so this is the artifact's
+     own type. It is the voice of every instrument reading on the site. */
+  --typed: 'Courier Prime', ui-monospace, 'Courier New', monospace;
+  /* Stamped. The gothic a rubber stamp is cut in. Headings and controls. */
+  --stamped: 'Archivo Narrow', 'Arial Narrow', sans-serif;
+  /* Set. The one face allowed to run long-form prose. */
+  --set: 'Outfit', sans-serif;
+
+  /* Square. The vault's paper objects have no radius, and neither does the
+     interior: a rounded specimen sheet is not a specimen sheet. The only
+     rounded things are controls, which belong to the site, not the artifact. */
+  --r-paper: 0px;
+
+  /* A strike, not a bounce. Near-instant travel then a hard settle — an
+     overshoot rebounds the impression back past its mark, which is the
+     opposite of what a stamp does to paper. */
+  --ease-press: cubic-bezier(0.05, 0.7, 0.1, 1);
+
+  /* The ladder's own crossfade. Long, because a chapter turn is a change of
+     weather, not a state change. */
+  --ease-turn: cubic-bezier(0.4, 0, 0.2, 1);
+  --turn-ms: 900ms;
+
+  /* Instrument grain, reused at every stop with the stop's own opacity. */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* --------------------------------------------------------------------------
+   The eight stops.
+
+   Token contract, identical at every stop:
+     --ground        the room
+     --ground-deep   the room's shadowed depth, for worked texture
+     --ground-lift   the cold or warm fall of light across it
+     --ink           body ink on --ground
+     --ink-soft      secondary ink on --ground
+     --ink-faint     instrument labels on --ground (floor: 4.5:1 at 11px)
+     --rule          hairlines on --ground
+     --object        a paper object's own ground (sheet, slip, plate)
+     --object-edge   its cut edge
+     --object-ink    body ink ON --object
+     --object-faint  instrument labels on --object
+     --accent        the stop's accent, lit, correct on --ground
+     --accent-ink    the same accent as ink, correct on --object
+     --grain-alpha   how much the room's grain shows
+     --lit           0 on dark stops, 1 on light stops. Components branch on
+                     this rather than re-testing the chapter name.
+   -------------------------------------------------------------------------- */
+
+/* ---- 0. STACKS — the cold vault interior, unchanged from the revisit
+        surface so the two surfaces are recognisably one room. ---- */
+[data-chapter='stacks'] {
+  --ground: #0b0f0e;
+  --ground-deep: #060908;
+  --ground-lift: rgba(150, 196, 178, 0.11);
+  --ink: #c4cfc8; /* 11.9:1 */
+  --ink-soft: rgba(196, 207, 200, 0.78);
+  --ink-faint: rgba(196, 207, 200, 0.62); /* 5.2:1 — the measured floor */
+  --rule: rgba(196, 207, 200, 0.16);
+  --object: #c4cfc8;
+  --object-edge: #a9b5ad;
+  --object-ink: #1b2320;
+  --object-faint: rgba(27, 35, 32, 0.75); /* 5.4:1 on the sheet */
+  --accent: #8b63c4; /* aniline, lifted for the dark: 5.1:1 */
+  --accent-ink: #6b3fa0; /* aniline as ink on the sheet: 6.6:1 */
+  --grain-alpha: 0.05;
+  --lit: 0;
+}
+
+/* ---- 1. SOOT — the fossil century at full throat. The same near-black, but
+        carbon-warm rather than cold: this room has a fire in it. ---- */
+[data-chapter='soot'] {
+  --ground: #141210;
+  --ground-deep: #0a0908;
+  --ground-lift: rgba(217, 128, 72, 0.09);
+  --ink: #d6cfc4; /* 11.4:1 */
+  --ink-soft: rgba(214, 207, 196, 0.78);
+  --ink-faint: rgba(214, 207, 196, 0.64); /* 5.0:1 */
+  --rule: rgba(214, 207, 196, 0.16);
+  --object: #bdb5a8;
+  --object-edge: #a49b8d;
+  --object-ink: #221d18;
+  --object-faint: rgba(34, 29, 24, 0.74);
+  --accent: #e8613f; /* ember, lifted for the dark: 5.5:1 */
+  --accent-ink: #a8321a; /* ember as ink on the tan object: 5.0:1 */
+  --grain-alpha: 0.07;
+  --lit: 0;
+}
+
+/* ---- 2. HAZE — the cost, seen in daylight for the first time. Not black any
+        more; the particulate grey-blue of an airshed you can see. ---- */
+[data-chapter='haze'] {
+  --ground: #2b3033;
+  --ground-deep: #1e2224;
+  --ground-lift: rgba(176, 196, 204, 0.1);
+  --ink: #dfe4e2; /* 10.3:1 */
+  --ink-soft: rgba(223, 228, 226, 0.8);
+  --ink-faint: rgba(223, 228, 226, 0.68); /* 5.1:1 */
+  --rule: rgba(223, 228, 226, 0.18);
+  --object: #c8ccc9;
+  --object-edge: #adb2ae;
+  --object-ink: #1e2422;
+  --object-faint: rgba(30, 36, 34, 0.74);
+  --accent: #6fb9c4; /* cold signal: 7.2:1 */
+  --accent-ink: #14606c;
+  --grain-alpha: 0.06;
+  --lit: 0;
+}
+
+/* ---- 3. THAW — the crossing. This stop is a mid-tone by design and carries
+        NO small text: see the crossing rule at the head of this file. The
+        ground here is what the section's own gradient travels through. ---- */
+[data-chapter='thaw'] {
+  --ground: #6c6355;
+  --ground-deep: #3d3830;
+  --ground-lift: rgba(255, 214, 150, 0.22);
+  --ink: #fdfaf4; /* 8.2:1 — display scale only */
+  --ink-soft: rgba(253, 250, 244, 0.86);
+  --ink-faint: rgba(253, 250, 244, 0.8);
+  --rule: rgba(253, 250, 244, 0.24);
+  --object: #ece3d4;
+  --object-edge: #d3c8b5;
+  --object-ink: #2b2118;
+  --object-faint: rgba(43, 33, 24, 0.74);
+  --accent: #ffc46b;
+  --accent-ink: #8a4f10;
+  --grain-alpha: 0.05;
+  --lit: 0;
+}
+
+/* ---- 4. FIRSTLIGHT — sunrise. The first stop with a light ground; the ink
+        inverts here and stays inverted for the rest of the site. ---- */
+[data-chapter='firstlight'] {
+  --ground: #e9dfd0;
+  --ground-deep: #d8cbb8;
+  --ground-lift: rgba(255, 224, 176, 0.5);
+  --ink: #2b2118; /* 12.0:1 */
+  --ink-soft: rgba(43, 33, 24, 0.76);
+  --ink-faint: rgba(43, 33, 24, 0.68); /* 5.1:1 */
+  --rule: rgba(43, 33, 24, 0.16);
+  --object: #f6efe3;
+  --object-edge: #ddd2bf;
+  --object-ink: #2b2118;
+  --object-faint: rgba(43, 33, 24, 0.66);
+  --accent: #a8631a; /* gold, large type and stamps only: 3.6:1 */
+  --accent-ink: #8a4f10; /* gold as body ink: 5.0:1 */
+  --grain-alpha: 0.04;
+  --lit: 1;
+}
+
+/* ---- 5. DAYLIGHT — full morning. The club's own working light. ---- */
+[data-chapter='daylight'] {
+  --ground: #f2efe8;
+  --ground-deep: #e4e0d5;
+  --ground-lift: rgba(255, 255, 255, 0.7);
+  --ink: #1c211d; /* 14.2:1 */
+  --ink-soft: rgba(28, 33, 29, 0.75);
+  --ink-faint: rgba(28, 33, 29, 0.66); /* 5.2:1 */
+  --rule: rgba(28, 33, 29, 0.14);
+  --object: #fbfaf6;
+  --object-edge: #e2ded2;
+  --object-ink: #1c211d;
+  --object-faint: rgba(28, 33, 29, 0.64);
+  --accent: #1d6b4a;
+  --accent-ink: #14563a;
+  --grain-alpha: 0.035;
+  --lit: 1;
+}
+
+/* ---- 6. SKY — noon, air moving. The one cool light stop; wind lives here. ---- */
+[data-chapter='sky'] {
+  --ground: #eef3f4;
+  --ground-deep: #dde6e8;
+  --ground-lift: rgba(255, 255, 255, 0.8);
+  --ink: #14201f; /* 15.3:1 */
+  --ink-soft: rgba(20, 32, 31, 0.75);
+  --ink-faint: rgba(20, 32, 31, 0.66); /* 5.3:1 */
+  --rule: rgba(20, 32, 31, 0.13);
+  --object: #ffffff;
+  --object-edge: #dbe4e6;
+  --object-ink: #14201f;
+  --object-faint: rgba(20, 32, 31, 0.64);
+  --accent: #0f766e;
+  --accent-ink: #0d5f59;
+  --grain-alpha: 0.03;
+  --lit: 1;
+}
+
+/* ---- 7. LIVING — where the arc lands, and deliberately the paper interior
+        this project already had. Same values as global.css's :root. ---- */
+[data-chapter='living'] {
+  --ground: #f7f8fa;
+  --ground-deep: #eef6f2;
+  --ground-lift: rgba(255, 255, 255, 0.85);
+  --ink: #0c1a13; /* 16.4:1 */
+  --ink-soft: rgba(12, 26, 19, 0.72);
+  --ink-faint: rgba(12, 26, 19, 0.66); /* 5.4:1 */
+  --rule: rgba(12, 46, 32, 0.11);
+  --object: #ffffff;
+  --object-edge: rgba(12, 46, 32, 0.14);
+  --object-ink: #0c1a13;
+  --object-faint: rgba(12, 26, 19, 0.64);
+  --accent: #047857;
+  --accent-ink: #065f46;
+  --grain-alpha: 0.03;
+  --lit: 1;
+}
+
+/* --------------------------------------------------------------------------
+   The rungs, addressable by name.
+
+   A crossing happens on BOTH sides of the boundary, meeting on a shared
+   middle colour. The section names the stop above it and the stop below:
+
+       <section data-chapter="haze" data-from="soot" data-to="thaw">
+
+   Its top edge dissolves out of the soot/haze midpoint and its bottom edge
+   dissolves into the haze/thaw midpoint. Because the neighbour computes that
+   same midpoint from the same two stops, the two gradients meet on an
+   identical colour and the boundary itself disappears.
+
+   The earlier one-sided version — where only the lower chapter painted the
+   blend, starting at the upper chapter's flat ground — put the whole change
+   on one side of a line that stayed visible as a band. Half the travel above
+   the seam and half below is what makes it read as weather.
+
+   Pure CSS: no scroll listener, no JS, correct at any viewport height, and
+   correct on first paint before any observer has run.
+   -------------------------------------------------------------------------- */
+:root {
+  --g-stacks: #0b0f0e;
+  --g-soot: #141210;
+  --g-haze: #2b3033;
+  --g-thaw: #6c6355;
+  --g-firstlight: #e9dfd0;
+  --g-daylight: #f2efe8;
+  --g-sky: #eef3f4;
+  --g-living: #f7f8fa;
+  /* How deep the previous stop bleeds into this one. Tall enough that a turn
+     reads as weather rather than as a seam, but no taller: the blend paints
+     background only, so every viewport-height unit of it is a band of the
+     page with nothing in it. 34vh measured as dead air on a phone. */
+  --turn-depth: 21vh;
+}
+
+@media (max-width: 47.99rem) {
+  :root {
+    --turn-depth: 13vh;
+  }
+}
+
+[data-from='stacks'] { --ground-prev: var(--g-stacks); }
+[data-from='soot'] { --ground-prev: var(--g-soot); }
+[data-from='haze'] { --ground-prev: var(--g-haze); }
+[data-from='thaw'] { --ground-prev: var(--g-thaw); }
+[data-from='firstlight'] { --ground-prev: var(--g-firstlight); }
+[data-from='daylight'] { --ground-prev: var(--g-daylight); }
+[data-from='sky'] { --ground-prev: var(--g-sky); }
+[data-from='living'] { --ground-prev: var(--g-living); }
+
+[data-to='stacks'] { --ground-next: var(--g-stacks); }
+[data-to='soot'] { --ground-next: var(--g-soot); }
+[data-to='haze'] { --ground-next: var(--g-haze); }
+[data-to='thaw'] { --ground-next: var(--g-thaw); }
+[data-to='firstlight'] { --ground-next: var(--g-firstlight); }
+[data-to='daylight'] { --ground-next: var(--g-daylight); }
+[data-to='sky'] { --ground-next: var(--g-sky); }
+[data-to='living'] { --ground-next: var(--g-living); }
+
+/* The two shared middles. Each is an even mix of this stop and its
+   neighbour, so both sides of a boundary resolve to the same colour without
+   either needing to know what the other painted. Defaulting the neighbour to
+   this stop's own ground makes an unpaired edge a no-op rather than a jump. */
+[data-chapter] {
+  --bridge-up: color-mix(in srgb, var(--ground-prev, var(--ground)) 50%, var(--ground));
+  --bridge-down: color-mix(in srgb, var(--ground-next, var(--ground)) 50%, var(--ground));
+}
+
+/* --------------------------------------------------------------------------
+   Living green — the one colour that does NOT belong to the ladder.
+
+   It is reserved for what is actually alive, and it is spent once per surface
+   on the thing that earns it. Two inks, because a lit thing in the dark and
+   ink on paper are not the same colour: 5.95:1 on the vault ground, 5.05:1 on
+   pale paper.
+   -------------------------------------------------------------------------- */
+:root {
+  --living: #1fa363;
+  --living-ink: #0a5c34;
+}
+
+/* --------------------------------------------------------------------------
+   Depth. The vault does not use bezels — its depth is physical: a sheet casts
+   a long soft shadow onto the floor, straps cast 1px shadows onto the sheet.
+   Every shadow here carries an offset AND a blur; a zero-offset halo is
+   decoration, not depth.
+
+   Split by ground, not by stop: on a dark ground the shadow is black and long
+   because the object is far lighter than the room, and on a light ground it
+   is tinted to the ground's own hue, because a pure-black shadow on paper
+   reads as dirt.
+   -------------------------------------------------------------------------- */
+/* The fixed bar's own ground.
+
+   One tonal step away from the chapter it floats over, always in the direction
+   AWAY from that stop's ink: deeper on a dark stop, brighter on a light one.
+   Two things follow, and the bar needs both. It separates from the page, so a
+   bar tinted to the exact ground it sits on stops disappearing into it. And it
+   raises the ink's contrast rather than lowering it, which matters most on
+   `thaw` — a mid-tone that this file's own crossing rule says cannot carry
+   small text, and the nav is small text.
+
+   Still the chapter's own colour, one step along, so the bar stays in the
+   weather instead of becoming a frosted panel over it. */
+[data-chapter='stacks'],
+[data-chapter='soot'],
+[data-chapter='haze'],
+[data-chapter='thaw'] {
+  --nav-ground: var(--ground-deep);
+  --shadow-object:
+    0 42px 70px -44px rgba(0, 0, 0, 0.85),
+    0 4px 14px -8px rgba(0, 0, 0, 0.6);
+  --shadow-lift:
+    0 64px 96px -52px rgba(0, 0, 0, 0.9),
+    0 6px 18px -10px rgba(0, 0, 0, 0.65);
+  --object-lip: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+[data-chapter='firstlight'],
+[data-chapter='daylight'],
+[data-chapter='sky'],
+[data-chapter='living'] {
+  --nav-ground: var(--object);
+  --shadow-object:
+    0 26px 50px -34px rgba(42, 33, 24, 0.45),
+    0 3px 10px -6px rgba(42, 33, 24, 0.26);
+  --shadow-lift:
+    0 44px 74px -44px rgba(42, 33, 24, 0.5),
+    0 5px 14px -8px rgba(42, 33, 24, 0.3);
+  --object-lip: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* --------------------------------------------------------------------------
+   Browser surfaces. The parts nobody draws still carry the design, and the
+   defaults belong to no world in this project. Themed from the ladder, so
+   they re-ink with the chapter the reader is standing in.
+   -------------------------------------------------------------------------- */
+::selection {
+  color: var(--ground, #0b0f0e);
+  background: var(--living);
+}
+
+:root {
+  caret-color: var(--accent, #047857);
+  accent-color: var(--living-ink);
+  scrollbar-color: rgba(127, 140, 133, 0.55) transparent;
+  scrollbar-width: thin;
+}
+
+/* Data is set in the typed face with fixed-width figures, so a tallying number
+   never reflows the row it sits in. */
+[data-figure] {
+  font-family: var(--typed);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* --------------------------------------------------------------------------
+   The one focus ring for the whole interior. Living green at every stop,
+   because the reader's own position on the page is the thing that is alive.
+   -------------------------------------------------------------------------- */
+[data-chapter] :focus-visible {
+  outline: 2px solid var(--living);
+  outline-offset: 3px;
+}

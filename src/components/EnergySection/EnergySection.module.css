@@ -9,10 +9,8 @@
   position: relative;
   width: 100%;
   margin: 0 auto;
-  padding: 6px;
-  background: var(--shell);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-shell);
+  /* Width and centring only. The 6px tinted tray with its own border and
+     radius was a frame drawn around a card that already had both. */
   box-shadow: var(--shadow-lift);
   scroll-margin-top: 128px;
 }

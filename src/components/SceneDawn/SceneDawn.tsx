@@ -241,8 +241,8 @@ function SceneDawn({ onEnterFuture }: SceneDawnProps) {
           change lands on an unchanged frame. */}
       <span className={styles.exitWash} data-dawn="exit-wash" aria-hidden="true" />
 
-      {/* The only answer. Double-bezel enclosure: outer tray, inner core at a
-          concentric radius, trailing glyph in its own well. */}
+      {/* The only answer. One pill: label and trailing glyph, no enclosure
+          around the enclosure. */}
       <div className={styles.answerContainer} id="dawn-answer">
         <button
           type="button"
@@ -250,11 +250,9 @@ function SceneDawn({ onEnterFuture }: SceneDawnProps) {
           onClick={handleYes}
           disabled={answered}
         >
-          <span className={styles.answerCore}>
-            <span className={styles.answerLabel}>Yes, I&rsquo;m in</span>
-            <span className={styles.answerIcon} aria-hidden="true">
-              <ArrowGlyph />
-            </span>
+          <span className={styles.answerLabel}>Yes, I&rsquo;m in</span>
+          <span className={styles.answerIcon} aria-hidden="true">
+            <ArrowGlyph />
           </span>
         </button>
       </div>

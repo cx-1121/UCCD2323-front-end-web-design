@@ -1,611 +1,377 @@
 /* ==========================================================================
-   ExplorePage — light editorial field guide. Layout: Editorial Split with a
-   sticky index rail. Atmosphere (wash + grain) is fixed and pointer-inert;
-   blur is confined to fixed/sticky layers so scrolling never repaints the GPU.
+   EXPLORE — the field guide.
+
+   Five plates, the ground climbing firstlight -> daylight -> sky -> living so
+   the reader walks further into the light with every source.
+
+   THE RULE THIS PAGE IS BUILT ON: nothing is boxed. The previous version put
+   each reading in a tile, inside a section card, with the applications as
+   rounded chips inside that — three levels of rounded container for a list of
+   sentences. Here the grouping is done by a typed column head, a hairline
+   under it, and space. A container appears only where something must be
+   visually independent or clickable, and on this page nothing is.
+
+   Colour is not declared here. Every value comes from the ladder in
+   styles/chapters.css via the chapter each plate sits in.
    ========================================================================== */
 
 .page {
   position: relative;
-  min-height: 100dvh;
-  padding: clamp(7rem, 12vw, 10rem) clamp(1rem, 4vw, 3rem) clamp(6rem, 10vw, 9rem);
-  background: var(--surface);
-  color: var(--ink);
-  font-family: var(--font-body);
-  isolation: isolate;
-}
+  min-height: 100vh;
+  background: var(--g-firstlight);
 
-/* --------------------------------------------------------------------------
-   Fixed atmosphere
-   -------------------------------------------------------------------------- */
-.mesh {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.orb {
-  position: absolute;
-  display: block;
-  border-radius: 50%;
-  filter: blur(120px);
-  will-change: transform;
-}
-
-.orbEmerald {
-  top: -18vh;
-  left: -8vw;
-  width: 52vw;
-  height: 52vw;
-  background: radial-gradient(circle, rgba(16, 185, 129, 0.16) 0%, transparent 68%);
-  animation: exDrift 26s var(--ease-fluid) infinite alternate;
-}
-
-.orbTeal {
-  top: 34vh;
-  right: -14vw;
-  width: 46vw;
-  height: 46vw;
-  background: radial-gradient(circle, rgba(20, 184, 166, 0.12) 0%, transparent 68%);
-  animation: exDrift 34s var(--ease-fluid) infinite alternate-reverse;
-}
-
-.orbLime {
-  bottom: -22vh;
-  left: 26vw;
-  width: 44vw;
-  height: 44vw;
-  background: radial-gradient(circle, rgba(132, 204, 22, 0.1) 0%, transparent 68%);
-  animation: exDrift 30s var(--ease-glide) infinite alternate;
-}
-
-@keyframes exDrift {
-  from {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  to {
-    transform: translate3d(3vw, -4vh, 0) scale(1.1);
-  }
-}
-
-/* Film grain — fixed pseudo-layer, never attached to scrolling content. */
-.grain {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  opacity: 0.028;
-  mix-blend-mode: multiply;
-  pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-/* --------------------------------------------------------------------------
-   Header — floating glass island, detached from the top edge
-   -------------------------------------------------------------------------- */
-.headerBar {
-  position: fixed;
-  top: clamp(0.875rem, 2vw, 1.5rem);
-  left: 50%;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  /* Hugs the always-visible nav rather than reserving room for a reveal. */
-  width: max-content;
-  max-width: calc(100vw - 2rem);
-  padding: 0.6875rem 1.5rem 0.6875rem 1.25rem;
-  transform: translateX(-50%);
-  /* Retunes the shared HudHeader for paper. The component reads these from
-     its own scope, so no prop drilling and no specificity fight. */
-  --hud-mark: var(--signal);
-  --hud-mark-glow: none;
+  /* Every stop on this page is a light ground, so the header inks once. */
   --hud-ink: var(--ink-soft);
   --hud-ink-static: var(--ink);
   --hud-hover: var(--signal-deep);
   --hud-hover-glow: none;
-  transition:
-    transform 650ms var(--ease-fluid),
-    opacity 450ms var(--ease-fluid);
 }
 
-/* Parks off the top edge while the reader is heading down the page. The
-   centring translateX has to be restated — a transform is one value, so
-   omitting it here would snap the pill to the left. */
-.headerBarHidden {
-  transform: translateX(-50%) translate3d(0, calc(-100% - clamp(0.875rem, 2vw, 1.5rem)), 0);
-  opacity: 0;
-  pointer-events: none;
+/* Geothermal's mechanism is heat held in rock, and the ladder has spent its
+   warm accents by the time the page reaches the top. The chapter buys one
+   back — measured on `living`'s own ground, not assumed. */
+.warm {
+  --accent: #a8321a; /* 6.3:1 on #f7f8fa */
+  --accent-ink: #8f2a15;
 }
 
-/* HudHeader ships as position:fixed with its own insets; inside the island it
-   has to flow normally so the pill can size to it. */
-.headerBar > header {
-  position: static;
-  inset: auto;
-  width: 100%;
+/* ==========================================================================
+   Opening
+   ========================================================================== */
+.open {
+  padding-top: clamp(6rem, 16vh, 10rem);
 }
 
-.container {
-  position: relative;
-  z-index: 2;
-  max-width: 1360px;
-  margin: 0 auto;
+.title {
+  max-width: 20ch;
+  margin-top: clamp(1rem, 2.5vw, 1.5rem);
 }
 
-/* --------------------------------------------------------------------------
-   Hero
-   -------------------------------------------------------------------------- */
-.hero {
-  max-width: 60rem;
-  margin-bottom: clamp(4.5rem, 9vw, 8.5rem);
-}
-
-.heroTitle {
-  margin: 0 0 clamp(1.5rem, 3vw, 2.25rem);
-  font-family: var(--font-display);
-  font-size: clamp(2.75rem, 8vw, 6.25rem);
-  font-weight: 200;
-  letter-spacing: -0.045em;
-  line-height: 0.94;
-  color: var(--ink);
-  text-wrap: balance;
-}
-
-/* Solid accent rather than a gradient fill: gradient display type loses
-   contrast against paper and reads as a stock AI flourish. */
-.heroAccent {
-  font-weight: 500;
-  color: var(--signal);
-}
-
-.heroLede {
-  max-width: 46ch;
-  margin: 0 0 clamp(2.5rem, 5vw, 4rem);
-  font-size: clamp(1rem, 1.3vw, 1.1875rem);
-  font-weight: 300;
-  line-height: 1.75;
-  color: var(--ink-soft);
-  text-wrap: pretty;
-}
-
-.heroStats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin: 0;
-}
-
-.stat {
-  flex: 1 1 12rem;
-  padding: 1.125rem 1.25rem;
-  background: var(--surface-raised);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-tile);
-  box-shadow: var(--shadow-soft);
-  transition:
-    border-color 700ms var(--ease-fluid),
-    background 700ms var(--ease-fluid);
-}
-
-.stat:hover {
-  border-color: rgba(4, 120, 87, 0.28);
-  box-shadow: var(--shadow-lift);
-}
-
-.stat dt {
-  margin-bottom: 0.5rem;
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: 300;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-}
-
-.stat dd {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: 0.9375rem;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  color: var(--ink);
-}
-
-/* --------------------------------------------------------------------------
-   Editorial split
-   -------------------------------------------------------------------------- */
-.layout {
+/* Rhythm between the opening's blocks. A `p + p` rule cannot reach them —
+   each block is wrapped by its own entrance element, so the paragraphs are
+   never siblings — which is exactly how the gap went missing. */
+.openStack {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 17.5rem;
-  align-items: start;
-  gap: clamp(1.5rem, 3vw, 3rem);
+  gap: clamp(1.25rem, 3vw, 1.75rem);
 }
 
-.content {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(2.5rem, 5vw, 5rem);
-  min-width: 0;
+.openProse {
+  margin-top: clamp(0.5rem, 1.5vw, 0.75rem);
 }
 
-.railColumn {
+/* ==========================================================================
+   The index.
+
+   Narrow: a slim strip that parks under the header and travels with the
+   reader. Wide: it leaves the flow entirely and stands in the left margin as
+   a vertical rail — the same information, composed twice rather than one
+   version stretched. The rail is gated at 90rem because that is the first
+   width where the bench's own margin is actually wide enough to hold it
+   without crowding the plates.
+   ========================================================================== */
+.index {
   position: sticky;
-  top: clamp(6rem, 9vw, 7.5rem);
+  /* Parks below the fixed header rather than under it. The header sits at
+     clamp(1rem, 2vw, 2rem) and stands about 1.5rem tall, so this is that sum
+     plus a little air — at `top: 0` the two rows printed over each other. */
+  top: clamp(3.25rem, 5vw, 4.25rem);
+  z-index: 60;
+  padding: 0.625rem clamp(1.25rem, 5vw, 2.5rem);
+  background: color-mix(in srgb, var(--g-firstlight) 92%, transparent);
+  border-bottom: 1px solid var(--hairline);
+  backdrop-filter: blur(8px);
+  transition: background var(--turn-ms) var(--ease-turn);
+}
+
+/* The strip sits outside the chapters, so it cannot inherit the stop it is
+   floating over — it reads the one the page already tracks for the header.
+   Without this it stayed cream while the ground climbed to near-white
+   beneath it, and a warm band on a cool ground reads as a mistake. */
+.page[data-nav-stop='daylight'] .index {
+  background: color-mix(in srgb, var(--g-daylight) 92%, transparent);
+}
+
+.page[data-nav-stop='sky'] .index {
+  background: color-mix(in srgb, var(--g-sky) 92%, transparent);
+}
+
+.page[data-nav-stop='living'] .index {
+  background: color-mix(in srgb, var(--g-living) 92%, transparent);
+}
+
+.indexHead {
+  display: none;
+}
+
+.indexList {
   display: flex;
-  flex-direction: column;
-  gap: 0.875rem;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
 
-/* ---- Index rail (outer shell) ---- */
-.railShell {
-  padding: 5px;
-  background: var(--shell);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-shell);
-  box-shadow: var(--shadow-lift);
+.indexList::-webkit-scrollbar {
+  display: none;
 }
 
-.railCore {
-  padding: 1.375rem 1.25rem 1.5rem;
-  background: rgba(253, 254, 253, 0.86);
-  border: 1px solid var(--hairline);
-  border-radius: calc(var(--r-shell) - 5px);
-  box-shadow: var(--inner-lip);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-}
-
-.railLabel {
+.indexLink {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
-  margin: 0 0 1.125rem;
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: 400;
-  letter-spacing: 0.18em;
+  gap: 0.4375rem;
+  padding: 0.4375rem 0.625rem;
+  font-family: var(--stamped);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  color: var(--ink-faint);
+  border-bottom: 2px solid transparent;
+  transition:
+    color 320ms var(--ease-glide),
+    border-color 320ms var(--ease-glide);
+}
+
+.indexLink:hover {
+  color: var(--ink);
+}
+
+/* Current plate. Underscored and re-inked, never filled: a pill here would
+   put a container back on a page whose whole argument is that it does not
+   need them. */
+.indexCurrent {
+  color: var(--ink);
+  border-bottom-color: var(--living);
+}
+
+.indexNo {
+  font-family: var(--typed);
+  font-size: 0.625rem;
+  letter-spacing: 0.04em;
   color: var(--ink-faint);
 }
 
-.railCounter {
-  color: var(--signal);
-  letter-spacing: 0.12em;
-}
-
-/* The nav is a two-column arrangement: a hairline track carrying the moving
-   marker, and the link list. Fixed 2.75rem rows let the marker translate by a
-   pure multiple of the row height — transform only, no layout thrash. */
-.railNav {
-  position: relative;
+/* ==========================================================================
+   A plate
+   ========================================================================== */
+.plate {
   display: grid;
-  grid-template-columns: 1px minmax(0, 1fr);
+  gap: clamp(1.75rem, 4vw, 2.5rem);
+  margin-bottom: clamp(2.5rem, 6vw, 4rem);
+}
+
+.plateScene {
+  /* The drawing sits on the chapter's own ground with a rule under it, the
+     way a plate sits on a page — not in a panel of its own. */
+  padding-bottom: clamp(0.75rem, 2vw, 1rem);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.sceneCaption {
+  margin-top: clamp(0.75rem, 2vw, 1rem);
+  letter-spacing: 0.14em;
+}
+
+.plateCopy {
+  display: grid;
+  gap: clamp(1rem, 2.5vw, 1.375rem);
+  align-content: start;
+}
+
+.plateName {
+  margin-top: 0.625rem;
+}
+
+.mechanism {
+  display: grid;
+  gap: 0.75rem;
+  padding-top: clamp(0.75rem, 2vw, 1rem);
+}
+
+/* ==========================================================================
+   The ledger — three ruled columns where three cards used to be.
+   ========================================================================== */
+.ledger {
+  display: grid;
+  gap: clamp(1.75rem, 4vw, 2.5rem);
+  padding-top: clamp(1.5rem, 3.5vw, 2rem);
+  border-top: 1px solid var(--hairline);
+}
+
+.column {
+  display: grid;
   gap: 0.875rem;
+  align-content: start;
 }
 
-.railTrack {
-  position: relative;
-  width: 1px;
-  background: var(--hairline);
-  border-radius: 1px;
-}
-
-.railMarker {
-  position: absolute;
-  top: 0;
-  left: -1px;
-  width: 3px;
-  height: 2.75rem;
-  background: linear-gradient(180deg, var(--signal), var(--signal-teal));
-  border-radius: 3px;
-  transform: translate3d(0, calc(var(--active, 0) * 2.75rem), 0);
-  transition: transform 800ms var(--ease-fluid);
-  will-change: transform;
-}
-
-.railList {
+.entries {
+  display: grid;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.railLink {
-  display: flex;
-  align-items: center;
-  height: 2.75rem;
-  padding: 0 0.75rem;
-  font-size: 0.875rem;
-  font-weight: 300;
-  letter-spacing: -0.005em;
-  color: var(--ink-soft);
-  text-decoration: none;
-  border-radius: 0.75rem;
-  transition:
-    color 600ms var(--ease-fluid),
-    background 600ms var(--ease-fluid),
-    transform 600ms var(--ease-fluid);
-}
-
-.railLink:hover {
-  color: var(--ink);
-  background: rgba(12, 46, 32, 0.05);
-  transform: translate3d(3px, 0, 0);
-}
-
-.railLinkActive {
-  font-weight: 500;
-  color: var(--signal-deep);
-  background: rgba(4, 120, 87, 0.09);
-  transform: translate3d(3px, 0, 0);
-}
-
-/* ---- Quiz CTA ---- */
-.ctaShell {
-  padding: 5px;
-  background:
-    radial-gradient(120% 100% at 100% 0%, rgba(4, 120, 87, 0.14) 0%, transparent 62%),
-    var(--shell);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-shell);
-  box-shadow: var(--shadow-lift);
-}
-
-.ctaCore {
-  padding: 1.5rem 1.375rem;
-  background: rgba(253, 254, 253, 0.86);
-  border: 1px solid var(--hairline);
-  border-radius: calc(var(--r-shell) - 5px);
-  box-shadow: var(--inner-lip);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-}
-
-.ctaEyebrow {
-  display: inline-block;
-  margin-bottom: 0.875rem;
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: 400;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--signal);
-}
-
-.ctaText {
-  margin: 0 0 1.375rem;
-  font-size: 0.875rem;
-  font-weight: 300;
-  line-height: 1.65;
+/* Hairline between entries, none above the first or below the last: the rule
+   is a separator, not a border, and a boxed list is the thing being removed. */
+.entry {
+  display: grid;
+  grid-template-columns: 1rem 1fr;
+  gap: 0.625rem;
+  padding: 0.625rem 0;
+  font-family: var(--set);
+  font-size: 0.9375rem;
+  line-height: 1.55;
   color: var(--ink-soft);
   text-wrap: pretty;
 }
 
-/* Island button with a nested icon capsule flush to the inner right padding. */
-.ctaButton {
-  display: inline-flex;
-  align-items: center;
+.entry + .entry {
+  border-top: 1px solid var(--hairline);
+}
+
+/* A drafting tick, in the same hairline language as the scenes. Direction
+   carries the meaning, so the state is never colour-only. */
+.mark {
+  position: relative;
+  margin-top: 0.5rem;
+  width: 0.625rem;
+  height: 1px;
+  background: var(--ink-faint);
+}
+
+.markUp,
+.markDown {
+  background: var(--living-ink);
+}
+
+.markUp::after,
+.markDown::after {
+  content: '';
+  position: absolute;
+  left: 0.1875rem;
+  width: 0.3125rem;
+  height: 0.3125rem;
+  border-top: 1px solid currentColor;
+  border-right: 1px solid currentColor;
+  color: var(--living-ink);
+}
+
+.markUp::after {
+  top: -0.1875rem;
+  transform: rotate(-45deg);
+}
+
+.markDown {
+  background: var(--accent-ink);
+}
+
+.markDown::after {
+  top: -0.0625rem;
+  transform: rotate(135deg);
+  color: var(--accent-ink);
+}
+
+/* ==========================================================================
+   Close
+   ========================================================================== */
+.close {
+  padding-bottom: clamp(4rem, 10vh, 7rem);
+}
+
+.closeStatement {
+  font-size: clamp(1.375rem, 4vw, 2.25rem);
+  line-height: 1.3;
+}
+
+.closeActions {
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.75rem;
-  padding: 0.4375rem 0.4375rem 0.4375rem 1.125rem;
-  color: #ffffff;
-  text-decoration: none;
-  background: linear-gradient(180deg, var(--signal) 0%, var(--signal-deep) 100%);
-  border-radius: var(--r-pill);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.22),
-    0 14px 30px -18px rgba(4, 120, 87, 0.85);
-  transition:
-    transform 500ms var(--ease-snap),
-    box-shadow 500ms var(--ease-snap);
+  margin-top: clamp(1.75rem, 4vw, 2.5rem);
 }
 
-.ctaButton:hover {
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.3),
-    0 18px 38px -16px rgba(4, 120, 87, 0.95);
-}
+/* ==========================================================================
+   WIDE — recomposed.
 
-.ctaButton:active {
-  transform: scale(0.98);
-}
-
-.ctaButtonLabel {
-  font-family: var(--font-display);
-  font-size: 0.875rem;
-  font-weight: 600;
-  letter-spacing: -0.005em;
-}
-
-.ctaButtonIcon {
-  display: grid;
-  place-items: center;
-  width: 2rem;
-  height: 2rem;
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.18);
-  border-radius: var(--r-pill);
-  transition:
-    transform 500ms var(--ease-snap),
-    background 500ms var(--ease-snap);
-}
-
-.ctaButtonIcon svg {
-  width: 1rem;
-  height: 1rem;
-}
-
-.ctaButton:hover .ctaButtonIcon {
-  background: rgba(255, 255, 255, 0.28);
-  transform: translate3d(3px, -1px, 0) scale(1.05);
-}
-
-/* --------------------------------------------------------------------------
-   Focus states
-   -------------------------------------------------------------------------- */
-.railLink:focus-visible,
-.ctaButton:focus-visible {
-  outline: 2px solid var(--signal);
-  outline-offset: 3px;
-}
-
-/* --------------------------------------------------------------------------
-   Hero scroll-entry — attribute selectors scoped under a hashed class so the
-   rules cannot leak into other pages' modules.
-   -------------------------------------------------------------------------- */
-.hero [data-reveal] {
-  opacity: 0;
-  transform: translate3d(0, 2.75rem, 0);
-  filter: blur(8px);
-  transition:
-    opacity 1000ms var(--ease-glide),
-    transform 1000ms var(--ease-glide),
-    filter 1000ms var(--ease-glide);
-}
-
-.hero [data-reveal-index='1'] {
-  transition-delay: 90ms;
-}
-.hero [data-reveal-index='2'] {
-  transition-delay: 180ms;
-}
-.hero [data-reveal-index='3'] {
-  transition-delay: 270ms;
-}
-
-.hero .revealed {
-  opacity: 1;
-  transform: translate3d(0, 0, 0);
-  filter: blur(0);
-}
-
-/* --------------------------------------------------------------------------
-   Responsive collapse — the rail becomes a sticky horizontal chip strip and
-   the CTA drops to the end of the flow.
-   -------------------------------------------------------------------------- */
-@media (max-width: 1023px) {
-  .layout {
-    grid-template-columns: minmax(0, 1fr);
+   The plate becomes a true editorial split: the drawing at the size it
+   deserves beside its own reading. The ledger opens into three columns. The
+   index leaves the flow and stands in the margin.
+   ========================================================================== */
+/* 50rem, not 60: at 800px the bench is 760 wide and the split gives the
+   reading column ~355px, which still holds a comfortable measure. Stacking a
+   landscape tablet wastes the one axis it has more of than a phone. */
+@media (min-width: 50rem) {
+  .plate {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: clamp(2.5rem, 5vw, 4rem);
   }
 
-  /* Dissolve the wrapper so its two panels become direct grid items and can
-     be reordered independently. */
-  .railColumn {
-    display: contents;
-  }
-
-  /* Resting offset clears the floating nav island. Animating `top` rather than
-     transform is deliberate: it is the only property that stays inert while the
-     strip is in normal flow, so the strip can never be displaced into the
-     section below it. Cost is one element's sticky offset re-resolving. */
-  .railShell {
+  /* The drawing is the argument, so it holds position while the reading
+     scrolls past it. Sticky rather than fixed: it belongs to its own plate
+     and must be released at the plate's edge. */
+  .plateScene {
     position: sticky;
-    top: 4.5rem;
-    z-index: 20;
-    order: -1;
-    margin-bottom: 0.5rem;
-    border-radius: var(--r-pill);
-    transition: top 650ms var(--ease-fluid);
+    top: 7rem;
   }
 
-  /* Nav gone: the strip moves up into the space it left, level with where the
-     island sat. Timed to the nav's own 650ms so they travel as one piece. */
-  .railRaised {
-    top: clamp(0.875rem, 2vw, 1.5rem);
+  .ledger {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .railCore {
-    padding: 0.5rem 0.625rem;
-    border-radius: var(--r-pill);
-  }
-
-  .railLabel {
-    display: none;
-  }
-
-  .railNav {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0;
-  }
-
-  .railTrack {
-    display: none;
-  }
-
-  .railList {
-    display: flex;
-    gap: 0.375rem;
-    overflow-x: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-
-  .railList::-webkit-scrollbar {
-    display: none;
-  }
-
-  .railLink {
-    /* 42px keeps the chips inside comfortable thumb-target range. */
-    height: 2.625rem;
-    padding: 0 1rem;
-    white-space: nowrap;
-    border-radius: var(--r-pill);
-  }
-
-  .railLink:hover,
-  .railLinkActive {
-    transform: none;
-  }
-
-  .ctaShell {
-    order: 1;
-    margin-top: 1rem;
-  }
-
-  .ctaCore {
-    text-align: center;
-  }
-
-  .ctaButton {
-    justify-content: center;
+  .title {
+    max-width: 16ch;
   }
 }
 
-@media (max-width: 767px) {
-  .page {
-    padding: 6.5rem 1rem 4rem;
+@media (min-width: 90rem) {
+  .index {
+    position: fixed;
+    top: 50%;
+    left: clamp(1.5rem, 3vw, 3rem);
+    z-index: 60;
+    translate: 0 -50%;
+    padding: 0;
+    background: none;
+    border-bottom: 0;
+    backdrop-filter: none;
   }
 
-  .heroStats {
+  .indexHead {
+    display: block;
+    margin: 0 0 0.75rem;
+    font-family: var(--typed);
+    font-size: 0.625rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .indexList {
     flex-direction: column;
+    gap: 2px;
+    overflow: visible;
   }
 
-  .stat {
-    flex: 1 1 auto;
+  /* Vertical: the marker moves to the leading edge, because a bottom rule
+     under a stacked list reads as a divider between items. */
+  .indexLink {
+    padding: 0.4375rem 0 0.4375rem 0.75rem;
+    border-bottom: 0;
+    border-left: 2px solid var(--hairline);
   }
 
-  /* Heavy blurs and drifting orbs are the first things to cost frames on
-     mobile GPUs — cut the blur radius and stop the animation. */
-  .orb {
-    filter: blur(80px);
-    animation: none;
-  }
-
-  .orbLime {
-    display: none;
+  .indexCurrent {
+    border-left-color: var(--living);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .orb {
-    animation: none;
-  }
-
-  .hero [data-reveal] {
-    opacity: 1;
-    transform: none;
-    filter: none;
-  }
-
-  .railMarker {
-    transition: none;
+  .plateScene {
+    position: static;
   }
 }

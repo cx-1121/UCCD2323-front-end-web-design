@@ -1,0 +1,320 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-17T00:00:00.000Z",
+  "title": "Design System: RE:FUTURE — Green Tech Club",
+  "extensions": {
+    "colorMeta": {
+      "ground-stacks": {
+        "role": "neutral",
+        "displayName": "Vault",
+        "canonical": "#0b0f0e",
+        "note": "Rung 0. The cold vault interior, unchanged from the revisit surface so the two surfaces read as one room.",
+        "tonalRamp": ["#050807", "#0b0f0e", "#141a18", "#212b28", "#38463f", "#5b6d64", "#8fa298", "#c4cfc8"]
+      },
+      "ground-soot": {
+        "role": "neutral",
+        "displayName": "Soot",
+        "canonical": "#141210",
+        "note": "Rung 1. The same near-black, carbon-warm rather than cold: this room has a fire in it.",
+        "tonalRamp": ["#0a0908", "#141210", "#231f1a", "#362f27", "#544a3e", "#7d7263", "#a89e8f", "#d6cfc4"]
+      },
+      "ground-haze": {
+        "role": "neutral",
+        "displayName": "Haze",
+        "canonical": "#2b3033",
+        "note": "Rung 2. The particulate grey-blue of an airshed you can actually see.",
+        "tonalRamp": ["#161a1c", "#2b3033", "#3d4448", "#525a5f", "#727c81", "#98a2a7", "#bfc7cb", "#dfe4e2"]
+      },
+      "ground-thaw": {
+        "role": "neutral",
+        "displayName": "Thaw",
+        "canonical": "#6c6355",
+        "note": "Rung 3. The crossing. A mid-tone by design; carries no small text at any size.",
+        "tonalRamp": ["#26221d", "#3d3830", "#544d42", "#6c6355", "#8b8172", "#aaa093", "#cbc3b7", "#ece3d4"]
+      },
+      "ground-firstlight": {
+        "role": "neutral",
+        "displayName": "Firstlight",
+        "canonical": "#e9dfd0",
+        "note": "Rung 4. Sunrise, and the first light ground: the ink inverts here and stays inverted.",
+        "tonalRamp": ["#2b2118", "#463a2c", "#665844", "#8d7d66", "#b4a68e", "#d0c3ac", "#e9dfd0", "#f6efe3"]
+      },
+      "ground-daylight": {
+        "role": "neutral",
+        "displayName": "Daylight",
+        "canonical": "#f2efe8",
+        "note": "Rung 5. Full morning — the club's own working light.",
+        "tonalRamp": ["#1c211d", "#333930", "#525a4d", "#7a8375", "#a5ad9f", "#cbd1c5", "#e4e0d5", "#f2efe8"]
+      },
+      "ground-sky": {
+        "role": "neutral",
+        "displayName": "Sky",
+        "canonical": "#eef3f4",
+        "note": "Rung 6. Noon, air moving. The one cool light stop; wind and the data surface live here.",
+        "tonalRamp": ["#14201f", "#233433", "#3d5350", "#5f7a77", "#8ba5a2", "#b6cbc9", "#dde6e8", "#eef3f4"]
+      },
+      "ground-living": {
+        "role": "neutral",
+        "displayName": "Living",
+        "canonical": "#f7f8fa",
+        "note": "Rung 7, and deliberately the paper interior this project already had. The arc arrives at the incumbent system rather than discarding it.",
+        "tonalRamp": ["#0c1a13", "#183024", "#27503b", "#3d7458", "#69a084", "#a3c8b4", "#dceee5", "#f7f8fa"]
+      },
+      "living": {
+        "role": "primary",
+        "displayName": "Living Green",
+        "canonical": "#1fa363",
+        "note": "Not on the ladder. Reserved for what is actually alive, and spent roughly once per surface. Ink form on paper is living-ink.",
+        "tonalRamp": ["#04150c", "#062a18", "#0a5c34", "#0f7a45", "#1fa363", "#4cbd85", "#8ad7b0", "#c8efdb"]
+      },
+      "living-ink": {
+        "role": "primary",
+        "displayName": "Living Ink",
+        "canonical": "#0a5c34",
+        "note": "The same living green as ink on pale paper. 5.05:1 on the light stops; the lit value fails there.",
+        "tonalRamp": ["#03170d", "#062f1b", "#0a5c34", "#0e7a45", "#26a067", "#5ec392", "#9cdcbc", "#d5f2e3"]
+      },
+      "spent": {
+        "role": "secondary",
+        "displayName": "Fired Red",
+        "canonical": "#a8321a",
+        "note": "The interior's one negative ink. Budget already spent, a mechanism that runs hot, or an error. 6.4:1 on any light stop's paper.",
+        "tonalRamp": ["#1e0904", "#3d130a", "#6b210f", "#a8321a", "#cc4c30", "#e0765c", "#efa895", "#f8d7cd"]
+      },
+      "accent-aniline": {
+        "role": "tertiary",
+        "displayName": "Aniline",
+        "canonical": "#8b63c4",
+        "note": "The stacks accent — an accession stamp in the cold. Ink form on the sheet is #6b3fa0.",
+        "tonalRamp": ["#170f22", "#2c1d42", "#472f6b", "#6b3fa0", "#8b63c4", "#ab8dd6", "#cbb8e6", "#e7dcf4"]
+      },
+      "accent-ember": {
+        "role": "tertiary",
+        "displayName": "Ember",
+        "canonical": "#e8613f",
+        "note": "The soot accent — the fossil century at full throat. Ink form on the tan object is #a8321a.",
+        "tonalRamp": ["#28100a", "#4d2013", "#7d3520", "#b64c2c", "#e8613f", "#f08a70", "#f6b3a2", "#fbdad1"]
+      },
+      "accent-cold-signal": {
+        "role": "tertiary",
+        "displayName": "Cold Signal",
+        "canonical": "#6fb9c4",
+        "note": "The haze accent — the cost seen in daylight. Ink form is #14606c.",
+        "tonalRamp": ["#0a1c1f", "#0f3238", "#14606c", "#1c8899", "#6fb9c4", "#9bd0d8", "#c2e3e8", "#e3f3f5"]
+      },
+      "accent-gold": {
+        "role": "tertiary",
+        "displayName": "Raw Gold",
+        "canonical": "#a8631a",
+        "note": "The firstlight accent. Large type and stamps only at 3.6:1; the ink form #8a4f10 carries body copy at 5.0:1.",
+        "tonalRamp": ["#201304", "#3f2609", "#6c4110", "#a8631a", "#cd8434", "#e0a869", "#eecaa1", "#f8e7d1"]
+      },
+      "accent-teal": {
+        "role": "tertiary",
+        "displayName": "Deep Teal",
+        "canonical": "#0f766e",
+        "note": "The sky accent, and the working accent of the data surface. Ink form is #0d5f59.",
+        "tonalRamp": ["#031a18", "#06332f", "#0a4a45", "#0d5f59", "#0f766e", "#2ba79d", "#79cec7", "#c3eae7"]
+      },
+      "accent-emerald": {
+        "role": "primary",
+        "displayName": "Emerald",
+        "canonical": "#047857",
+        "note": "The living stop's accent, and the incumbent brand signal. Ink form is #065f46.",
+        "tonalRamp": ["#01180f", "#02301f", "#034a35", "#04604a", "#047857", "#0da97c", "#5bcfa8", "#b6ecd8"]
+      },
+      "sheet-cold": {
+        "role": "neutral",
+        "displayName": "Cold Sheet",
+        "canonical": "#c4cfc8",
+        "note": "The specimen card's own ground in the vault. Reads pale steel-green because it is lit at −18 °C. Never cream, ivory or parchment.",
+        "tonalRamp": ["#161a18", "#252d28", "#3c4842", "#5b6d64", "#829289", "#a9b5ad", "#c4cfc8", "#e4eae6"]
+      },
+      "ink-paper": {
+        "role": "neutral",
+        "displayName": "Paper Ink",
+        "canonical": "#0c1a13",
+        "note": "Body ink at the light end of the ladder. 16.4:1 on the living ground.",
+        "tonalRamp": ["#040807", "#0c1a13", "#173226", "#26503c", "#417a60", "#71a68c", "#aacdba", "#dfeee7"]
+      },
+      "intro-ember": {
+        "role": "secondary",
+        "displayName": "Cinematic Ember",
+        "canonical": "#d9482a",
+        "note": "The descent's crisis colour. Belongs to the cinematic world and travels nowhere else.",
+        "tonalRamp": ["#240b06", "#47170c", "#742616", "#a83722", "#d9482a", "#e8785f", "#f2a795", "#f9d5cb"]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "rgba(12, 46, 32, 0.11)",
+        "note": "The one divider weight. Separators never become borders: no rule above the first row or below the last."
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "A page's one title. Capped at 6rem — past that a condensed gothic reads as texture, not lettering." },
+      "section": { "displayName": "Section", "purpose": "Chapter headings." },
+      "plate": { "displayName": "Plate", "purpose": "A heading on an object — a sheet, a record, a panel." },
+      "control": { "displayName": "Control", "purpose": "Every button label on the site." },
+      "typed": { "displayName": "Typed", "purpose": "The narrative voice. Statements are determinations, one line per line, with the turning line underscored." },
+      "instrument": { "displayName": "Instrument", "purpose": "A unit, an accession number, a column head, a state, a source credit. Never an eyebrow above a heading. The most-used role on the site." },
+      "micro": { "displayName": "Micro", "purpose": "Source credits, sealed-record states, badges, chart axis labels. The floor — nothing on this site is smaller." },
+      "reading": { "displayName": "Reading", "purpose": "A small typed value — a bar's number, a unit beside a figure, a drawer's detail line." },
+      "hint": { "displayName": "Hint", "purpose": "A form hint, a caption, a line of small prose under a control." },
+      "note": { "displayName": "Note", "purpose": "A panel's interpretation, a figure's meaning. Where the site explains what a number is for. Measure 72ch." },
+      "list": { "displayName": "List", "purpose": "A ledger entry, a roster row, an index body." },
+      "prose": { "displayName": "Prose", "purpose": "Explanatory copy. The only role allowed to run long; measure enforced at 68ch on the element." },
+      "_ramp": { "displayName": "The shared step", "purpose": "The small end climbs in 1px steps from 0.625rem to 1.0625rem. The step is a size, not a family: 0.9375rem is Outfit as a ledger entry and Archivo Narrow as a control label. Pick the size from the density of the block and the family from the role." }
+    },
+    "shadows": [
+      { "name": "object-dark", "value": "0 42px 70px -44px rgba(0,0,0,0.85), 0 4px 14px -8px rgba(0,0,0,0.6)", "purpose": "A paper object resting on a dark ground. Black and long, because the object is far lighter than the room." },
+      { "name": "object-light", "value": "0 26px 50px -34px rgba(42,33,24,0.45), 0 3px 10px -6px rgba(42,33,24,0.26)", "purpose": "The same object on a light ground, tinted to the ground's hue — a pure-black shadow on paper reads as dirt." },
+      { "name": "lift-dark", "value": "0 64px 96px -52px rgba(0,0,0,0.9), 0 6px 18px -10px rgba(0,0,0,0.65)", "purpose": "An object raised toward the reader on a dark ground." },
+      { "name": "lift-light", "value": "0 44px 74px -44px rgba(42,33,24,0.5), 0 5px 14px -8px rgba(42,33,24,0.3)", "purpose": "The lifted state on a light ground." },
+      { "name": "object-lip-dark", "value": "inset 0 1px 0 rgba(255,255,255,0.5)", "purpose": "The cut top edge catching the light. The system's only inset — an edge, not a bevel." },
+      { "name": "object-lip-light", "value": "inset 0 1px 0 rgba(255,255,255,0.9)", "purpose": "The same cut edge on a light ground." },
+      { "name": "slip", "value": "0 10px 22px -18px rgba(0,0,0,0.7)", "purpose": "A pasted annotation slip, standing free of the record it annotates." }
+    ],
+    "motion": [
+      { "name": "ease-press", "value": "cubic-bezier(0.05, 0.7, 0.1, 1)", "purpose": "A strike, not a bounce. Near-instant travel then a hard settle — an overshoot rebounds the impression back past its mark, which is the opposite of what a stamp does to paper." },
+      { "name": "ease-turn", "value": "cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "The ladder's own crossfade, paired with turn-ms. Long, because a chapter turn is a change of weather rather than a state change." },
+      { "name": "turn-ms", "value": "900ms", "purpose": "Duration of a chapter turn." },
+      { "name": "ease-glide", "value": "cubic-bezier(0.22, 1, 0.36, 1)", "purpose": "The default entrance and hover curve. Exponential ease-out from an already-visible default." },
+      { "name": "ease-snap", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Control feedback — the Action's fill, colour and scale changes." },
+      { "name": "settle", "value": "800ms cubic-bezier(0.22, 1, 0.36, 1), 90ms stagger", "purpose": "The interior's one entrance: content settles up 1.5rem out of the ground it belongs to. Never a bounce, never a slide from the side." },
+      { "name": "turn-depth", "value": "21vh desktop / 13vh mobile", "purpose": "How deep a chapter crossing bleeds into its neighbour. Every unit of it is background with nothing in it, so it is kept as short as reads well." }
+    ],
+    "breakpoints": [
+      { "name": "row", "value": "48rem" },
+      { "name": "split", "value": "50rem" },
+      { "name": "gutter", "value": "60rem" },
+      { "name": "verdict", "value": "64rem" },
+      { "name": "rail", "value": "90rem" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Action",
+      "kind": "button",
+      "refersTo": "action",
+      "description": "The site's one control. One element deep — label and glyph sit directly in it, because a control does not need to be enclosed inside itself to read as one.",
+      "html": "<a class=\"ds-action\" href=\"#\"><span class=\"ds-action-label\">Start exploring</span><span class=\"ds-action-icon\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M7 17 17 7\"/><path d=\"M8 7h9v9\"/></svg></span></a>",
+      "css": ".ds-action { display: inline-flex; align-items: center; gap: 0.75rem; padding: 0.8125rem 1.375rem; text-decoration: none; cursor: pointer; color: #f7f8fa; background: #0c1a13; border: 1px solid transparent; border-radius: var(--r-pill, 999px); transition: background 420ms var(--ease-snap, cubic-bezier(0.16,1,0.3,1)), color 420ms var(--ease-snap, cubic-bezier(0.16,1,0.3,1)), transform 420ms var(--ease-snap, cubic-bezier(0.16,1,0.3,1)); } .ds-action-label { font-family: var(--stamped, 'Archivo Narrow', 'Arial Narrow', sans-serif); font-size: 0.9375rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; } .ds-action-icon { display: grid; place-items: center; flex: none; width: 1rem; height: 1rem; transition: transform 420ms var(--ease-snap, cubic-bezier(0.16,1,0.3,1)); } .ds-action-icon svg { width: 100%; height: 100%; } .ds-action:hover { color: #f4f8f5; background: var(--living-ink, #0a5c34); } .ds-action:hover .ds-action-icon { transform: translate3d(3px, -3px, 0); } .ds-action:active { transform: scale(0.98); } .ds-action:focus-visible { outline: 2px solid var(--living, #1fa363); outline-offset: 3px; }"
+    },
+    {
+      "name": "Action — ghost",
+      "kind": "button",
+      "refersTo": "action-ghost",
+      "description": "The same control, unfilled. For the secondary route out of a section, never the primary one. The border is transparent rather than absent on the filled variant, so neither reflows by a pixel beside the other.",
+      "html": "<button class=\"ds-action ds-action-ghost\" type=\"button\"><span class=\"ds-action-label\">Replay the descent</span><span class=\"ds-action-icon\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 12a9 9 0 1 0 3-6.7L3 8\"/><path d=\"M3 3v5h5\"/></svg></span></button>",
+      "css": ".ds-action-ghost { font: inherit; color: #0c1a13; background: transparent; border-color: rgba(12,46,32,0.11); } .ds-action-ghost:hover { color: #0c1a13; background: rgba(31,163,99,0.12); border-color: var(--living, #1fa363); }"
+    },
+    {
+      "name": "Sheet",
+      "kind": "card",
+      "refersTo": "sheet",
+      "description": "A paper object in the room. Square, cut edge, laid-paper texture, a 2px rule where it was held in a filing run, and a long cast shadow onto the floor. overflow:hidden is load-bearing — ink stays on paper and a rotated stamp can never escape into the viewport.",
+      "html": "<div class=\"ds-sheet\"><header class=\"ds-sheet-head\"><p class=\"ds-instrument\">Green Tech Club · Herbarium of Energy</p><p class=\"ds-instrument\">GTC·0891</p></header><h3 class=\"ds-plate\">Research</h3><p class=\"ds-prose\">Read the mechanism before the marketing. Members take one technology apart a term and write up what they find.</p></div>",
+      "css": ".ds-sheet { position: relative; overflow: hidden; padding: clamp(1.125rem, 2.6vw, 1.75rem); color: #14201f; background: repeating-linear-gradient(90deg, rgba(20,32,31,0.03) 0 1px, transparent 1px 5px), linear-gradient(196deg, rgba(255,255,255,0.4) 0%, transparent 34%), #ffffff; border: 1px solid #dbe4e6; border-radius: var(--r-paper, 0px); box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 26px 50px -34px rgba(42,33,24,0.45), 0 3px 10px -6px rgba(42,33,24,0.26); } .ds-sheet::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 2px; background: rgba(20,32,31,0.16); } .ds-sheet-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding-bottom: 0.625rem; margin-bottom: 1rem; border-bottom: 1px solid #dbe4e6; } .ds-instrument { margin: 0; font-family: var(--typed, 'Courier Prime', monospace); font-size: 0.6875rem; line-height: 1; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(20,32,31,0.64); } .ds-plate { margin: 0 0 0.625rem; font-family: var(--stamped, 'Archivo Narrow', sans-serif); font-size: 1.1875rem; font-weight: 700; line-height: 0.94; letter-spacing: 0.04em; text-transform: uppercase; color: #14201f; } .ds-prose { margin: 0; max-width: 68ch; font-family: var(--set, 'Outfit', sans-serif); font-size: 1rem; line-height: 1.7; color: #14201f; }"
+    },
+    {
+      "name": "Stamp",
+      "kind": "custom",
+      "refersTo": "stamp",
+      "description": "A rubber impression. Never square to the page — a stamp set upright stops reading as an impression and starts reading as a status pill, which is the badge this system refuses. Masked with a radial so the rubber inks unevenly.",
+      "html": "<span class=\"ds-stamp\">Superseded</span>",
+      "css": ".ds-stamp { display: inline-block; transform: rotate(-2.5deg); transform-origin: 0 50%; padding: 0.22em 0.5em; font-family: var(--stamped, 'Archivo Narrow', sans-serif); font-size: 1.25rem; font-weight: 700; line-height: 1; letter-spacing: 0.06em; text-transform: uppercase; color: #a8321a; border: 3px solid #a8321a; border-radius: 2px; opacity: 0.84; -webkit-mask-image: radial-gradient(120% 140% at 30% 20%, #000 55%, rgba(0,0,0,0.55) 78%, rgba(0,0,0,0.84) 100%); mask-image: radial-gradient(120% 140% at 30% 20%, #000 55%, rgba(0,0,0,0.55) 78%, rgba(0,0,0,0.84) 100%); }"
+    },
+    {
+      "name": "Drawer run",
+      "kind": "nav",
+      "refersTo": "drawer",
+      "description": "The interior's answer to the card grid. Full-width, flush, stacked with a 2px gap and a 2px left rule, so a list of destinations reads as a cabinet rather than as six equal boxes with icons. Hover pulls the drawer out.",
+      "html": "<ul class=\"ds-drawers\"><li><a class=\"ds-drawer\" href=\"#\"><span class=\"ds-drawer-no\">01</span><span class=\"ds-drawer-glyph\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\"><circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2\"/></svg></span><span class=\"ds-drawer-text\"><span class=\"ds-drawer-label\">Solar</span><span class=\"ds-drawer-detail\">Photons knock electrons loose in silicon. No moving parts, no fuel, no noise.</span></span><span class=\"ds-drawer-pull\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M7 17 17 7\"/><path d=\"M8 7h9v9\"/></svg></span></a></li><li class=\"ds-drawer ds-drawer-sealed\"><span class=\"ds-drawer-no\">02</span><span class=\"ds-drawer-glyph\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\"><path d=\"M4 14h16M6 18h12M9 6l3-3 3 3\"/></svg></span><span class=\"ds-drawer-text\"><span class=\"ds-drawer-label\">Tidal</span><span class=\"ds-drawer-detail\">The moon, geared down into a turbine.</span></span><span class=\"ds-drawer-state\">Not yet accessioned</span></li></ul>",
+      "css": ".ds-drawers { display: flex; flex-direction: column; gap: 2px; margin: 0; padding: 0; list-style: none; } .ds-drawer { position: relative; display: flex; align-items: center; gap: 0.875rem; width: 100%; padding: 1rem 1.125rem; text-align: left; text-decoration: none; color: #14201f; background: rgba(20,32,31,0.04); border: 0; border-left: 2px solid rgba(20,32,31,0.13); transition: background 400ms var(--ease-glide, cubic-bezier(0.22,1,0.36,1)), border-color 400ms var(--ease-glide, cubic-bezier(0.22,1,0.36,1)), padding-left 400ms var(--ease-glide, cubic-bezier(0.22,1,0.36,1)); } a.ds-drawer:hover { padding-left: 1.625rem; background: rgba(31,163,99,0.1); border-left-color: var(--living, #1fa363); } .ds-drawer-no { flex: none; font-family: var(--typed, 'Courier Prime', monospace); font-size: 0.6875rem; letter-spacing: 0.06em; color: rgba(20,32,31,0.66); } .ds-drawer-glyph { display: grid; place-items: center; flex: none; width: 1.75rem; height: 1.75rem; color: #0f766e; } .ds-drawer-glyph svg { width: 1.0625rem; height: 1.0625rem; } .ds-drawer-text { display: flex; flex-direction: column; gap: 0.1875rem; min-width: 0; } .ds-drawer-label { font-family: var(--stamped, 'Archivo Narrow', sans-serif); font-size: 0.9375rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; } .ds-drawer-detail { font-family: var(--typed, 'Courier Prime', monospace); font-size: 0.75rem; line-height: 1.4; color: rgba(20,32,31,0.66); } .ds-drawer-pull { display: grid; place-items: center; flex: none; width: 1.5rem; height: 1.5rem; margin-left: auto; color: var(--living, #1fa363); opacity: 0; transition: opacity 400ms ease, transform 400ms ease; } .ds-drawer-pull svg { width: 0.875rem; height: 0.875rem; } a.ds-drawer:hover .ds-drawer-pull { opacity: 1; transform: translate3d(2px, -2px, 0); } .ds-drawer-sealed { color: rgba(20,32,31,0.66); background: transparent; border-left-color: rgba(20,32,31,0.08); } .ds-drawer-sealed .ds-drawer-glyph, .ds-drawer-sealed .ds-drawer-label { color: rgba(20,32,31,0.66); } .ds-drawer-state { margin-left: auto; font-family: var(--typed, 'Courier Prime', monospace); font-size: 0.625rem; letter-spacing: 0.16em; text-transform: uppercase; white-space: nowrap; color: rgba(20,32,31,0.66); } a.ds-drawer:focus-visible { outline: 2px solid var(--living, #1fa363); outline-offset: 3px; }"
+    },
+    {
+      "name": "Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "A line you write on. Square, no border except a ruled bottom edge over a faint tint of the object's own ink, set in the typed face because a filled-in form is instrumentation. Never drops below 16px — below it iOS zooms the page on focus.",
+      "html": "<div class=\"ds-field\"><label for=\"ds-email\">Email</label><input id=\"ds-email\" type=\"email\" placeholder=\"you@example.edu.my\"><p class=\"ds-hint\">We reply to this address, nowhere else.</p></div>",
+      "css": ".ds-field { display: grid; gap: 0.5rem; max-width: 24rem; } .ds-field label { font-family: var(--typed, 'Courier Prime', monospace); font-size: 0.6875rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(28,33,29,0.64); } .ds-field input { width: 100%; padding: 0.6875rem 0.75rem; font-family: var(--typed, 'Courier Prime', monospace); font-size: 1rem; line-height: 1.5; color: #1c211d; background: rgba(28,33,29,0.04); border: 0; border-bottom: 1px solid rgba(28,33,29,0.34); border-radius: var(--r-paper, 0px); transition: background 260ms ease, border-color 260ms ease; } .ds-field input::placeholder { color: rgba(28,33,29,0.64); } .ds-field input:focus-visible { background: rgba(28,33,29,0.06); border-bottom-color: var(--living-ink, #0a5c34); outline: 2px solid var(--living, #1fa363); outline-offset: 3px; } .ds-hint { margin: 0; font-family: var(--set, 'Outfit', sans-serif); font-size: 0.8125rem; line-height: 1.5; color: rgba(28,33,29,0.64); }"
+    },
+    {
+      "name": "Panel",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "The data surface's one container. A chart genuinely earns an enclosure — it is a self-contained reading and needs its own ground to separate the plot from the page. It earns exactly one. The note is set beneath the plot, never hidden behind a flip.",
+      "html": "<section class=\"ds-panel\"><header class=\"ds-panel-head\"><div><h3 class=\"ds-panel-title\">By sector</h3><p class=\"ds-panel-meta\">% of annual CO₂e · 2024</p></div></header><div class=\"ds-panel-body\"><div class=\"ds-legend\"><span class=\"ds-legend-item\"><span class=\"ds-dot\" style=\"background:#0d5f59\"></span>Power 39.1%</span><span class=\"ds-legend-item\"><span class=\"ds-dot\" style=\"background:rgba(20,32,31,0.32)\"></span>Industry 24.3%</span></div></div><p class=\"ds-panel-note\">Power is the largest single source at 39.1% of the 39.6 Gt total.</p></section>",
+      "css": ".ds-panel { display: flex; flex-direction: column; gap: 1rem; padding: clamp(1.125rem, 2.4vw, 1.625rem); background: #ffffff; border: 1px solid #dbe4e6; border-radius: var(--r-paper, 0px); } .ds-panel-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 0.75rem 1rem; } .ds-panel-title { margin: 0 0 0.25rem; font-family: var(--stamped, 'Archivo Narrow', sans-serif); font-size: 1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #14201f; } .ds-panel-meta { margin: 0; font-family: var(--typed, 'Courier Prime', monospace); font-size: 0.6875rem; letter-spacing: 0.06em; color: rgba(20,32,31,0.64); } .ds-legend { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; } .ds-legend-item { display: flex; align-items: center; gap: 0.375rem; font-family: var(--typed, 'Courier Prime', monospace); font-size: 0.6875rem; letter-spacing: 0.04em; color: rgba(20,32,31,0.75); } .ds-dot { flex-shrink: 0; width: 8px; height: 8px; } .ds-panel-note { max-width: 72ch; margin: 0; padding-top: 0.875rem; font-family: var(--set, 'Outfit', sans-serif); font-size: 0.875rem; line-height: 1.6; color: rgba(20,32,31,0.75); border-top: 1px solid rgba(20,32,31,0.13); }"
+    },
+    {
+      "name": "Toggle group",
+      "kind": "chip",
+      "refersTo": "toggle",
+      "description": "A segmented control on a data panel. Rounded because it is a control, filled only on the selected member, and it carries aria-pressed so the state is not colour alone.",
+      "html": "<div class=\"ds-toggle-group\" role=\"group\" aria-label=\"Emitter unit\"><button class=\"ds-toggle ds-toggle-active\" type=\"button\" aria-pressed=\"true\">Total</button><button class=\"ds-toggle\" type=\"button\" aria-pressed=\"false\">Per capita</button></div>",
+      "css": ".ds-toggle-group { display: inline-flex; border: 1px solid #dbe4e6; border-radius: var(--r-pill, 999px); overflow: hidden; } .ds-toggle { padding: 0.375rem 0.875rem; font-family: var(--stamped, 'Archivo Narrow', sans-serif); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(20,32,31,0.75); background: transparent; border: 0; border-radius: var(--r-pill, 999px); cursor: pointer; transition: color 200ms ease, background 200ms ease; } .ds-toggle:hover { color: #14201f; background: rgba(13,95,89,0.1); } .ds-toggle-active, .ds-toggle-active:hover { color: #ffffff; background: #0d5f59; } .ds-toggle:focus-visible { outline: 2px solid var(--living, #1fa363); outline-offset: 3px; }"
+    },
+    {
+      "name": "Typed determination",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "The narrative voice. The site's statements are determinations — what the record concludes — so they are typed, one line per line, and the line the passage turns on is underscored the way a typist marks a determination.",
+      "html": "<p class=\"ds-typed\"><span>Every light you switch on has a story behind it.</span><br><span class=\"ds-determined\">Most of that story is still on fire.</span></p>",
+      "css": ".ds-typed { margin: 0; max-width: 46ch; font-family: var(--typed, 'Courier Prime', monospace); font-size: clamp(1rem, 1.9vw, 1.25rem); font-weight: 400; line-height: 1.5; letter-spacing: -0.01em; color: #14201f; text-wrap: pretty; } .ds-determined { font-weight: 700; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 5px; text-decoration-color: #0f766e; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Warming Vault",
+    "overview": "The room is a seed vault at −18 °C holding pressed specimens of the fossil century. The site is not a set of pages decorated in that idea — it is one physical event happening to that room: the vault warms and opens. A visitor descends into the industrial past, crosses through a mid-tone thaw, and comes out into working daylight, and the interface performs that passage rather than illustrating it.\n\nThat is why the interior's colour is a ladder of eight stops and not eight hand-painted palettes. Each stop binds the same set of semantic tokens to a different set of values, a section declares where it stands (data-chapter=\"soot\"), and everything inside it re-inks. Moving a section along the arc is a one-word edit and no component ever names a literal colour. The last stop is deliberately the paper interior this project already had, unchanged: the arc does not discard the incumbent system, it arrives at it.\n\nThe register is archival and unglamorous. Statements are typed determinations, not marketing claims; headings are cut like rubber stamps; figures carry their provenance because a figure without a source is not a figure. Density climbs as the reader descends — an opening screen is one sentence, and by the third chapter the page is running live World Bank data. Confirmed anti-reference: a dark full-screen overlay with a blurred backdrop, a centred message and one primary button.",
+    "keyCharacteristics": [
+      "Colour is a mechanism (eight named stops), never a per-page choice.",
+      "Paper objects are square and cast real shadows; only controls are round.",
+      "Three type roles, each with exactly one job, and none of them borrowed.",
+      "Grouping is a rule, a column head and space — not a container.",
+      "Every accent is declared twice: lit on the ground, and as ink on paper.",
+      "Motion settles. Nothing bounces, nothing overshoots."
+    ],
+    "rules": [
+      { "name": "The Two Inks Rule", "body": "Every accent is declared twice — --accent, correct lit on that stop's ground, and --accent-ink, the same hue as ink on that stop's paper object. A lit thing in the dark and ink on paper are not the same colour, and one value always fails contrast on one of the two grounds. Measure against the ground the value actually lands on, never against the token.", "section": "colors" },
+      { "name": "The Crossing Rule", "body": "thaw is a mid-tone by design and carries no small text. Nothing on a thaw ground may be below display scale, or set anywhere but on an object that brings its own ground. A mid-tone cannot hold 4.5:1 against any ink.", "section": "colors" },
+      { "name": "The Living Reserve Rule", "body": "Living green is not an accent and not a brand fill. If a surface has spent it twice, one of the two is decoration — find it and take it back.", "section": "colors" },
+      { "name": "The Never Parchment Rule", "body": "The vault sheet is never cream, ivory, parchment or lamplight. Parchment is the default this world was chosen against; warming it is an execution failure, not a variation.", "section": "colors" },
+      { "name": "The No Borrowed Palette Rule", "body": "Three worlds — cinematic, paper interior, vault — and no colour crosses between them. The ladder is the one sanctioned passage: it travels from the vault's stops into the paper interior's, in order, and its last rung is the paper world's tokens. Anything else that mixes two worlds is a mistake.", "section": "colors" },
+      { "name": "The Six Word Rule", "body": "A condensed gothic in caps stops being readable somewhere around six words. Stamped roles take short strings only; if the string will not fit in six words, it is prose and belongs in Outfit.", "section": "typography" },
+      { "name": "The Instrument Is Not An Eyebrow Rule", "body": "Courier Prime small caps are never a label sitting above a heading. They are instrumentation — a fact the reader can act on. A heading carries its own weight; an eyebrow above it is a ban, not a preference.", "section": "typography" },
+      { "name": "The One Prose Face Rule", "body": "Only Outfit runs long. Courier Prime past three lines is a wall, and Archivo Narrow past six words is a texture.", "section": "typography" },
+      { "name": "The Half Above, Half Below Rule", "body": "A chapter crossing is painted on both sides of the boundary, each side dissolving toward the colour the two stops share. A one-sided blend puts the whole change on one side of a line, and the line stays visible as a band. Depth is 21vh on desktop, 13vh on a phone.", "section": "layout" },
+      { "name": "The Scroll, Don't Shrink Rule", "body": "Wide content — a chart, a table, a diagram — holds a legible minimum width and scrolls inside its own overflow-x container. SVG text scales with the viewBox, so a 600-unit chart fitted to a phone renders its labels at about 4.6 real pixels. Check renderedWidth / viewBoxWidth, not the desktop.", "section": "layout" },
+      { "name": "The Offset Rule", "body": "Every shadow carries an offset and a blur. A zero-offset coloured halo is decoration, not depth, and does not ship.", "section": "elevation" },
+      { "name": "The Masked Lift Rule", "body": "A chapter's light layer is a child painting an opaque --ground-deep, so unmasked it paints over its own section background and puts the hard seam back into the crossing. It is masked clear of both edges. Keep it that way.", "section": "elevation" },
+      { "name": "The Square Paper Rule", "body": "If it holds content, it is square. If you click it, it is round. There is no third case, and a rounded panel is the tell that a card crept back in.", "section": "shapes" },
+      { "name": "The Held Edge Rule", "body": "The 2px coloured left rule is a named physical device, not an accent stripe: it is the margin a sheet was held on in a filing run (the drawer, the sheet's own ::before) or the rule a determination is written against (the slip). It appears only on those three, it is always the stop's --accent-ink or --rule, and it never widens. A coloured left border on a generic callout, alert or card is the single most recognisable tell of a generated interface — this system reads as the opposite only because the device is specific and rationed. Adding a fourth use is how it stops being a filed edge and becomes a stripe.", "section": "shapes" }
+    ],
+    "dos": [
+      "Do declare a section's position on the ladder and let it re-ink. data-chapter=\"soot\" is the entire mechanism.",
+      "Do pick ink from the ground it actually lands on, measured on the composited stack. On the landing dawn the background travels near-black → olive → cream, so the ink walks cool white → warm white → lit white → warm dark.",
+      "Do give every accent two values, one lit and one as ink, and put the measured ratio in the comment.",
+      "Do group with a typed column head, a hairline and space. A container has to earn its edge by being independent or clickable.",
+      "Do enter on mount (<Settle onMount>) for anything in the first viewport. The scroll observer's band stops short of the fold, so content low in the opening screen never intersects and sits invisible.",
+      "Do resolve motion to its end state under prefers-reduced-motion rather than withholding the content. The record is the point; the choreography is not.",
+      "Do derive any figure that appears in prose from the same value its chart renders. A hardcoded number beside a live one is a contradiction waiting for the next data refresh.",
+      "Do animate transform and opacity, and reach past them with mask, clip-path and blur when they stay smooth."
+    ],
+    "donts": [
+      "Don't put a container inside a container. Nested cards are the habit this system was built to remove, and --shell / --inner-lip are inert precisely so old code collapses to one enclosure without edits.",
+      "Don't let a rounded corner into a paper object, or a square corner onto a control.",
+      "Don't put a kicker or eyebrow above a heading.",
+      "Don't set small text on thaw, or anywhere on a mid-tone ground that carries no object.",
+      "Don't render the vault warm — no cream, parchment, ivory or lamplight.",
+      "Don't use gradient-clipped text. It has no standard fallback and renders the headline invisible where the -webkit pair is ignored. Emphasis comes from weight and scale.",
+      "Don't use bounce or elastic easing anywhere. Exponential ease-out from an already-visible default.",
+      "Don't transition width, height or any other layout property to animate a chart. Scale from the leading edge, or do not animate it.",
+      "Don't hide content behind a flip, a reveal or a hover. It is unreachable by find-in-page, by print and by a screen reader, and on a chart it hides the very thing being explained.",
+      "Don't reintroduce fixed navigation over the cinematic. The only way onward is the surface's own answer.",
+      "Don't reach for --accent-ink to mean error. On every light stop it resolves to a green, which is what the rest of the site means \"alive\" by. Negative states declare their own ink."
+    ]
+  }
+}

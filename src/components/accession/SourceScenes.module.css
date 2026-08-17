@@ -1,0 +1,271 @@
+/* ==========================================================================
+   MECHANISM SCENES — five drawings of how a thing actually works.
+
+   Drafting marks, not illustration: hairline strokes at the same weight as
+   icons.tsx, flat fields, no gradients inside the drawing. Every colour comes
+   from the chapter the scene is standing in, so a scene re-inks with the
+   ladder and none of these rules names a literal hue.
+
+   Each source gets ONE native motion — the thing it does in life — rather
+   than a house animation applied five times. Solar is light. Wind is
+   rotation. Hydro is flow. Biomass is a cycle. Geothermal is rising heat.
+
+   All motion is transform/opacity only, and all of it stops under reduced
+   motion, where every scene resolves to a legible still.
+   ========================================================================== */
+
+.scene {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* Clipped to its own frame. Wind's clouds travel from -90 to 430 across a
+     400-unit viewBox — that is what makes them cross the sky rather than
+     bob — and with overflow visible they sailed straight out of the drawing
+     and over the reading column beside it. */
+  overflow: hidden;
+}
+
+/* Shared drawing weights. */
+.rule {
+  fill: none;
+  stroke: var(--ink-soft);
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.hair {
+  fill: none;
+  stroke: var(--ink-faint);
+  stroke-width: 0.75;
+  stroke-linecap: round;
+}
+
+.field {
+  fill: color-mix(in srgb, var(--ink) 10%, transparent);
+  stroke: none;
+}
+
+.accentLine {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+
+.accentField {
+  fill: var(--accent);
+  stroke: none;
+}
+
+.live {
+  fill: var(--living);
+  stroke: none;
+}
+
+.liveLine {
+  fill: none;
+  stroke: var(--living);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+
+/* ---- Solar: light. The rays lengthen and brighten in a slow breath, and
+       the current runs down the cable from the panel. ---- */
+.sunRays {
+  transform-origin: 300px 74px;
+  animation: raysBreathe 6s ease-in-out infinite;
+}
+
+@keyframes raysBreathe {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.94) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.04) rotate(7deg);
+  }
+}
+
+/* A dash travelling the cable IS the current. Drawn as a dash pattern in
+   motion rather than a moving dot, because the charge is continuous. */
+.current {
+  stroke-dasharray: 5 11;
+  animation: currentRun 1.9s linear infinite;
+}
+
+@keyframes currentRun {
+  to {
+    stroke-dashoffset: -32;
+  }
+}
+
+/* ---- Wind: rotation. One continuous turn, plus air actually moving across
+       the frame — the contrast the brief asks for against the still,
+       smog-bound world of the opening chapters. ---- */
+.rotor {
+  transform-origin: 150px 96px;
+  animation: rotorSpin 7s linear infinite;
+}
+
+@keyframes rotorSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.cloud {
+  animation: drift 26s linear infinite;
+}
+
+.cloudSlow {
+  animation: drift 40s linear infinite;
+  animation-delay: -12s;
+}
+
+@keyframes drift {
+  from {
+    transform: translateX(-90px);
+  }
+  to {
+    transform: translateX(430px);
+  }
+}
+
+.grass {
+  transform-origin: bottom center;
+  animation: sway 4.5s ease-in-out infinite;
+}
+
+.grass:nth-of-type(even) {
+  animation-duration: 5.6s;
+  animation-delay: -1.4s;
+}
+
+@keyframes sway {
+  0%,
+  100% {
+    transform: skewX(0deg);
+  }
+  50% {
+    transform: skewX(7deg);
+  }
+}
+
+/* ---- Hydro: flow. The falling column and the river below both run. ---- */
+.fall {
+  stroke-dasharray: 9 7;
+  animation: currentRun 1.1s linear infinite;
+}
+
+.wheel {
+  transform-origin: 236px 214px;
+  animation: rotorSpin 5s linear infinite;
+}
+
+.wave {
+  animation: waveShift 5s ease-in-out infinite;
+}
+
+.wave:nth-of-type(even) {
+  animation-delay: -2.5s;
+}
+
+@keyframes waveShift {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(11px);
+  }
+}
+
+/* ---- Biomass: a closed cycle. The ring is the argument — the carbon that
+       comes out went in this decade, not 300 million years ago. ---- */
+.cycle {
+  stroke-dasharray: 6 8;
+  animation: currentRun 3.4s linear infinite;
+}
+
+.leaf {
+  transform-origin: 96px 232px;
+  animation: sway 6s ease-in-out infinite;
+}
+
+/* ---- Geothermal: rising heat. ---- */
+.steam {
+  animation: rise 5.5s ease-in-out infinite;
+}
+
+.steam:nth-of-type(2) {
+  animation-delay: -1.8s;
+}
+
+.steam:nth-of-type(3) {
+  animation-delay: -3.6s;
+}
+
+@keyframes rise {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.9);
+  }
+  35% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-40px) scale(1.25);
+  }
+}
+
+.heat {
+  animation: heatPulse 4.5s ease-in-out infinite;
+}
+
+@keyframes heatPulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.75;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Reduced motion. Every scene resolves to a legible still — the drawing is
+   the point and the movement is the annotation, so nothing is withheld.
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .sunRays,
+  .current,
+  .rotor,
+  .cloud,
+  .cloudSlow,
+  .grass,
+  .fall,
+  .wheel,
+  .wave,
+  .cycle,
+  .leaf,
+  .steam,
+  .heat {
+    animation: none;
+  }
+
+  .sunRays {
+    opacity: 0.85;
+  }
+
+  .steam {
+    opacity: 0.6;
+  }
+
+  .heat {
+    opacity: 0.55;
+  }
+}

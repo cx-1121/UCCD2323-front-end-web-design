@@ -8,98 +8,56 @@
   top: clamp(1rem, 2vw, 2rem);
   left: clamp(1rem, 2vw, 2rem);
   right: clamp(1rem, 2vw, 2rem);
-  display: flex;
-  justify-content: space-between;
+  /* Three tracks with the navigation in the middle one. The outer two are
+     equal fractions, so the nav is centred on the HEADER rather than on the
+     space the wordmark happens to leave — flexbox would have pushed it
+     off-centre by half the wordmark's width. */
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
+  gap: 1rem;
   z-index: 100;
   pointer-events: none;
+  transition: transform 420ms var(--ease-glide), opacity 420ms var(--ease-glide);
 }
 
-.logo {
-  display: flex;
-  align-items: center;
-  gap: clamp(0.3rem, 1vw, 0.5rem);
-  pointer-events: auto;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-  position: relative;
-  background: none;
-  border: none;
-  font: inherit;
-  color: inherit;
+/* Parked. Travels up by its own height plus the inset above it, so nothing
+   of it is left peeking over the content it was overlapping. */
+.hudHidden {
+  transform: translateY(calc(-100% - clamp(1rem, 2vw, 2rem)));
+  opacity: 0;
 }
 
-.logo:hover {
-  transform: scale(1.03);
-}
-
-/* Static variant: the mark sits inline with a permanently visible nav — no
-   wordmark, no "tap to navigate" hint, no click affordance. */
-.logoStatic {
-  display: flex;
-  align-items: center;
-  gap: clamp(0.75rem, 2vw, 1.25rem);
-  pointer-events: auto;
-  position: relative;
-}
-
-.logo svg,
-.logoStatic svg {
-  width: clamp(20px, 4vw, 28px);
-  height: clamp(20px, 4vw, 28px);
-  fill: var(--hud-mark, #10b981);
-  filter: var(--hud-mark-glow, drop-shadow(0 0 8px rgba(16, 185, 129, 0.6)));
-  transform-origin: center;
-}
-
-.logoTextGroup {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  will-change: transform, opacity;
-}
-
-.logoText {
-  font-size: clamp(0.9rem, 2.2vw, 1.3rem);
-  font-weight: 800;
-  letter-spacing: 2px;
-  color: var(--hud-ink-strong, #fff);
-  line-height: 1.1;
-}
-
-.logoSubtext {
-  font-size: 0.52rem;
-  font-family: 'Outfit', sans-serif;
-  font-weight: 400;
-  color: var(--hud-ink-muted, rgba(255, 255, 255, 0.35));
-  letter-spacing: 1.5px;
+/* The wordmark is the mark. The triangle that used to sit beside it was a
+   second identity for the same thing, in a header that has room for one. */
+.wordmark {
+  justify-self: start;
+  font-family: 'Archivo Narrow', 'Arial Narrow', sans-serif;
+  font-size: clamp(0.9rem, 2.2vw, 1.15rem);
+  font-weight: 700;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  margin-top: 1px;
-  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  /* The same ink token the links read, so a page themes the whole header by
+     setting one value. The fallback is the dark-surface default. */
+  color: var(--hud-ink-static, #fff);
+  pointer-events: auto;
+  transition: color 0.25s ease;
 }
 
-.logoLine {
-  position: absolute;
-  left: clamp(28px, 5vw, 36px);
-  top: 50%;
-  transform: translateY(-50%);
-  height: 1px;
-  width: 0;
-  background: linear-gradient(90deg, #10b981, rgba(16, 185, 129, 0));
-  box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
-  pointer-events: none;
-  will-change: width;
+.wordmark:hover {
+  color: var(--hud-hover, #10b981);
 }
 
-.globalNav {
-  position: absolute;
-  left: clamp(38px, 6vw, 46px);
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  gap: clamp(1rem, 2vw, 1.5rem);
-  pointer-events: none;
+.wordmark:focus-visible {
+  outline: 2px solid var(--hud-hover, #10b981);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.railEnd {
+  justify-self: end;
 }
 
 .navItem {
@@ -111,29 +69,60 @@
   text-decoration: none;
   text-transform: uppercase;
   letter-spacing: 1px;
-  opacity: 0;
-  transform: translateX(-15px);
-  /* Independent scale property to avoid conflicts with GSAP inline transform (M2) */
-  transition: scale 0.25s ease, color 0.25s ease, text-shadow 0.25s ease;
+  /* No hidden start state and no `will-change`: the links used to begin at
+     opacity 0, shifted left, waiting for a GSAP reveal that no longer exists.
+     They are simply on screen. */
+  transition:
+    scale 0.25s ease,
+    color 0.25s ease,
+    text-shadow 0.25s ease;
   scale: 1;
   white-space: nowrap;
-  will-change: transform, opacity, scale;
 }
 
-/* Declared after .navItem so it wins the equal-specificity tie and lands the
-   links in their resolved state without waiting on the GSAP reveal. */
-.navItemVisible {
-  opacity: 1;
-  transform: none;
-}
-
-/* In-flow sibling of the mark, unlike .globalNav which is absolutely
-   positioned so it can slide out from underneath the wordmark. */
 .staticNav {
+  grid-column: 2;
+  justify-self: center;
   display: flex;
   align-items: center;
   gap: clamp(1rem, 2vw, 1.5rem);
   pointer-events: auto;
+}
+
+/* Narrow: the wordmark stands down and the navigation keeps the centre.
+   Five labels plus a wordmark do not fit across a phone, and a centred nav
+   that overflows its own header is worse than one without a wordmark beside
+   it — the mark is still on the page, in the hero and the footer. */
+@media (max-width: 47.99rem) {
+  .hudHeader {
+    grid-template-columns: 1fr;
+  }
+
+  .wordmark,
+  .railEnd {
+    display: none;
+  }
+
+  .staticNav {
+    grid-column: 1;
+    /* Five labels have to survive a 360px screen. The gap and the tracking
+       come in first, because shrinking type is the last thing to spend on a
+       row that is already at its floor — and the row must not be allowed to
+       run past the header, which silently clipped the final link. */
+    gap: 0.375rem clamp(0.4rem, 2.2vw, 1rem);
+    max-width: 100%;
+    /* The guarantee. Tightening alone is a bet on how wide five words render
+       in whatever font actually loads; wrapping means the row can never run
+       past the header and clip the last link, whatever the width or the face.
+       On any phone from 360px up it still resolves to a single row. */
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .staticNav .navItem {
+    font-size: clamp(0.62rem, 2.4vw, 0.75rem);
+    letter-spacing: 0.3px;
+  }
 }
 
 /* Permanently on screen rather than a transient reveal, so it needs a higher

@@ -1,7 +1,19 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { Link } from 'react-router-dom';
 import HudHeader from '../../components/HudHeader/HudHeader';
+import {
+  Action,
+  Bench,
+  Chapter,
+  Instrument,
+  Prose,
+  Settle,
+  Sheet,
+  SheetHead,
+  Stamped,
+  Typed,
+} from '../../components/accession/Accession';
+import { useSettle } from '../../components/accession/useSettle';
 import {
   ArrowGlyph,
   ExternalGlyph,
@@ -11,23 +23,46 @@ import {
 } from '../../components/icons';
 import {
   channels,
+  contactAddress,
   location as clubLocation,
   supportRoutes,
 } from '../../data/ClubInfo';
 import { useBodyBackground } from '../../hooks/useBodyBackground';
-import { useHideOnScroll } from '../../hooks/useHideOnScroll';
-import { useReveal } from '../../hooks/useReveal';
+import { useCurrentChapter } from '../../hooks/useCurrentChapter';
 import styles from './ContactPage.module.css';
 
-const CONTACT_ADDRESS = channels.find((channel) => channel.id === 'email')?.value ?? '';
-
+/**
+ * CONTACT — the accession form.
+ *
+ * The one interior surface whose primary content is a control, which decides
+ * everything about how it is composed. A message to the club is a record being
+ * opened, so the form is the page's single paper object: it sits on a sheet,
+ * its fields are ruled lines you write on, and it is typed rather than set,
+ * because a filled-in form is instrumentation.
+ *
+ * Nothing else here is boxed. The channels, the room and the three ways of
+ * supporting the club are ruled runs of links — the same composition the
+ * bibliography on /about uses, so the two pages read as one register.
+ *
+ * The old page stated the same hierarchy three times over: a contactShell
+ * holding a contactCore holding the form, three support cards sized 'wide' /
+ * 'mid' / 'narrow' by a bento grid, and channel rows drawn with an arrow
+ * glyph but no anchor under them — every one of those rows carried a URL in
+ * the data and none of them was clickable. They are links now.
+ */
 function ContactPage() {
-  const pageRef = useReveal<HTMLElement>(styles.revealed);
-  const navHidden = useHideOnScroll(140);
+  const pageRef = useSettle<HTMLElement>();
+  const navStop = useCurrentChapter();
   const [formError, setFormError] = useState<string | null>(null);
 
-  useBodyBackground('#f7f8fa');
+  useBodyBackground('#e9dfd0');
 
+  /**
+   * There is no backend to post to, so the form hands the composed message to
+   * the reader's own mail client. Validated here rather than left to the
+   * browser because `noValidate` is deliberate: a native bubble is styled by
+   * the OS and would be the one element on this page that belongs to no world.
+   */
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = event.currentTarget;
@@ -48,49 +83,74 @@ function ContactPage() {
     setFormError(null);
     const subject = encodeURIComponent(`Green Tech Club enquiry from ${name}`);
     const body = encodeURIComponent(`${message}\n\n---\nFrom: ${name}\nReply to: ${email}`);
-    window.location.href = `mailto:${CONTACT_ADDRESS}?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:${contactAddress}?subject=${subject}&body=${body}`;
   };
 
   return (
-    <main ref={pageRef} className={styles.page}>
-      <div className={styles.dawn} aria-hidden="true">
-        <span className={styles.bloom} />
-      </div>
-      <div className={styles.grain} aria-hidden="true" />
+    <main ref={pageRef} className={styles.page} data-nav-stop={navStop ?? undefined}>
+      <HudHeader />
 
-      <div
-        className={navHidden ? `${styles.headerBar} ${styles.headerBarHidden}` : styles.headerBar}
-        data-hidden={navHidden || undefined}
+      {/* ==================================================================
+          I. THE MASTHEAD.
+          ================================================================== */}
+      <Chapter stop="firstlight" opening aria-label="Contact the club" className={styles.open}>
+        <Bench className={styles.openStack}>
+          {/* Mount entrances: the reveal band stops short of the fold, and the
+              action at the bottom of an opening screen never intersects it. */}
+          <Settle index={1} onMount>
+            <Instrument ruled>Green Tech Club · Accessions desk</Instrument>
+            <Stamped as="h1" scale="display" className={styles.title}>
+              Open a record
+            </Stamped>
+          </Settle>
+
+          <Settle index={2} onMount>
+            <Typed
+              lines={[
+                'Joining, collaborating, or just arguing with a number on this site.',
+                ['All three arrive at the same desk.', true],
+              ]}
+            />
+          </Settle>
+
+          <Settle index={3} onMount className={styles.openProse}>
+            <Prose>
+              There is no form-handling service behind this page and no list you will be
+              added to. The form below composes a message and hands it to your own mail
+              client — you send it, and you can read exactly what you sent.
+            </Prose>
+          </Settle>
+
+          <Settle index={4} onMount className={styles.openActions}>
+            <Action to="/about" ghost>
+              Who you are writing to
+            </Action>
+          </Settle>
+        </Bench>
+      </Chapter>
+
+      {/* ==================================================================
+          II. THE DESK. The form is the page's one paper object; the ways to
+          reach the club without it are a ruled run beside it.
+          ================================================================== */}
+      <Chapter
+        stop="daylight"
+        from="firstlight"
+        to="sky"
+        aria-labelledby="reach-heading"
       >
-        <HudHeader variant="static" />
-      </div>
+        <Bench className={styles.stack}>
+          <Settle index={1} className={styles.sectionHead}>
+            <Stamped as="h2" id="reach-heading" scale="section">
+              Reach us
+            </Stamped>
+            <Instrument>Replies come from the address below</Instrument>
+          </Settle>
 
-      <div className={styles.container}>
-        {/* ---- Masthead ---- */}
-        <header className={styles.hero}>
-          <h1 className={styles.heroTitle} data-reveal data-reveal-index="1">
-            Let&rsquo;s build
-            <span className={styles.heroAccent}> together.</span>
-          </h1>
-          <p className={styles.heroLede} data-reveal data-reveal-index="2">
-            Whether you want to join the club, propose a collaboration, or just ask a question
-            about renewable energy — we would love to hear from you.
-          </p>
-          <div className={styles.heroActions} data-reveal data-reveal-index="3">
-            <Link to="/about" className={styles.ctaGhost}>
-              <span className={styles.ctaLabel}>About the club</span>
-            </Link>
-          </div>
-        </header>
+          <Settle index={2} className={styles.desk}>
+            <Sheet className={styles.formSheet}>
+              <SheetHead of="Enquiry" no="FORM·01" />
 
-        {/* ---- Contact: form and channels ---- */}
-        <section className={styles.section} aria-labelledby="contact-heading">
-          <h2 id="contact-heading" className={styles.sectionTitle} data-reveal data-reveal-index="0">
-            Reach us
-          </h2>
-
-          <div className={styles.contactShell} data-reveal data-reveal-index="1">
-            <div className={styles.contactCore}>
               <form className={styles.form} onSubmit={handleSubmit} noValidate>
                 <div className={styles.field}>
                   <label htmlFor="contact-name">Name</label>
@@ -99,39 +159,53 @@ function ContactPage() {
 
                 <div className={styles.field}>
                   <label htmlFor="contact-email">Email</label>
-                  <input id="contact-email" name="email" type="email" autoComplete="email" required />
+                  <input
+                    id="contact-email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                  />
                   <p className={styles.hint}>We reply to this address, nowhere else.</p>
                 </div>
 
                 <div className={styles.field}>
                   <label htmlFor="contact-message">Message</label>
-                  <textarea id="contact-message" name="message" rows={5} required />
+                  <textarea id="contact-message" name="message" rows={6} required />
                 </div>
 
+                {/* The state is not carried by colour alone: the rule beside it
+                    and the typed marker read without hue. */}
                 {formError && (
                   <p className={styles.error} role="alert">
+                    <span aria-hidden="true">✕</span>
                     {formError}
                   </p>
                 )}
 
-                <button type="submit" className={styles.cta}>
-                  <span className={styles.ctaLabel}>Send message</span>
-                  <span className={styles.ctaIcon} aria-hidden="true">
-                    <ArrowGlyph />
-                  </span>
-                </button>
-
-                <p className={styles.formNote}>
-                  This opens your mail app with the message ready to send.
-                </p>
+                <div className={styles.formFoot}>
+                  <Action submit>Compose the message</Action>
+                  {/* A hint, not a reading: it says what the control will do
+                      next, which is not what `Instrument` is for. */}
+                  <p className={styles.formNote}>Opens your mail app, ready to send.</p>
+                </div>
               </form>
+            </Sheet>
 
-              <aside className={styles.channels}>
-                <span className={styles.plateKicker}>Direct</span>
-                <ul className={styles.channelList}>
+            <div className={styles.direct}>
+              <section className={styles.directBlock}>
+                <Instrument ruled>Direct</Instrument>
+                <ul className={styles.channels}>
                   {channels.map((channel) => (
                     <li key={channel.id}>
-                      <div className={styles.channel}>
+                      {/* Every one of these carried an href in the data and
+                          rendered as an inert row with an arrow beside it. */}
+                      <a
+                        className={styles.channel}
+                        href={channel.href}
+                        target={channel.external ? '_blank' : undefined}
+                        rel={channel.external ? 'noreferrer' : undefined}
+                      >
                         <span className={styles.channelGlyph} aria-hidden="true">
                           {channel.id === 'email' ? <MailGlyph /> : <OrbitGlyph />}
                         </span>
@@ -139,63 +213,103 @@ function ContactPage() {
                           <span className={styles.channelLabel}>{channel.label}</span>
                           <span className={styles.channelValue}>{channel.value}</span>
                         </span>
-                        <span className={styles.channelArrow} aria-hidden="true">
+                        <span className={styles.channelPull} aria-hidden="true">
                           {channel.external ? <ExternalGlyph /> : <ArrowGlyph />}
                         </span>
-                      </div>
+                      </a>
                     </li>
                   ))}
                 </ul>
+              </section>
 
-                <div className={styles.locationBlock}>
-                  <span className={styles.channelGlyph} aria-hidden="true">
+              <section className={styles.directBlock}>
+                <Instrument ruled>In person</Instrument>
+                <p className={styles.room}>
+                  <span className={styles.roomGlyph} aria-hidden="true">
                     <PinGlyph />
                   </span>
-                  <p className={styles.locationRoom}>{clubLocation.room}</p>
-                  <p className={styles.locationCampus}>{clubLocation.campus}</p>
-                  <p className={styles.locationHours}>{clubLocation.hours}</p>
-                </div>
-              </aside>
-            </div>
-          </div>
-        </section>
-
-        {/* ---- Support: three cards ---- */}
-        <section className={styles.section} aria-labelledby="support-heading">
-          <div className={styles.sectionHead} data-reveal data-reveal-index="0">
-            <h2 id="support-heading" className={styles.sectionTitle}>
-              How to support us
-            </h2>
-            <span className={styles.sectionMeta}>
-              <OrbitGlyph />
-              Three ways to help
-            </span>
-          </div>
-
-          <div className={styles.support} data-reveal data-reveal-index="1">
-            {supportRoutes.map((route) => (
-              <article
-                key={route.title}
-                className={`${styles.supportCard} ${styles[route.span]}`}
-              >
-                <h3 className={styles.supportTitle}>{route.title}</h3>
-                <p className={styles.supportBody}>{route.body}</p>
-                <a href={`mailto:${CONTACT_ADDRESS}`} className={styles.supportAction}>
-                  <span>{route.action}</span>
-                  <span className={styles.supportArrow} aria-hidden="true">
-                    <ArrowGlyph />
+                  <span className={styles.roomText}>
+                    <span className={styles.roomNo}>{clubLocation.room}</span>
+                    <span className={styles.roomCampus}>{clubLocation.campus}</span>
                   </span>
-                </a>
-              </article>
-            ))}
-          </div>
-        </section>
+                </p>
+                <Instrument>{clubLocation.hours}</Instrument>
+              </section>
+            </div>
+          </Settle>
+        </Bench>
+      </Chapter>
 
-        <footer className={styles.footer} data-reveal data-reveal-index="0">
-          <p>Green Tech Club</p>
-          <p>Built for a grid that outlives us</p>
-        </footer>
-      </div>
+      {/* ==================================================================
+          III. THE THREE ROUTES. Not three cards sized wide / mid / narrow by
+          a grid — a register, each row addressed and pre-filed.
+          ================================================================== */}
+      <Chapter
+        stop="sky"
+        from="daylight"
+        to="living"
+        aria-labelledby="support-heading"
+      >
+        <Bench className={styles.stack}>
+          <Settle index={1} className={styles.sectionHead}>
+            <Stamped as="h2" id="support-heading" scale="section">
+              How to support us
+            </Stamped>
+            <Instrument>Three ways in</Instrument>
+          </Settle>
+
+          <Settle index={2}>
+            <ol className={styles.routes}>
+              {supportRoutes.map((route, position) => (
+                <li key={route.title}>
+                  <a className={styles.route} href={route.href}>
+                    <span className={styles.routeNo}>
+                      {String(position + 1).padStart(2, '0')}
+                    </span>
+                    <span className={styles.routeBody}>
+                      <span className={styles.routeTitle}>{route.title}</span>
+                      <span className={styles.routeText}>{route.body}</span>
+                    </span>
+                    <span className={styles.routeAction}>
+                      {route.action}
+                      <span className={styles.routePull} aria-hidden="true">
+                        <MailGlyph />
+                      </span>
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </Settle>
+
+          <Settle index={3} className={styles.routesNote}>
+            <Prose>
+              Each of these opens your mail client with the subject line already filled
+              in, so a message arrives filed under what it is about rather than in a
+              queue of untitled enquiries.
+            </Prose>
+          </Settle>
+        </Bench>
+      </Chapter>
+
+      {/* ==================================================================
+          IV. THE CLOSE.
+          ================================================================== */}
+      <Chapter stop="living" from="sky" aria-label="Close" className={styles.close}>
+        <Bench>
+          <Settle index={1}>
+            <Typed
+              lines={['We answer everything.', ['Including the awkward questions.', true]]}
+              className={styles.closeStatement}
+            />
+          </Settle>
+
+          <footer className={styles.footer}>
+            <Instrument>Green Tech Club · Herbarium of Energy</Instrument>
+            <Instrument>Built for a grid that outlives us</Instrument>
+          </footer>
+        </Bench>
+      </Chapter>
     </main>
   );
 }

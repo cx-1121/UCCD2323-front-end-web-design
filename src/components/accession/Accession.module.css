@@ -1,0 +1,797 @@
+/* ==========================================================================
+   THE ACCESSION GRAMMAR — the interior's shared vocabulary.
+
+   Everything here is the revisit surface's own construction, generalised so
+   the whole site can be built from it. Not its colours: those come from the
+   ladder (styles/chapters.css) and change under these components as the
+   reader climbs. What travels is the grammar —
+
+     · square paper objects with a cut edge and a physical cast shadow
+     · typed instrument readings, stamped headings
+     · flush filing runs instead of card grids
+     · worked ground texture instead of a gradient wash
+     · one authored motion per surface: things SETTLE, they never bounce
+
+   Nothing in this file names a literal colour except white and black at low
+   alpha, which are light and shadow rather than palette.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Chapter — a stop on the ladder, and the room everything else stands in.
+   -------------------------------------------------------------------------- */
+.chapter {
+  position: relative;
+  isolation: isolate;
+  color: var(--ink);
+  background-color: var(--ground);
+  /* Both edges cross toward the shared middle colour they have in common with
+     the neighbouring stop, so the arc is continuous rather than eight abutting
+     panels and neither side of a boundary carries the whole change. The two
+     bridges are computed in styles/chapters.css from [data-from]/[data-to];
+     with no neighbour declared each resolves to this stop's own ground, and
+     the gradient is a no-op. */
+  background-image:
+    linear-gradient(to bottom, var(--bridge-up) 0, transparent var(--turn-depth)),
+    linear-gradient(to top, var(--bridge-down) 0, transparent var(--turn-depth));
+  padding-block: clamp(4.5rem, 12vh, 9rem);
+}
+
+/* A chapter that opens the page owns the full viewport and has nothing above
+   it to blend out of. */
+.chapterOpening {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100svh;
+  background-image: none;
+}
+
+/* The fall of light across the room. One lit radial and one shadowed one,
+   both placed off-axis, so the room has a light source rather than an even
+   wash.
+
+   Masked clear of both edges. `--ground-deep` is an opaque colour and this
+   element is a CHILD, so it paints over the section's own background — an
+   unmasked shadow anchored at the bottom was overpainting the crossing into
+   the next chapter and putting the hard seam back. The room is modelled in
+   the middle; the edges belong to the crossings. */
+.lift {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 70% at 18% -8%, var(--ground-lift) 0%, transparent 62%),
+    radial-gradient(90% 60% at 88% 108%, var(--ground-deep) 0%, transparent 66%);
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 var(--turn-depth),
+    #000 calc(100% - var(--turn-depth)),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 var(--turn-depth),
+    #000 calc(100% - var(--turn-depth)),
+    transparent 100%
+  );
+}
+
+.grain {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: var(--grain-alpha);
+  mix-blend-mode: overlay;
+  background-image: var(--grain);
+}
+
+/* Measures. `inner` is the reading column; `wide` is the working bench where
+   an editorial split or a filing run lives; `full` breaks the margin for a
+   scene that has to touch both edges. */
+.inner {
+  position: relative;
+  width: min(100% - 2.5rem, 42rem);
+  margin-inline: auto;
+}
+
+.wide {
+  position: relative;
+  width: min(100% - 2.5rem, 72rem);
+  margin-inline: auto;
+}
+
+.full {
+  position: relative;
+  width: 100%;
+}
+
+@media (min-width: 60rem) {
+  .inner,
+  .wide {
+    width: min(100% - 5rem, var(--measure, 72rem));
+  }
+
+  .inner {
+    --measure: 42rem;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Instrument — the typed reading.
+
+   This is NOT an eyebrow, and it is never set above a heading as a label for
+   it. It is instrumentation: a unit, an accession number, a column head, a
+   state, a source credit — a fact the reader can act on, in the voice the
+   vault records facts in.
+   -------------------------------------------------------------------------- */
+.instrument {
+  display: block;
+  margin: 0;
+  font-family: var(--typed);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.instrumentOnObject {
+  color: var(--object-faint);
+}
+
+/* A rule with the reading sitting on it, the way a column head sits on a
+   ledger line. The line stops at the text rather than running under it. */
+.instrumentRuled {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  line-height: 1;
+}
+
+.instrumentRuled::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--rule);
+}
+
+/* --------------------------------------------------------------------------
+   Type roles.
+
+   stamped — Archivo Narrow, rubber-cut caps. Headings and controls. Short
+             strings only: a condensed gothic in caps stops being readable
+             somewhere around six words, so long-form never uses it.
+   typed   — Courier Prime. The narrative voice, because the site's statements
+             are determinations: what the record concludes.
+   set     — Outfit. The only face allowed to run explanatory prose.
+   -------------------------------------------------------------------------- */
+.stamped {
+  margin: 0;
+  font-family: var(--stamped);
+  font-weight: 700;
+  line-height: 0.94;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  color: var(--ink);
+}
+
+/* Display scale. Capped at 6rem: past that a condensed gothic stops reading
+   as lettering and starts reading as a texture. */
+.stampedDisplay {
+  font-size: clamp(2.25rem, 7vw, 6rem);
+  letter-spacing: 0.005em;
+}
+
+.stampedSection {
+  font-size: clamp(1.5rem, 3.4vw, 2.5rem);
+}
+
+.stampedPlate {
+  font-size: clamp(1.0625rem, 1.6vw, 1.25rem);
+  letter-spacing: 0.04em;
+}
+
+.typed {
+  margin: 0;
+  font-family: var(--typed);
+  font-size: clamp(1rem, 1.9vw, 1.25rem);
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+
+/* The line a passage turns on gets the typist's own emphasis: underscored,
+   the way a determination is marked. */
+.typedDetermined {
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+  text-decoration-color: var(--accent);
+}
+
+.set {
+  margin: 0;
+  font-family: var(--set);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.7;
+  color: var(--ink-soft);
+  text-wrap: pretty;
+  /* 65-75ch measure, enforced at the element rather than hoped for. */
+  max-width: 68ch;
+}
+
+.setOnObject {
+  color: var(--object-ink);
+}
+
+/* --------------------------------------------------------------------------
+   Sheet — a paper object in the room.
+
+   Square, cut edge, its own ground, and a long cast shadow onto the floor.
+   `overflow: hidden` is load-bearing: ink stays on paper, and it is the hard
+   guarantee that a rotated stamp can never escape into the viewport.
+   -------------------------------------------------------------------------- */
+.sheet {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(1.125rem, 2.6vw, 1.75rem);
+  color: var(--object-ink);
+  /* Laid paper, not a white rectangle. The repeating hairlines are the chain
+     and laid lines of a mounting sheet held to the light: on a dark ground
+     the cast shadow alone is enough to read as paper, but on a light ground
+     an untextured panel is indistinguishable from a card, which is the
+     container this whole system exists to avoid. */
+  background:
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--object-ink) 3%, transparent) 0 1px,
+      transparent 1px 5px
+    ),
+    linear-gradient(196deg, rgba(255, 255, 255, 0.4) 0%, transparent 34%),
+    var(--object);
+  border: 1px solid var(--object-edge);
+  border-radius: var(--r-paper);
+  box-shadow: var(--object-lip), var(--shadow-object);
+}
+
+/* The filed edge. A sheet in a run is held on its left margin, and the rule
+   is where it was held. */
+.sheet::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 2px;
+  background: color-mix(in srgb, var(--object-ink) 16%, transparent);
+}
+
+/* Lifts toward the pointer the way a mounted sheet does under the light.
+   Driven by a custom property written from a rAF-throttled pointermove, so
+   the whole effect is one compositor-only change and React never re-renders.
+   Fine pointers only — a thumb has no hover. */
+.sheetLive {
+  transform: perspective(1400px) rotateX(var(--lift-x, 0deg)) rotateY(var(--lift-y, 0deg));
+  transition: transform 600ms var(--ease-glide);
+  will-change: transform;
+}
+
+.sheetHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.625rem;
+  margin-bottom: clamp(0.875rem, 2vw, 1.25rem);
+  border-bottom: 1px solid var(--object-edge);
+}
+
+/* --------------------------------------------------------------------------
+   Stamp — the one display moment a sheet is allowed.
+   -------------------------------------------------------------------------- */
+.stamp {
+  display: inline-block;
+  /* Never square to the page. A rubber stamp set upright and level stops
+     reading as an impression and starts reading as a status pill, which is
+     the badge this system refuses. */
+  transform: rotate(-2.5deg);
+  transform-origin: 0 50%;
+  padding: 0.22em 0.5em;
+  font-family: var(--stamped);
+  font-size: clamp(0.9375rem, 2.4vw, 1.5rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+  border: 3px solid var(--accent-ink);
+  border-radius: 2px;
+  opacity: 0.84;
+  /* Rubber never inks evenly: the mask thins the impression unpredictably. */
+  -webkit-mask-image: radial-gradient(120% 140% at 30% 20%, #000 55%, rgba(0, 0, 0, 0.55) 78%, rgba(0, 0, 0, 0.84) 100%);
+  mask-image: radial-gradient(120% 140% at 30% 20%, #000 55%, rgba(0, 0, 0, 0.55) 78%, rgba(0, 0, 0, 0.84) 100%);
+}
+
+/* A pressed stamp takes its whole tilt from the wrapper, which pivots at the
+   right edge; the inner rotation would otherwise compound with it. */
+.stampPressed .stamp {
+  transform: none;
+}
+
+/* Pressed onto a sheet: pivots at its right edge, because rotating about the
+   centre swings the impression out past the card at narrow widths. */
+.stampPressed {
+  position: absolute;
+  top: var(--stamp-top, 12%);
+  right: clamp(0.5rem, 2vw, 1.25rem);
+  z-index: 4;
+  pointer-events: none;
+  transform-origin: 100% 50%;
+  transform: rotate(-8deg);
+  animation: stampPress 420ms var(--ease-press) 480ms both;
+}
+
+.stampLiving {
+  color: var(--living-ink);
+  border-color: var(--living-ink);
+}
+
+/* The rotation is restated inside the keyframes: animating `transform` would
+   otherwise drop the -8deg for the duration of the press. */
+@keyframes stampPress {
+  from {
+    opacity: 0;
+    transform: rotate(-8deg) scale(1.55);
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(-8deg) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Slip — an annotation pasted onto the record. Small, askew, dated.
+   -------------------------------------------------------------------------- */
+.slips {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.slip {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  font-family: var(--typed);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--object-ink);
+  background: var(--object);
+  border: 1px solid var(--object-edge);
+  border-left: 2px solid var(--accent-ink);
+  border-radius: var(--r-paper);
+  box-shadow: 0 10px 22px -18px rgba(0, 0, 0, 0.7);
+  /* Pasted paper is never perfectly square to the sheet. */
+  transform: rotate(-0.5deg);
+}
+
+.slip:nth-child(even) {
+  transform: rotate(0.6deg);
+}
+
+/* A slip INSIDE a sheet is not a pasted object — it is an annotation written
+   on the sheet it belongs to. Keeping its own ground, border, shadow and tilt
+   here would put a card inside a card for no gain in meaning: the accent rule
+   and the typed hand already separate the annotation from the body, and they
+   cost no container. The free-standing slip above keeps all of it, because
+   there it really is a separate piece of paper. */
+.sheet .slip {
+  padding: 0.125rem 0 0.125rem 0.75rem;
+  background: transparent;
+  border: 0;
+  border-left: 2px solid var(--accent-ink);
+  box-shadow: none;
+  transform: none;
+}
+
+.sheet .slip:nth-child(even) {
+  transform: none;
+}
+
+.slipHand {
+  flex: none;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--object-ink);
+}
+
+.slipNote {
+  min-width: 0;
+  color: var(--object-faint);
+}
+
+/* --------------------------------------------------------------------------
+   Drawer — a filing run. This is the interior's answer to the card grid.
+
+   Full-width, flush, stacked with a 2px gap and a left rule, so a list of
+   destinations reads as a cabinet rather than as six equal boxes with icons.
+   Hover pulls the drawer out.
+   -------------------------------------------------------------------------- */
+.drawers {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.drawer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  width: 100%;
+  padding: clamp(0.75rem, 1.6vw, 1.125rem) clamp(0.875rem, 1.6vw, 1.25rem);
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  color: var(--ink);
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
+  border: 0;
+  border-left: 2px solid var(--rule);
+  transition:
+    background 400ms var(--ease-glide),
+    border-color 400ms var(--ease-glide),
+    padding-left 400ms var(--ease-glide);
+}
+
+a.drawer,
+button.drawer {
+  cursor: pointer;
+}
+
+a.drawer:hover,
+button.drawer:hover {
+  padding-left: calc(clamp(0.875rem, 1.6vw, 1.25rem) + 0.5rem);
+  background: color-mix(in srgb, var(--living) 10%, transparent);
+  border-left-color: var(--living);
+}
+
+.drawerNo {
+  flex: none;
+  font-family: var(--typed);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+}
+
+.drawerGlyph {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 1.75rem;
+  height: 1.75rem;
+  color: var(--accent);
+}
+
+.drawerGlyph svg {
+  width: 1.0625rem;
+  height: 1.0625rem;
+}
+
+.drawerText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1875rem;
+  min-width: 0;
+}
+
+.drawerLabel {
+  font-family: var(--stamped);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.drawerDetail {
+  font-family: var(--typed);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--ink-faint);
+  text-wrap: pretty;
+}
+
+.drawerPull {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-left: auto;
+  color: var(--living);
+  opacity: 0;
+  transition:
+    opacity 400ms var(--ease-glide),
+    transform 400ms var(--ease-glide);
+}
+
+.drawerPull svg {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+a.drawer:hover .drawerPull,
+button.drawer:hover .drawerPull {
+  opacity: 1;
+  transform: translate3d(2px, -2px, 0);
+}
+
+/* A record the site does not hold yet stays fully legible — it is a record,
+   not a disabled control. Its subordination is carried by the missing accent
+   and the state label, never by dropping under the contrast floor. */
+.drawerSealed {
+  color: var(--ink-faint);
+  background: transparent;
+  border-left-color: color-mix(in srgb, var(--ink) 8%, transparent);
+}
+
+.drawerSealed .drawerGlyph,
+.drawerSealed .drawerLabel {
+  color: var(--ink-faint);
+}
+
+.drawerState {
+  margin-left: auto;
+  font-family: var(--typed);
+  font-size: 0.625rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   Figure — a reading off the instrument.
+
+   Deliberately not the hero-metric template: the value is set in the typed
+   face at working scale, the unit is part of the reading rather than a label
+   under it, and the note is what the reading MEANS. A figure without a source
+   is not a figure, so `.figureSource` is part of the component.
+   -------------------------------------------------------------------------- */
+.figures {
+  display: grid;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  background: var(--rule);
+  border-block: 1px solid var(--rule);
+}
+
+@media (min-width: 48rem) {
+  .figuresRow {
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+  }
+}
+
+.figure {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4375rem;
+  padding: clamp(1rem, 2.4vw, 1.5rem) clamp(0.875rem, 2vw, 1.25rem);
+  background: var(--ground);
+}
+
+.figureValue {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  font-family: var(--typed);
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.figureUnit {
+  font-size: 0.44em;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+}
+
+.figureNote {
+  margin: 0;
+  font-family: var(--set);
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  text-wrap: pretty;
+}
+
+.figureSource {
+  margin-top: auto;
+  padding-top: 0.5rem;
+  font-family: var(--typed);
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* --------------------------------------------------------------------------
+   Action — the one control.
+
+   ONE surface. This was a tray holding a filled core holding an icon disc:
+   three nested rounded containers, three grounds and two borders, for a
+   single clickable thing. A control is already visually independent by being
+   a control — enclosing it three times states that three times, and it was
+   the same double-bezel habit the card audit removed everywhere else.
+
+   Rounded, because a control belongs to the site rather than to the artifact,
+   which is what keeps it distinct from the square paper objects around it.
+   -------------------------------------------------------------------------- */
+.action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.8125rem 1.375rem;
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  color: var(--ground);
+  background: var(--ink);
+  /* Transparent rather than absent: the ghost variant swaps the colour in, so
+     neither variant reflows by a pixel when the other is beside it. */
+  border: 1px solid transparent;
+  border-radius: var(--r-pill);
+  transition:
+    background 420ms var(--ease-snap),
+    color 420ms var(--ease-snap),
+    border-color 420ms var(--ease-snap),
+    transform 420ms var(--ease-snap);
+}
+
+.action:hover {
+  color: #f4f8f5;
+  background: var(--living-ink);
+}
+
+.action:active {
+  transform: scale(0.98);
+}
+
+.actionLabel {
+  font-family: var(--stamped);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* The glyph, not a disc holding a glyph. */
+.actionIcon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  color: inherit;
+  transition: transform 420ms var(--ease-snap);
+}
+
+.actionIcon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.action:hover .actionIcon {
+  transform: translate3d(3px, -3px, 0);
+}
+
+/* Ghost: the same control, unfilled. For the secondary route out of a
+   section, never for the primary one. */
+.actionGhost {
+  color: var(--ink);
+  background: transparent;
+  border-color: var(--rule);
+}
+
+.actionGhost:hover {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--living) 12%, transparent);
+  border-color: var(--living);
+}
+
+/* --------------------------------------------------------------------------
+   Reveal — the interior's one entrance.
+
+   Everything enters the same way: it settles up out of the ground it belongs
+   to. Exponential ease-out from an already-visible default is impossible for
+   an entrance, so the default here is the RESOLVED state and the offset is
+   applied only once the observer has something to observe — which is why the
+   un-revealed state lives on `[data-reveal]` and is removed, not added.
+   -------------------------------------------------------------------------- */
+.settle[data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 1.5rem, 0);
+  transition:
+    opacity 800ms var(--ease-glide),
+    transform 800ms var(--ease-glide);
+  transition-delay: calc((var(--reveal-index, 0) - 1) * 90ms);
+}
+
+.settled[data-reveal] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Mount entrance, for content in the first viewport.
+
+   A scroll observer cannot be trusted with anything already on screen: the
+   reveal band stops short of the fold, so an element sitting low in the
+   opening viewport — a hero's primary action, for one — never intersects and
+   stays at opacity 0 until the reader scrolls past the thing they were
+   supposed to click. This runs off mount instead, and carries no
+   `data-reveal`, so the observer never sees it. */
+.settleMount {
+  animation: settleIn 800ms var(--ease-glide) both;
+  animation-delay: calc(var(--reveal-index, 0) * 110ms);
+}
+
+@keyframes settleIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 1.5rem, 0);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Reduced motion. The record is the point; the choreography is not. Motion
+   resolves to its end state rather than being withheld.
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .settle[data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .settleMount {
+    animation: none;
+  }
+
+  .stampPressed {
+    animation: none;
+  }
+
+  .sheetLive {
+    transform: none;
+    transition: none;
+  }
+
+  a.drawer:hover,
+  button.drawer:hover {
+    padding-left: clamp(0.875rem, 1.6vw, 1.25rem);
+  }
+}

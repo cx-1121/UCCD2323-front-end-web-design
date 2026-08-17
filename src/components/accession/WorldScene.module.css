@@ -1,0 +1,119 @@
+/* ==========================================================================
+   THE WORLD YOU ARE RAISING — the quiz's living specimen.
+
+   Every value transitions, because the whole point is that a single correct
+   answer visibly moves the world. Nothing here names a colour: the drawing
+   re-inks from the chapter it stands in, and the quiz advances that chapter
+   with the score.
+   ========================================================================== */
+
+.scene {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+}
+
+/* One duration for everything that responds to the score, so the world reads
+   as a single thing changing rather than six parts changing separately. */
+.scene * {
+  transition:
+    opacity 900ms var(--ease-glide),
+    transform 900ms var(--ease-glide),
+    d 900ms var(--ease-glide),
+    stroke 900ms var(--ease-glide),
+    fill 900ms var(--ease-glide);
+}
+
+.rule {
+  fill: none;
+  stroke: var(--ink-soft);
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+
+.hair {
+  fill: none;
+  stroke: var(--ink-faint);
+  stroke-width: 0.75;
+  stroke-linecap: round;
+}
+
+.stem {
+  fill: none;
+  stroke: var(--living);
+  stroke-width: 2;
+}
+
+.leaf {
+  fill: var(--living);
+}
+
+.bud {
+  fill: var(--living);
+  animation: budOpen 700ms var(--ease-snap) both;
+}
+
+@keyframes budOpen {
+  from {
+    opacity: 0;
+    transform: scale(0.2);
+    transform-origin: center;
+  }
+}
+
+.grass {
+  fill: none;
+  stroke: var(--living);
+  stroke-width: 1;
+  stroke-linecap: round;
+}
+
+.live {
+  fill: var(--living);
+}
+
+.sun {
+  fill: var(--accent);
+}
+
+.sunRay {
+  stroke: var(--accent);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+
+/* The stack's smoke drifts while it still has any left to give. */
+.smoke {
+  animation: smokeDrift 7s ease-in-out infinite;
+}
+
+@keyframes smokeDrift {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(5px, -5px);
+  }
+}
+
+.rotor {
+  animation: rotorSpin 6s linear infinite;
+}
+
+@keyframes rotorSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene *,
+  .smoke,
+  .rotor,
+  .bud {
+    transition: none;
+    animation: none;
+  }
+}

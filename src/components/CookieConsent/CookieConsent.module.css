@@ -1,8 +1,14 @@
 /* Cookie consent banner.
-   Uses the site's double-bezel enclosure language (outer shell + inner core)
-   so it reads as part of the interface rather than a bolted-on compliance
-   widget. Docked bottom-centre: bottom-left would collide with the debug
-   console trigger, and a full-width bar would cover the scroll hint. */
+
+   One card, not two. This element floats over the page, so it is a genuine
+   card — it needs its own ground, its own edge and a shadow to sit above the
+   content. The inner `.core` used to be a SECOND card inside it, with another
+   ground, another border, another radius and an inset lip; that was the
+   site's old double-bezel language, and it was framing rather than hierarchy.
+   The shell now carries the enclosure and the core carries only the row.
+
+   Docked bottom-centre: bottom-left would collide with the debug console
+   trigger, and a full-width bar would cover the scroll hint. */
 
 .shell {
   position: fixed;
@@ -12,13 +18,13 @@
   z-index: 9000; /* above page chrome, below the debug console (9999) */
 
   width: min(46rem, calc(100vw - 2rem));
-  padding: 0.5rem;
 
-  background: var(--shell);
+  background: var(--card);
   border: 1px solid var(--hairline);
-  border-radius: var(--r-shell);
+  border-radius: var(--r-card);
+  /* No backdrop-filter: the ground it used to show through is opaque, so the
+     blur was compositing a layer nobody could see. */
   box-shadow: var(--shadow-lift);
-  backdrop-filter: blur(14px);
 
   animation: consent-rise 520ms var(--ease-glide) both;
 }
@@ -30,16 +36,13 @@
   outline: none;
 }
 
+/* The row. Padding and alignment only — the enclosure is the shell's job. */
 .core {
   display: flex;
   align-items: center;
   gap: 1.5rem;
 
   padding: 1.25rem 1.5rem;
-  background: var(--core);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-core);
-  box-shadow: var(--inner-lip);
 }
 
 .copy {

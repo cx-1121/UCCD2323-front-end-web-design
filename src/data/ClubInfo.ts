@@ -52,35 +52,47 @@ export const location = {
   hours: 'Open Wednesdays and Fridays, 2pm to 6pm',
 };
 
+/** The address every route on this page ultimately arrives at. */
+export const contactAddress =
+  channels.find((channel) => channel.id === 'email')?.value ?? '';
+
+/** A pre-addressed enquiry, so the reader's mail client opens already filed. */
+const enquiry = (subject: string) =>
+  `mailto:${contactAddress}?subject=${encodeURIComponent(`Green Tech Club · ${subject}`)}`;
+
 export type SupportRoute = {
   title: string;
   body: string;
+  /** What the reader is actually doing by opening this one. */
   action: string;
   href: string;
-  span: 'wide' | 'mid' | 'narrow';
 };
 
+/**
+ * The `span` field these carried — 'wide' | 'mid' | 'narrow' — existed only to
+ * size three cards in a bento grid that no longer exists, and every `href` was
+ * `#contact`: an anchor to a section of the page the reader was already on,
+ * which is to say nowhere. Both are gone, and the routes now address the club
+ * with the subject line already filled in.
+ */
 export const supportRoutes: SupportRoute[] = [
   {
     title: 'Join the club',
     body: 'Open to every faculty and every year. No background in energy required, only the willingness to build something and see it through.',
     action: 'Talk to us',
-    href: '#contact',
-    span: 'wide',
+    href: enquiry('Joining the club'),
   },
   {
     title: 'Collaborate',
     body: 'Departments, student bodies and companies working on energy, climate or hardware. Bring a problem and we will bring people.',
     action: 'Propose a project',
-    href: '#contact',
-    span: 'mid',
+    href: enquiry('Collaboration'),
   },
   {
     title: 'Sponsor',
     body: 'Equipment, materials and event costs. Sponsorship is acknowledged on this site and in the work it funds.',
     action: 'Request the deck',
-    href: '#contact',
-    span: 'narrow',
+    href: enquiry('Sponsorship'),
   },
 ];
 

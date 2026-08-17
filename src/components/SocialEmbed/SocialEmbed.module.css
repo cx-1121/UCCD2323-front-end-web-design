@@ -1,11 +1,10 @@
 /* Embedded social feed. Uses the site's double-bezel enclosure so the widget
    (or its placeholder) reads as a designed panel rather than a pasted embed. */
 
+/* Layout only. The tray it used to draw — tinted ground, second border,
+   second radius around a card that already had all three — was framing, not
+   hierarchy. */
 .shell {
-  padding: 0.5rem;
-  background: var(--shell);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-shell);
   box-shadow: var(--shadow-soft);
 }
 

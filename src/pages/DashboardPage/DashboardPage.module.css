@@ -1,560 +1,505 @@
 /* ==========================================================================
-   DashboardPage — Global Carbon Footprint live data dashboard.
+   DASHBOARD — the data chapter.
 
-   Shares the interior token layer, atmosphere, and double-bezel enclosures
-   with Explore, About, Home and Contact. Layout: hero → KPI tiles → charts
-   → world map → comparisons → footer.
+   An OPERATE surface. The reader came to read numbers, so this page inherits
+   the interior's grammar — square instrument plates, Courier Prime for every
+   figure, Archivo Narrow for section heads — and none of its theatre. The
+   ground is pinned to the ladder's `sky` stop rather than travelling it: a
+   chart that reads differently at two scroll positions is a chart that cannot
+   be trusted.
+
+   WHAT THE COMPOSITION SAYS. One primary reading owns the first screen — the
+   1.5C budget and the rate drawing it down — with the four headline figures
+   beside it as a register rather than as four equal cards. Everything below is
+   evidence for it, and each section is one wide panel or one lead panel with a
+   narrow companion, never a row of equals.
+
+   WHAT WAS REMOVED, AND WHY. Six surfaces were click-to-flip 3D cards hiding a
+   "Data Interpretation" face. Flipping a chart hid the very thing being
+   interpreted; the reveal depended on noticing a 12px glyph at 0.4 opacity; and
+   the text was unreachable by find-in-page, by print, and by a screen reader
+   until activated. The interpretation is now set under each plot, where it can
+   be read against the chart it describes. With it went the perspective, the
+   backface-visibility pairs, the duplicated flip glyph, and `role="button"` on
+   eight divs that were not buttons.
+
+   Also gone: a 26-second infinite radial "bloom" breathing behind a page of
+   live figures, and a fixed nav bar this page has not mounted since HudHeader
+   started parking itself.
    ========================================================================== */
 
 .page {
   position: relative;
   min-height: 100dvh;
-  padding: clamp(7rem, 12vw, 10rem) clamp(1rem, 4vw, 3rem) clamp(3rem, 6vw, 5rem);
-  background: var(--surface);
+  padding: clamp(6.5rem, 11vw, 9rem) clamp(1rem, 4vw, 3rem) clamp(3rem, 6vw, 5rem);
+  background: var(--g-sky);
   color: var(--ink);
-  font-family: var(--font-body);
+  font-family: var(--set);
   isolation: isolate;
-}
 
-/* --------------------------------------------------------------------------
-   Fixed atmosphere
-   -------------------------------------------------------------------------- */
-.dawn {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
+  /* The chapter tokens the interior's components read, pinned to `sky` rather
+     than tracked, because this page does not travel the ladder. */
+  --ground: var(--g-sky);
+  --ink: #14201f;
+  --ink-soft: rgba(20, 32, 31, 0.75);
+  --ink-faint: rgba(20, 32, 31, 0.66);
+  --rule: rgba(20, 32, 31, 0.13);
+  --accent: #0f766e;
+  --accent-ink: #0d5f59;
+  --object: #ffffff;
+  --object-edge: #dbe4e6;
+  --object-ink: #14201f;
 
-.bloom {
-  position: absolute;
-  top: -30vh;
-  left: 58%;
-  width: min(130vw, 82rem);
-  height: 90vh;
-  transform: translateX(-50%);
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(16, 185, 129, 0.12) 0%,
-    rgba(132, 204, 22, 0.06) 44%,
-    transparent 70%
-  );
-  filter: blur(80px);
-  animation: dbBreathe 26s var(--ease-fluid) infinite alternate;
-  will-change: transform;
-}
+  /* The one warm ink on the page, and it means exactly one thing: budget
+     already spent. 6.5:1 on the panel ground it lands on. The ladder cannot
+     supply this — every accent at this stop is a green, which is the colour
+     the rest of the site means "alive" by. */
+  --spent: #a8321a;
 
-@keyframes dbBreathe {
-  from { transform: translateX(-50%) scale(1); }
-  to   { transform: translateX(-50%) scale(1.12); }
-}
-
-.grain {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  opacity: 0.028;
-  mix-blend-mode: multiply;
-  pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-/* --------------------------------------------------------------------------
-   Floating nav
-   -------------------------------------------------------------------------- */
-.headerBar {
-  position: fixed;
-  top: clamp(0.875rem, 2vw, 1.5rem);
-  left: 50%;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  width: max-content;
-  max-width: calc(100vw - 2rem);
-  padding: 0.6875rem 1.5rem 0.6875rem 1.25rem;
-  transform: translateX(-50%);
-  transition:
-    transform 650ms var(--ease-fluid),
-    opacity 450ms var(--ease-fluid);
-
-  --hud-mark: var(--signal);
-  --hud-mark-glow: none;
   --hud-ink: var(--ink-soft);
   --hud-ink-static: var(--ink);
   --hud-hover: var(--signal-deep);
   --hud-hover-glow: none;
 }
 
-.headerBarHidden {
-  transform: translateX(-50%) translate3d(0, calc(-100% - clamp(0.875rem, 2vw, 1.5rem)), 0);
-  opacity: 0;
-  pointer-events: none;
+/* The interior's one focus ring.
+
+   chapters.css scopes it to `[data-chapter]`, and this page pins its tokens on
+   `.page` rather than declaring a stop, so the ring never reached it — leaving
+   the only route in the building that is mostly controls on the browser
+   default. The two rules it used to have died with the flip cards they were
+   written for. Same 2px living green, same offset, as everywhere else. */
+.page :focus-visible {
+  outline: 2px solid var(--living);
+  outline-offset: 3px;
 }
 
-.headerBar > header {
-  position: static;
-  inset: auto;
-  width: 100%;
+/* Static, and at the same strength the ladder gives every other stop. The
+   animated bloom that used to sit here was decoration on a surface whose whole
+   job is to be read. */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.03;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  background-image: var(--grain);
 }
 
 .container {
   position: relative;
   z-index: 2;
-  max-width: 74rem;
+  max-width: 76rem;
   margin: 0 auto;
 }
 
-/* --------------------------------------------------------------------------
-   Hero masthead
-   -------------------------------------------------------------------------- */
-.hero {
-  max-width: 60rem;
-  margin-bottom: clamp(3.5rem, 7vw, 6rem);
+/* ==========================================================================
+   THE VERDICT — the first screen.
+   ========================================================================== */
+.verdict {
+  display: grid;
+  gap: clamp(2rem, 4vw, 3rem);
+  padding-bottom: clamp(2.5rem, 5vw, 4rem);
+  margin-bottom: clamp(3rem, 6vw, 5rem);
+  border-bottom: 1px solid var(--rule);
 }
 
-.heroTitle {
-  margin: 0 0 clamp(1.5rem, 3vw, 2.25rem);
-  font-family: var(--font-display);
-  font-size: clamp(2.75rem, 8vw, 6rem);
-  font-weight: 200;
-  letter-spacing: -0.045em;
-  line-height: 0.96;
+.verdictMain {
+  display: grid;
+  gap: clamp(1.5rem, 3vw, 2.25rem);
+  align-content: start;
+}
+
+/* Stamped, like every heading on the site. Capped well under the display scale
+   the narrative pages use — this one names the task, it does not open a
+   chapter. */
+.verdictTitle {
+  max-width: 18ch;
+  font-family: var(--stamped);
+  font-size: clamp(1.75rem, 4.2vw, 3rem);
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
   color: var(--ink);
   text-wrap: balance;
 }
 
-.heroAccent {
-  font-weight: 500;
-  color: var(--signal);
+/* --------------------------------------------------------------------------
+   The budget.
+
+   A ring made the reader decode an arc to recover a one-dimensional quantity,
+   with no natural place for "you are here". On a bar, the boundary between
+   spent and remaining IS the reading.
+   -------------------------------------------------------------------------- */
+.budget {
+  display: grid;
+  gap: 0.875rem;
 }
 
-.heroLede {
-  max-width: 50ch;
-  margin: 0;
-  font-size: clamp(1rem, 1.3vw, 1.1875rem);
-  font-weight: 300;
-  line-height: 1.75;
-  color: var(--ink-soft);
-  text-wrap: pretty;
-}
-
-.counterRow {
+.budgetYears {
   display: flex;
   align-items: baseline;
   gap: 0.625rem;
-  margin-top: clamp(1.5rem, 3vw, 2.25rem);
 }
 
-.counterValue {
-  font-family: var(--font-display);
-  font-size: clamp(1.5rem, 3vw, 2.25rem);
-  font-weight: 800;
-  letter-spacing: -0.03em;
+.budgetYearsValue {
+  font-family: var(--typed);
+  font-size: clamp(3rem, 9vw, 5.5rem);
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
 
-.counterUnit {
-  font-family: var(--font-mono);
-  font-size: 0.8125rem;
-  font-weight: 400;
-  color: var(--ink-faint);
+.budgetYearsUnit {
+  font-family: var(--stamped);
+  font-size: clamp(0.875rem, 1.6vw, 1.125rem);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
 }
 
-.counterLabel {
-  font-size: 0.75rem;
-  color: var(--ink-faint);
-  margin-top: 0.25rem;
-}
-
-/* --------------------------------------------------------------------------
-   Sections — shared
-   -------------------------------------------------------------------------- */
-.section {
-  margin-bottom: clamp(3.5rem, 7vw, 6rem);
-}
-
-.sectionHead {
+.budgetTrack {
   display: flex;
-  align-items: baseline;
-  gap: 1rem;
-  margin-bottom: clamp(1.5rem, 3vw, 2rem);
+  height: 1.75rem;
+  overflow: hidden;
+  background: var(--object);
+  border: 1px solid var(--object-edge);
+  border-radius: var(--r-paper);
 }
 
-.sectionTitle {
-  font-family: var(--font-display);
-  font-size: clamp(1.25rem, 2vw, 1.625rem);
-  font-weight: 500;
-  letter-spacing: -0.025em;
-  color: var(--ink);
+/* Hatched as well as inked, so the split reads without colour — the same
+   drafting language the mechanism drawings on /explore are ruled in. */
+.budgetUsed {
+  flex: none;
+  background-color: var(--spent);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, 0.28) 0 3px,
+    transparent 3px 7px
+  );
+  /* No transition. This bar is drawn once from fetched data — animating a
+     precise quantity into place makes the reader wait to read it, and
+     `width` relayouts the row on every frame to do it. */
 }
 
-.sectionMeta {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  color: var(--ink-faint);
-}
-
-/* --------------------------------------------------------------------------
-   KPI tiles — 4-column grid of double-bezel stat cards
-   -------------------------------------------------------------------------- */
-.kpiGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
-  margin-bottom: clamp(3.5rem, 7vw, 6rem);
-}
-
-.kpiTile {
-  padding: 1.25rem;
-  background: var(--shell);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-shell);
-  display: flex;
-  flex-direction: column;
-  perspective: 1000px;
-  cursor: pointer;
-  user-select: none;
-  transition: border-color 0.25s ease, box-shadow 0.25s ease;
-}
-
-.kpiTile:hover {
-  border-color: rgba(4, 120, 87, 0.3);
-  box-shadow: 0 6px 20px -4px rgba(0, 0, 0, 0.05);
-}
-
-.kpiTile:focus-visible {
-  outline: 2px solid var(--signal);
-  outline-offset: 2px;
-}
-
-.kpiCardInner {
-  position: relative;
-  width: 100%;
+.budgetRemaining {
   flex: 1;
-  min-height: 144px;
-  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  transform-style: preserve-3d;
+  background: color-mix(in srgb, var(--accent-ink) 18%, transparent);
 }
 
-.kpiCardInner.flipped {
-  transform: rotateY(180deg);
-}
-
-.kpiFront,
-.kpiBack {
-  position: absolute;
-  inset: 0;
-  padding: 1rem 1.125rem;
-  background: var(--core);
-  border-radius: var(--r-core);
-  box-shadow: var(--inner-lip);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+.budgetScale {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   justify-content: space-between;
-}
-
-.kpiFront {
-  transform: rotateY(0deg);
-}
-
-.kpiBack {
-  transform: rotateY(180deg);
-  background: var(--core);
-}
-
-.kpiHeaderRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.flipHint {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--ink-faint);
-  opacity: 0.4;
-  transition: opacity 0.2s ease, transform 0.3s ease;
-}
-
-.kpiTile:hover .flipHint,
-.kpiTile:focus-visible .flipHint,
-.chartShell[role='button']:hover .flipHint,
-.chartShell[role='button']:focus-visible .flipHint {
-  opacity: 0.95;
-  transform: rotate(180deg);
-}
-
-.kpiLabel {
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: 400;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-}
-
-.kpiBackTitle {
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--signal);
-}
-
-.kpiExplanationText {
-  font-family: var(--font-sans);
-  font-size: 0.725rem;
-  line-height: 1.45;
-  color: var(--ink);
-  margin-top: 0.35rem;
-  margin-bottom: auto;
-}
-
-.kpiBackTag {
-  display: inline-flex;
-  align-items: center;
-  align-self: flex-start;
-  margin-top: 0.5rem;
-  padding: 0.15rem 0.5rem;
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  font-weight: 500;
-  color: var(--ink-faint);
-  background: rgba(0, 0, 0, 0.04);
-  border-radius: var(--r-pill);
-}
-
-.kpiValue {
-  font-family: var(--font-display);
-  font-size: clamp(1.5rem, 2.5vw, 2rem);
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  color: var(--ink);
+  gap: 0.375rem 1.5rem;
+  font-family: var(--typed);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
   font-variant-numeric: tabular-nums;
 }
 
-.kpiUnit {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 400;
-  color: var(--ink-faint);
-  margin-left: 0.25rem;
+.budgetSpentLabel {
+  color: var(--spent);
 }
 
-.kpiBadge {
-  display: inline-flex;
-  align-items: center;
-  align-self: flex-start;
-  gap: 0.25rem;
-  margin-top: 0.5rem;
-  padding: 0.125rem 0.5rem;
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  font-weight: 500;
-  border-radius: var(--r-pill);
+.budgetLeftLabel {
+  color: var(--accent-ink);
 }
 
-.kpiBadgeUp {
-  color: #b45309;
-  background: rgba(217, 119, 6, 0.1);
-}
-
-.kpiBadgeDown {
-  color: var(--signal);
-  background: rgba(4, 120, 87, 0.08);
-}
-
-.sparkline {
-  display: flex;
-  align-items: flex-end;
-  gap: 3px;
-  height: 24px;
-  margin-top: auto;
-  padding-top: 0.75rem;
-}
-
-.sparkBar {
-  flex: 1;
-  min-width: 0;
-  border-radius: 2px;
-  background: rgba(4, 120, 87, 0.15);
-  transition: height 600ms var(--ease-fluid);
-}
-
-/* --------------------------------------------------------------------------
-   Chart containers — double-bezel wrapper
-   -------------------------------------------------------------------------- */
-.chartRow {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 1rem;
-  margin-bottom: clamp(3.5rem, 7vw, 6rem);
-}
-
-.chartShell {
-  padding: 1.25rem;
-  background: var(--shell);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-shell);
-  display: flex;
-  flex-direction: column;
-}
-
-.chartCore {
-  padding: 1.25rem;
-  background: var(--core);
-  border-radius: var(--r-core);
-  box-shadow: var(--inner-lip);
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-}
-
-/* --------------------------------------------------------------------------
-   Flipping chart cards.
-
-   These faces had no styles at all, which caused both reported symptoms: the
-   front never got the white .chartCore surface the other cards have, and the
-   back sat in normal flow underneath the front instead of being hidden behind
-   it, so "Data Interpretation" was visible without flipping.
-
-   Modelled on the working .kpiCardInner / .kpiFront / .kpiBack trio, with one
-   deliberate difference noted on the faces below.
-   -------------------------------------------------------------------------- */
-
-/* Perspective and the pointer affordance belong only to the shells that are
-   actually clickable. Two chart shells on this page do not flip, and giving
-   every shell `cursor: pointer` would promise them an interaction they lack. */
-.chartShell[role='button'] {
-  perspective: 1000px;
-  cursor: pointer;
-  user-select: none;
-  transition:
-    border-color 0.25s ease,
-    box-shadow 0.25s ease;
-}
-
-.chartShell[role='button']:hover {
-  border-color: rgba(4, 120, 87, 0.3);
-  box-shadow: 0 6px 20px -4px rgba(0, 0, 0, 0.05);
-}
-
-.chartShell[role='button']:focus-visible {
-  outline: 2px solid var(--signal);
-  outline-offset: 2px;
-}
-
-.chartCardInner {
-  position: relative;
-  width: 100%;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  transform-style: preserve-3d;
-}
-
-.chartCardInner.flipped {
-  transform: rotateY(180deg);
-}
-
-/* Same white surface as .chartCore, so a flipping card is indistinguishable
-   from a static one until it turns. */
-.chartFront,
-.chartBack {
-  padding: 1.25rem;
-  background: var(--core);
-  border-radius: var(--r-core);
-  box-shadow: var(--inner-lip);
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-
-/* The difference from the KPI tiles: those are a fixed 144px, so both faces can
-   be absolutely positioned. Charts vary in height, so the front stays in flow
-   and lets its chart set the card's height; only the back is overlaid.
-
-   `flex: 1` makes the front fill the shell when a taller neighbour in the grid
-   row stretches it — without it the white surface stopped at its content height
-   while the shell around it grew, so the budget card's core looked short next to
-   Top emitters. */
-.chartFront {
-  position: relative;
-  flex: 1;
-  transform: rotateY(0deg);
-}
-
-.chartBack {
-  position: absolute;
-  inset: 0;
-  transform: rotateY(180deg);
-  justify-content: flex-start;
-  overflow-y: auto;
-}
-
-.chartExplanationText {
-  margin: 0.875rem 0 0;
-  font-size: 0.875rem;
-  font-weight: 300;
+.budgetRate {
+  max-width: 58ch;
+  font-family: var(--set);
+  font-size: 1rem;
   line-height: 1.65;
   color: var(--ink-soft);
   text-wrap: pretty;
 }
 
-.chartHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-}
-
-.chartTitle {
-  font-family: var(--font-display);
-  font-size: 0.9375rem;
-  font-weight: 500;
+.budgetRate strong {
+  font-weight: 600;
   color: var(--ink);
 }
 
-.chartSubtext {
-  font-family: var(--font-mono);
+/* --------------------------------------------------------------------------
+   The ticking projection — subordinate to the allowance it draws down.
+   -------------------------------------------------------------------------- */
+.counter {
+  display: grid;
+  gap: 0.25rem;
+  padding-top: clamp(1rem, 2.5vw, 1.5rem);
+  border-top: 1px solid var(--rule);
+}
+
+.counterRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.counterValue {
+  font-family: var(--typed);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.counterUnit {
+  font-family: var(--typed);
+  font-size: 0.8125rem;
+  color: var(--ink-soft);
+}
+
+.counterLabel {
+  font-family: var(--typed);
   font-size: 0.6875rem;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
   color: var(--ink-faint);
 }
 
 /* --------------------------------------------------------------------------
-   Area chart (historical trend)
+   The four readings — a register, not four cards.
    -------------------------------------------------------------------------- */
-.areaChart {
-  width: 100%;
-  height: auto;
-  display: block;
+.readings {
+  align-self: start;
 }
 
-/* --------------------------------------------------------------------------
-   Donut chart (sector breakdown)
-   -------------------------------------------------------------------------- */
+.readingsHead {
+  margin-bottom: 0.75rem;
+  font-family: var(--typed);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.readingList {
+  display: grid;
+  margin: 0;
+}
+
+/* A separator, not a border. Nothing above the first row or below the last —
+   a boxed list is the thing being removed. */
+.reading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.25rem;
+  padding: 0.875rem 0;
+}
+
+.reading + .reading {
+  border-top: 1px solid var(--rule);
+}
+
+.readingLabel {
+  font-family: var(--typed);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.readingValueRow {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4375rem;
+  margin: 0;
+}
+
+.readingValue {
+  font-family: var(--typed);
+  font-size: 1.625rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.readingUnit {
+  font-family: var(--typed);
+  font-size: 0.75rem;
+  color: var(--accent-ink);
+}
+
+.readingNote {
+  margin: 0;
+  font-family: var(--set);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  text-wrap: pretty;
+}
+
+.readingSource {
+  margin: 0;
+  font-family: var(--typed);
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.sparkline {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 1.25rem;
+  margin-left: auto;
+  width: min(7rem, 40%);
+}
+
+.sparkBar {
+  flex: 1;
+  min-width: 0;
+  min-height: 1px;
+  background: color-mix(in srgb, var(--accent-ink) 26%, transparent);
+}
+
+/* ==========================================================================
+   Sections
+   ========================================================================== */
+.section {
+  margin-bottom: clamp(3rem, 6vw, 5rem);
+}
+
+.sectionHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  margin-bottom: clamp(1.25rem, 2.5vw, 1.75rem);
+}
+
+.sectionTitle {
+  font-family: var(--stamped);
+  font-size: clamp(1.125rem, 2vw, 1.5rem);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.sectionMeta {
+  font-family: var(--typed);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+}
+
+/* A lead panel and its companion, never two equals. */
+.split {
+  display: grid;
+  gap: 1rem;
+}
+
+/* ==========================================================================
+   Panel — the page's one container.
+   ========================================================================== */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: clamp(1.125rem, 2.4vw, 1.625rem);
+  background: var(--object);
+  border: 1px solid var(--object-edge);
+  /* Square. The panels are instrument plates; the rounded controls inside them
+     are what belongs to the site rather than to the instrument. */
+  border-radius: var(--r-paper);
+}
+
+.panelHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+}
+
+.panelTitleGroup {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.panelTitle {
+  font-family: var(--stamped);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--object-ink);
+}
+
+.panelMeta {
+  font-family: var(--typed);
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  letter-spacing: 0.06em;
+  color: var(--object-faint, rgba(20, 32, 31, 0.64));
+}
+
+.panelBody {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 1rem;
+  min-width: 0;
+}
+
+/* The interpretation, set where it can be read against the plot it describes.
+   Ruled off rather than boxed: it belongs to this panel, so a second container
+   would only state that again. */
+.panelNote {
+  max-width: 72ch;
+  padding-top: 0.875rem;
+  font-family: var(--set);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  border-top: 1px solid var(--rule);
+  text-wrap: pretty;
+}
+
+/* ==========================================================================
+   Area chart
+   ========================================================================== */
+/* The plot scrolls rather than shrinks. SVG text scales with the viewBox, so
+   letting a 600-unit chart fit a 305px phone panel rendered its axis labels at
+   about 4.6 real pixels — legible on the design monitor and unreadable on the
+   device most of these readers are holding. */
+.plotScroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+.areaChart {
+  display: block;
+  width: 100%;
+  min-width: 34rem;
+  height: auto;
+}
+
+/* ==========================================================================
+   Donut
+   ========================================================================== */
 .donutWrap {
   display: flex;
+  flex: 1;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 1.25rem;
-  flex: 1;
 }
 
 .donutSvg {
@@ -563,19 +508,21 @@
 }
 
 .donutCenter {
-  font-family: var(--font-display);
+  font-family: var(--typed);
   font-size: 1.25rem;
-  font-weight: 800;
-  fill: var(--ink);
+  font-weight: 700;
+  fill: var(--object-ink);
 }
 
 .donutCenterUnit {
-  font-family: var(--font-mono);
+  font-family: var(--typed);
   font-size: 0.625rem;
-  font-weight: 400;
   fill: var(--ink-faint);
 }
 
+/* ==========================================================================
+   Legend — shared by the donut, the trend and the mix.
+   ========================================================================== */
 .legend {
   display: flex;
   flex-wrap: wrap;
@@ -586,21 +533,39 @@
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  font-family: var(--font-mono);
+  font-family: var(--typed);
   font-size: 0.6875rem;
+  letter-spacing: 0.04em;
   color: var(--ink-soft);
 }
 
 .legendDot {
+  flex-shrink: 0;
   width: 8px;
   height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
 }
 
-/* --------------------------------------------------------------------------
-   Bar chart (top emitters)
-   -------------------------------------------------------------------------- */
+/* The mix keys, declared once and read by both the legend and the bars, so a
+   key can never drift from the segment it names. */
+.keyFossil {
+  background: rgba(20, 32, 31, 0.32);
+}
+
+.keyNuclear {
+  background: #4f46e5;
+}
+
+.keyRenew {
+  background: var(--living-ink);
+}
+
+.keyOther {
+  background: rgba(20, 32, 31, 0.13);
+}
+
+/* ==========================================================================
+   Bar chart — top emitters
+   ========================================================================== */
 .barList {
   display: flex;
   flex-direction: column;
@@ -609,7 +574,7 @@
 
 .barRow {
   display: grid;
-  grid-template-columns: 7.5rem 1fr 4.5rem;
+  grid-template-columns: 8.5rem minmax(0, 1fr) 4.5rem;
   gap: 0.75rem;
   align-items: center;
 }
@@ -618,166 +583,139 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  min-width: 0;
 }
 
 .barCode {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.75rem;
+  flex: none;
+  width: 2.25rem;
   height: 1.375rem;
-  font-family: var(--font-mono);
-  font-size: 0.5625rem;
-  font-weight: 600;
+  font-family: var(--typed);
+  /* 11px, the same floor every other instrument label on this page sits at.
+     It was 9px — small enough to be a decoration of a country code rather
+     than a reading of one. */
+  font-size: 0.6875rem;
+  font-weight: 700;
   letter-spacing: 0.06em;
-  color: var(--signal-deep);
-  background: rgba(4, 120, 87, 0.08);
-  border-radius: 4px;
+  color: var(--accent-ink);
+  background: color-mix(in srgb, var(--accent-ink) 10%, transparent);
 }
 
 .barName {
-  font-size: 0.8125rem;
-  font-weight: 400;
-  color: var(--ink);
-  white-space: nowrap;
   overflow: hidden;
+  font-size: 0.8125rem;
+  color: var(--object-ink);
+  white-space: nowrap;
   text-overflow: ellipsis;
 }
 
 .barTrack {
   height: 0.625rem;
-  background: rgba(12, 26, 19, 0.04);
-  border-radius: var(--r-pill);
-  overflow: hidden;
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
 }
 
+/* Scaled from the leading edge rather than widened: transitioning `width` on
+   ten rows relayouts the panel on every frame.
+
+   And no transition on it. Two reasons, and the second is the honest one.
+   Toggling to per-capita RE-SORTS the list, so tweening bar lengths animates
+   pairings the reader never asked to compare — a row jumps to a new position
+   AND grows, which is two changes narrating one. The second reason: `--fill`
+   is an unregistered custom property, so `scaleX(var(--fill))` steps rather
+   than interpolates; the transition declared here at first could never have
+   fired, and a declaration that does nothing is worse than none. The toggle's
+   feedback is carried where it belongs — `aria-pressed`, the filled control,
+   the changed unit line, and the values themselves. */
 .barFill {
+  width: 100%;
   height: 100%;
-  background: var(--signal);
-  border-radius: var(--r-pill);
-  transition: width 800ms var(--ease-fluid);
+  background: var(--accent-ink);
+  transform: scaleX(var(--fill, 0));
+  transform-origin: left center;
 }
 
 .barValue {
-  font-family: var(--font-mono);
+  font-family: var(--typed);
   font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--ink);
+  font-weight: 700;
   text-align: right;
+  color: var(--object-ink);
   font-variant-numeric: tabular-nums;
 }
 
-/* Toggle group */
+/* ==========================================================================
+   Controls — the one control vocabulary on the page.
+   ========================================================================== */
 .toggleGroup {
   display: inline-flex;
-  border: 1px solid var(--hairline);
+  flex: none;
+  border: 1px solid var(--object-edge);
   border-radius: var(--r-pill);
   overflow: hidden;
 }
 
 .toggleBtn {
-  padding: 0.3125rem 0.75rem;
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: 400;
-  color: var(--ink-faint);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: all 300ms var(--ease-fluid);
-}
-
-.toggleBtn:not(:last-child) {
-  border-right: 1px solid var(--hairline);
-}
-
-.toggleBtnActive {
-  color: #ffffff;
-  background: var(--signal);
-}
-
-/* --------------------------------------------------------------------------
-   Carbon budget ring
-   -------------------------------------------------------------------------- */
-.budgetWrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  text-align: center;
-  flex: 1;
-}
-
-.budgetRing {
-  width: 160px;
-  height: 160px;
-}
-
-.budgetUsed {
-  transition: stroke-dasharray 1.2s var(--ease-fluid);
-}
-
-.budgetRemaining {
-  animation: dbBudgetPulse 3s var(--ease-fluid) infinite;
-}
-
-@keyframes dbBudgetPulse {
-  0%, 100% { opacity: 1; }
-  50%      { opacity: 0.6; }
-}
-
-.budgetYears {
-  font-family: var(--font-display);
-  font-size: 1.75rem;
-  font-weight: 800;
-  fill: var(--ink);
-}
-
-.budgetYearsLabel {
-  font-family: var(--font-mono);
-  font-size: 0.5625rem;
-  fill: var(--ink-faint);
+  padding: 0.375rem 0.875rem;
+  font-family: var(--stamped);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  color: var(--ink-soft);
+  background: transparent;
+  border: 0;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  transition:
+    color 200ms var(--ease-glide),
+    background 200ms var(--ease-glide);
 }
 
-.budgetCaption {
-  font-size: 0.8125rem;
+.toggleBtn:hover:not(:disabled) {
+  color: var(--object-ink);
+  background: color-mix(in srgb, var(--accent-ink) 10%, transparent);
+}
+
+.toggleBtnActive,
+.toggleBtnActive:hover:not(:disabled) {
+  color: #ffffff;
+  background: var(--accent-ink);
+}
+
+.toggleBtn:disabled {
   color: var(--ink-faint);
-  max-width: 18ch;
-  line-height: 1.5;
+  cursor: progress;
 }
 
-/* --------------------------------------------------------------------------
-   Energy mix (stacked horizontal bars)
-   -------------------------------------------------------------------------- */
+/* ==========================================================================
+   Energy mix
+   ========================================================================== */
 .mixGrid {
   display: flex;
   flex-direction: column;
-  gap: 0.875rem;
+  gap: 0.625rem;
 }
 
 .mixRow {
   display: grid;
-  grid-template-columns: 5.5rem 1fr;
+  grid-template-columns: 7rem minmax(0, 1fr);
   gap: 0.75rem;
   align-items: center;
 }
 
 .mixCountry {
   font-size: 0.8125rem;
-  font-weight: 400;
-  color: var(--ink);
+  color: var(--object-ink);
 }
 
-/* Tall enough for an inline % label; was 0.75rem when the bars carried no
-   text and every value was invisible. */
 .mixTrack {
   display: flex;
-  height: 1.25rem;
-  border-radius: var(--r-pill);
+  height: 1.5rem;
   overflow: hidden;
+  background: color-mix(in srgb, var(--ink) 5%, transparent);
 }
 
 .mixFossil,
@@ -786,189 +724,89 @@
 .mixOther {
   display: flex;
   align-items: center;
-  overflow: hidden;
-  transition: width 800ms var(--ease-fluid);
+  justify-content: center;
+  min-width: 0;
 }
 
 .mixFossil {
-  background: rgba(12, 26, 19, 0.25);
+  background: rgba(20, 32, 31, 0.32);
 }
 
 .mixNuclear {
-  background: #6366f1;
+  background: #4f46e5;
 }
 
 .mixRenewable {
-  background: var(--signal);
+  background: var(--living-ink);
 }
 
-/* The unattributed remainder — deliberately the quietest fill on the track, so
-   it reads as "not classified" rather than as a fourth energy source. */
 .mixOther {
-  background: rgba(12, 26, 19, 0.12);
+  background: rgba(20, 32, 31, 0.13);
 }
 
-.mixLegend {
-  display: flex;
-  gap: 1.25rem;
-  margin-bottom: 1rem;
-}
-
-/* --------------------------------------------------------------------------
-   Ghost link (back to projects)
-   -------------------------------------------------------------------------- */
-.ghostLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  margin-top: 1rem;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--ink-faint);
-  text-decoration: none;
-  transition: color 300ms var(--ease-fluid);
-}
-
-.ghostLink:hover {
-  color: var(--signal);
-}
-
-/* --------------------------------------------------------------------------
-   Footer
-   -------------------------------------------------------------------------- */
-.footer {
-  padding-top: clamp(3rem, 6vw, 5rem);
-  border-top: 1px solid var(--hairline);
-  font-size: 0.8125rem;
-  color: var(--ink-faint);
-  line-height: 1.75;
-  text-align: center;
-}
-
-.footer p + p {
-  margin-top: 0.25rem;
-}
-
-.sourceTag {
-  display: inline-block;
-  margin-top: 0.5rem;
-  font-family: var(--font-mono);
+.mixValue {
+  font-family: var(--typed);
   font-size: 0.625rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-  opacity: 0.7;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  white-space: nowrap;
 }
 
-/* --------------------------------------------------------------------------
-   Reveal choreography
-   -------------------------------------------------------------------------- */
-[data-reveal] {
-  opacity: 0;
-  transform: translateY(1.5rem);
-  transition:
-    opacity 700ms var(--ease-fluid),
-    transform 700ms var(--ease-fluid);
+/* On the two pale segments white would sit at about 1.2:1. */
+.mixValueDark {
+  color: var(--object-ink);
 }
 
-[data-reveal-index="1"] { transition-delay: 80ms; }
-[data-reveal-index="2"] { transition-delay: 160ms; }
-[data-reveal-index="3"] { transition-delay: 240ms; }
-[data-reveal-index="4"] { transition-delay: 320ms; }
-[data-reveal-index="5"] { transition-delay: 400ms; }
-
-.page [data-reveal].revealed,
-.page .revealed [data-reveal],
-.page .revealed {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* --------------------------------------------------------------------------
-   Responsive
-   -------------------------------------------------------------------------- */
-@media (max-width: 1024px) {
-  .kpiGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .chartRow {
-    grid-template-columns: 1fr;
-  }
-
-  .barRow {
-    grid-template-columns: 6rem 1fr 3.5rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .kpiGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .barRow {
-    grid-template-columns: 5rem 1fr 3rem;
-  }
-
-  .mixRow {
-    grid-template-columns: 4.5rem 1fr;
-  }
-
-  .heroTitle {
-    font-size: clamp(2rem, 10vw, 3.5rem);
-  }
-}
-
-/* ── Live renewable conditions panel (jQuery REST feed) ─────────────────── */
-
+/* ==========================================================================
+   Live conditions
+   ========================================================================== */
 .liveControls {
   display: flex;
+  flex: none;
   align-items: center;
   gap: 0.625rem;
 }
 
 .liveBadge {
-  padding: 0.25rem 0.5625rem;
-  font-family: var(--font-mono);
+  padding: 0.25rem 0.5rem;
+  font-family: var(--typed);
   font-size: 0.625rem;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  border-radius: var(--r-pill);
-  white-space: nowrap;
+  font-weight: 700;
+  letter-spacing: 0.16em;
 }
 
 .liveBadgeOk {
-  /* #065f46 on a 12%-alpha emerald wash clears AA at this weight */
-  background: rgba(4, 120, 87, 0.12);
-  color: var(--signal-deep);
+  color: var(--accent-ink);
+  background: color-mix(in srgb, var(--accent-ink) 12%, transparent);
 }
 
+/* Degraded is a state, and it is not carried by hue alone — the badge reads
+   DEGRADED and the panel's own meta line names the upstream that failed. */
 .liveBadgeDegraded {
-  background: rgba(217, 119, 6, 0.14);
-  color: #92400e;
+  color: var(--spent);
+  background: color-mix(in srgb, var(--spent) 12%, transparent);
 }
 
 .liveGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.75rem;
-  margin-top: 1rem;
+  gap: 1px;
+  background: var(--rule);
+  border-block: 1px solid var(--rule);
 }
 
 .liveTile {
   display: flex;
   flex-direction: column;
   gap: 0.3125rem;
-  padding: 0.9375rem 1rem;
-  background: var(--surface-mint);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-tile);
+  padding: 1rem 0.875rem;
+  background: var(--object);
 }
 
 .liveTileLabel {
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  letter-spacing: 0.09em;
+  font-family: var(--typed);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--ink-faint);
 }
@@ -977,129 +815,188 @@
   display: flex;
   align-items: baseline;
   gap: 0.25rem;
-  font-family: var(--font-display);
+  font-family: var(--typed);
   font-size: 1.75rem;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1;
   letter-spacing: -0.02em;
-  color: var(--ink);
+  color: var(--object-ink);
   font-variant-numeric: tabular-nums;
 }
 
 .liveTileUnit {
   font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--ink-soft);
+  font-weight: 400;
+  color: var(--accent-ink);
 }
 
 .liveTileFoot {
-  font-size: 0.6875rem;
-  color: var(--ink-faint);
+  font-family: var(--set);
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+}
+
+.liveTrendBlock {
+  display: grid;
+  gap: 0.5rem;
 }
 
 .liveTrend {
   display: flex;
   align-items: flex-end;
-  gap: 3px;
-  height: 44px;
-  margin-top: 1rem;
-  padding: 0 0.125rem;
+  gap: 2px;
+  height: 3.5rem;
 }
 
 .liveTrendBar {
-  flex: 1 1 0;
-  min-height: 2px;
-  background: linear-gradient(to top, var(--signal), var(--signal-teal));
-  border-radius: 2px 2px 0 0;
-  opacity: 0.75;
-  transition: opacity 200ms var(--ease-fluid);
+  flex: 1;
+  min-width: 0;
+  min-height: 1px;
+  background: color-mix(in srgb, var(--living-ink) 40%, transparent);
+  transition: background 200ms var(--ease-glide);
 }
 
 .liveTrendBar:hover {
-  opacity: 1;
+  background: var(--living-ink);
 }
 
-.liveFoot {
-  margin-top: 0.875rem;
-  font-size: 0.6875rem;
-  line-height: 1.5;
-  color: var(--ink-faint);
-}
-
-@media (max-width: 768px) {
-  .liveGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .liveControls {
-    flex-wrap: wrap;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .liveTrendBar {
-    transition: none;
-  }
-}
-
-/* ── Chart clarity additions ────────────────────────────────────────────── */
-
-/* Title + unit subtext stacked, so headers with a right-side control keep the
-   unit visible under the title instead of losing it. */
-.chartTitleGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-  min-width: 0;
-}
-
-/* Inline % on energy-mix segments. Light text for the two saturated fills… */
-.mixValue {
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  font-weight: 500;
-  color: #ffffff;
-  padding-left: 0.4375rem;
-  white-space: nowrap;
-}
-
-/* …dark ink on the pale fossil fill, which white would vanish against. */
-.mixValueDark {
-  color: var(--ink-soft);
-}
-
-/* Year axis under the live renewable-share bars. */
 .liveTrendAxis {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 0.5rem;
-  margin-top: 0.375rem;
-  font-family: var(--font-mono);
+  gap: 1rem;
+  font-family: var(--typed);
   font-size: 0.625rem;
+  letter-spacing: 0.08em;
   color: var(--ink-faint);
 }
 
 .liveTrendCaption {
-  font-family: var(--font-body);
-  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
-/* On narrow viewports a 12% segment is ~23px — the label clips into a
-   misleading truncated digit. Below this width the tooltips carry the values
-   and the bars go clean. */
-@media (max-width: 640px) {
-  .mixValue {
-    display: none;
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+.footer {
+  display: grid;
+  gap: 0.25rem;
+  padding-top: clamp(2rem, 4vw, 3rem);
+  font-family: var(--typed);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+  border-top: 1px solid var(--rule);
+}
+
+.sourceTag {
+  margin-top: 0.5rem;
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ==========================================================================
+   Entrance.
+
+   Below the fold only. This is an Operate surface: the first screen carries
+   no `data-reveal` at all, so the number the reader came for is on screen at
+   first paint rather than fading in after it — which also means the reveal
+   band's short reach can never strand it.
+
+   Scoped to `.page`. These were bare attribute selectors, which a CSS Module
+   emits unscoped into the shared bundle, so `opacity: 0` was being applied to
+   every `[data-reveal]` element on every other route in the app.
+   -------------------------------------------------------------------------- */
+.page [data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 1rem, 0);
+  transition:
+    opacity 500ms var(--ease-glide),
+    transform 500ms var(--ease-glide);
+}
+
+.page [data-reveal-index='1'] { transition-delay: 60ms; }
+
+.page [data-reveal].revealed,
+.page .revealed [data-reveal],
+.page .revealed {
+  opacity: 1;
+  transform: none;
+}
+
+/* ==========================================================================
+   WIDE — recomposed.
+
+   The verdict becomes what it is: the reading, and the register that supports
+   it, side by side. The evidence splits into a lead panel and its companion.
+   ========================================================================== */
+@media (min-width: 48rem) {
+  .liveGrid {
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+  }
+
+  .reading {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline;
+    column-gap: 1rem;
+  }
+
+  .readingLabel {
+    grid-column: 1;
+  }
+
+  .readingValueRow {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
+    justify-content: flex-end;
+  }
+
+  .readingNote,
+  .readingSource {
+    grid-column: 1;
   }
 }
 
-/* Period anchor under KPI sparklines. */
-.kpiTrendYears {
-  display: block;
-  margin-top: 0.25rem;
-  font-family: var(--font-mono);
-  font-size: 0.5625rem;
-  letter-spacing: 0.08em;
-  color: var(--ink-faint);
+@media (min-width: 64rem) {
+  .verdict {
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    align-items: start;
+    gap: clamp(2.5rem, 5vw, 4.5rem);
+  }
+
+  /* The trend is the argument and the donut is the footnote to it, so they are
+     not laid out as equals. */
+  .split {
+    grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .splitLead {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 47.99rem) {
+  .barRow {
+    grid-template-columns: 6.5rem minmax(0, 1fr) 3.5rem;
+  }
+
+  .mixRow {
+    grid-template-columns: 4.75rem minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .liveTrendBar {
+    transition: none;
+  }
 }

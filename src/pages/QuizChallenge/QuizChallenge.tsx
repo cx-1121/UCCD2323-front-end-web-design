@@ -1,15 +1,52 @@
-import { Link } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
 import HudHeader from '../../components/HudHeader/HudHeader';
 import SocialShare from '../../components/SocialShare/SocialShare';
+import {
+  Action,
+  Bench,
+  Chapter,
+  Instrument,
+  Prose,
+  Sheet,
+  SheetHead,
+  Stamp,
+  Stamped,
+} from '../../components/accession/Accession';
+import WorldScene from '../../components/accession/WorldScene';
+import { ReplayGlyph } from '../../components/icons';
 import { useQuizChallenge } from '../../hooks/useQuizChallenge';
-import { useHideOnScroll } from '../../hooks/useHideOnScroll';
 import styles from './QuizChallenge.module.css';
 
 /**
- * High-End Visual Design Quiz & Challenge component for Green Tech Club.
- * Provides interactive renewable-energy quizzes, immediate feedback,
- * and comprehensive result analytics wrapped in double-bezel architecture.
+ * QUIZ — the world you are raising.
+ *
+ * The brief for this page was that it must not look like an exam, and that
+ * getting things right should turn a dead world green. Both are the same
+ * instruction, so the score is not a number in a corner here: it drives the
+ * page's position on the ladder.
+ *
+ * Every correct answer climbs a rung — soot, haze, firstlight, daylight, sky,
+ * living — and the ground, the ink and the specimen beside the question all
+ * change together over `--turn-ms`. Answering well is literally what takes the
+ * reader out of the smoke, which is the same journey the whole site makes.
+ *
+ * Product logic is untouched: `useQuizChallenge` still owns questions,
+ * scoring, persistence and resume. This file is presentation only.
  */
+
+/**
+ * Where the page stands, by score. Six rungs over ten questions, so a single
+ * correct answer is often visible immediately and never more than two away
+ * from moving the world.
+ */
+const RUNGS = ['soot', 'haze', 'firstlight', 'daylight', 'sky', 'living'] as const;
+
+function rungFor(score: number, total: number) {
+  if (total <= 0) return RUNGS[0];
+  const index = Math.floor((score / total) * RUNGS.length);
+  return RUNGS[Math.min(RUNGS.length - 1, index)];
+}
+
 function QuizChallenge() {
   const {
     currentQuestion,
@@ -30,62 +67,111 @@ function QuizChallenge() {
     resumeQuiz,
     discardSavedProgress,
   } = useQuizChallenge();
-  const navHidden = useHideOnScroll(140);
 
-  const navBar = (
-    <div
-      className={navHidden ? `${styles.headerBar} ${styles.headerBarHidden}` : styles.headerBar}
-      data-hidden={navHidden || undefined}
-    >
-      <HudHeader variant="static" />
-    </div>
-  );
+  const stop = rungFor(score, totalQuestions);
+  const growth = totalQuestions > 0 ? score / totalQuestions : 0;
+
+  /**
+   * Return to the top when the question changes or the run ends.
+   *
+   * "Next question" sits at the bottom of the run, so without this the reader
+   * is left scrolled past the world they just changed — the reward for
+   * answering correctly was rendering above the viewport, which is the one
+   * thing this page must never hide. The first render is skipped so ordinary
+   * scroll restoration still works when arriving by back or forward.
+   */
+  const mounted = useRef(false);
+  useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true;
+      return;
+    }
+    window.scrollTo({
+      top: 0,
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'auto'
+        : 'smooth',
+    });
+  }, [questionNumber, isComplete]);
+
+  /* ── Result ─────────────────────────────────────────────────────────── */
 
   if (isComplete) {
     return (
-      <main className={styles.page}>
-        <div className={styles.ambientGlow} aria-hidden="true" />
-        {navBar}
+      <main className={styles.page} data-nav-stop={stop}>
+        <HudHeader />
 
-        <div className={styles.container}>
-          <section className={styles.resultShell} aria-labelledby="quiz-result-title">
-            <div className={styles.resultCore}>
-              <div className={styles.resultHeader}>
-                <h1 id="quiz-result-title" className={styles.title}>
-                  Your Green Tech <span className={styles.titleHighlight}>Knowledge Score</span>
-                </h1>
-                <div className={styles.scoreHero}>
-                  {score}
-                  <span className={styles.scoreDenom}> / {totalQuestions}</span>
+        <Chapter stop={stop} aria-label="Your result" className={styles.resultChapter}>
+          <Bench className={styles.resultStack}>
+            <div className={styles.determination}>
+              <Sheet live className={styles.resultSheet}>
+                <SheetHead of="Green Tech Club · Determination" no={`GTC·${1900 + score}`} />
+
+                <div className={styles.resultWorld}>
+                  <WorldScene growth={growth} />
                 </div>
-                <p className={styles.resultMessage}>
+
+                <Stamp pressed top="18%" living={score >= 8}>
+                  {score >= 8 ? 'Determined' : score >= 5 ? 'Re-examine' : 'Unresolved'}
+                </Stamp>
+
+                <p className={styles.resultScore} data-figure>
+                  {score}
+                  <span className={styles.resultDenom}>/ {totalQuestions}</span>
+                </p>
+                <Instrument onObject>Answers correct</Instrument>
+              </Sheet>
+
+              <div className={styles.resultCopy}>
+                <Instrument ruled>Result</Instrument>
+                <Stamped as="h1" scale="section">
+                  {score >= 8
+                    ? 'You know how this works'
+                    : score >= 5
+                      ? 'A solid foundation'
+                      : 'Worth another run'}
+                </Stamped>
+                <Prose>
                   {score >= 8
                     ? 'Excellent work. You understand both renewable-energy fundamentals and complex systems-level architecture.'
                     : score >= 5
-                    ? 'Solid foundation. Review the explanations below to strengthen your understanding of missed topics.'
-                    : 'A valuable first attempt. Read through each explanation below and take the challenge again to master green tech principles.'}
-                </p>
-              </div>
+                      ? 'Solid foundation. Review the explanations below to strengthen your understanding of missed topics.'
+                      : 'A valuable first attempt. Read through each explanation below and take the challenge again to master green tech principles.'}
+                </Prose>
 
-              {/* Difficulty Breakdown Grid */}
-              <div className={styles.scoreGrid} aria-label="Scores by difficulty">
-                {difficultyScores.map((item) => (
-                  <div className={styles.scoreCardShell} key={item.difficulty}>
-                    <div className={styles.scoreCardCore}>
-                      <span className={styles.scoreCardLabel}>{item.difficulty}</span>
-                      <strong className={styles.scoreCardVal}>
+                {/* Ruled columns, not score cards: three numbers do not each
+                    need a container to be read as three numbers. */}
+                <div className={styles.byDifficulty} aria-label="Scores by difficulty">
+                  {difficultyScores.map((item) => (
+                    <div className={styles.difficultyRow} key={item.difficulty}>
+                      <span className={styles.difficultyLabel}>{item.difficulty}</span>
+                      <span className={styles.difficultyValue} data-figure>
                         {item.correct} / {item.total}
-                      </strong>
+                      </span>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
 
-              {/* Question Review List */}
-              <div className={styles.reviewList}>
+                <div className={styles.resultActions}>
+                  <Action onClick={restartQuiz} icon={<ReplayGlyph />}>
+                    Try again
+                  </Action>
+                  <Action to="/explore" ghost>
+                    Back to Explore
+                  </Action>
+                </div>
+              </div>
+            </div>
+
+            {/* Review. One ruled entry per question — the old version wrapped
+                each in its own panel, ten containers for ten paragraphs. */}
+            <section className={styles.review}>
+              <Instrument ruled>Every question, reviewed</Instrument>
+
+              <ol className={styles.reviewList}>
                 {responses.map((response, index) => (
-                  <article className={styles.reviewItemShell} key={response.question.id}>
-                    <div className={styles.reviewHeading}>
+                  <li className={styles.reviewItem} key={response.question.id}>
+                    <p className={styles.reviewMeta}>
                       <span>Question {index + 1}</span>
                       <strong
                         className={
@@ -94,7 +180,7 @@ function QuizChallenge() {
                       >
                         {response.isCorrect ? 'Correct' : 'Incorrect'}
                       </strong>
-                    </div>
+                    </p>
                     <p className={styles.reviewPrompt}>{response.question.prompt}</p>
                     {!response.isCorrect && (
                       <p className={styles.correctAnswerText}>
@@ -102,128 +188,119 @@ function QuizChallenge() {
                       </p>
                     )}
                     <p className={styles.reviewExplanation}>{response.question.explanation}</p>
-                  </article>
+                  </li>
                 ))}
-              </div>
+              </ol>
+            </section>
 
-              {/* Result Actions */}
-              <div className={styles.resultActions}>
-                <button
-                  className={styles.primaryButton}
-                  type="button"
-                  onClick={restartQuiz}
-                >
-                  <span>Try again</span>
-                  <div className={styles.btnIconWrapper}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </div>
-                </button>
-                <Link className={styles.ghostLink} to="/explore">
-                  Back to Explore
-                </Link>
-              </div>
-
-              {/* Sharing a score is the one moment in the site with genuine
-                  social intent, so the plugins live here rather than being
-                  scattered across every page (FR-SOC-003). */}
-              <SocialShare
-                label="Share your score"
-                title={`I scored ${score}/${totalQuestions} on the RE:FUTURE green tech challenge!`}
-              />
-            </div>
-          </section>
-        </div>
+            {/* Sharing a score is the one moment in the site with genuine
+                social intent, so the plugins live here rather than being
+                scattered across every page (FR-SOC-003). */}
+            <SocialShare
+              label="Share your score"
+              title={`I scored ${score}/${totalQuestions} on the RE:FUTURE green tech challenge!`}
+            />
+          </Bench>
+        </Chapter>
       </main>
     );
   }
 
+  /* ── Question ───────────────────────────────────────────────────────── */
+
   const selectedIsCorrect = selectedAnswer === currentQuestion.answer;
 
-  const diffStyle =
-    currentQuestion.difficulty === 'Easy'
-      ? styles.diffEasy
-      : currentQuestion.difficulty === 'Medium'
-      ? styles.diffMedium
-      : styles.diffHard;
-
   return (
-    <main className={styles.page}>
-      <div className={styles.ambientGlow} aria-hidden="true" />
-      {navBar}
+    <main className={styles.page} data-nav-stop={stop}>
+      <HudHeader />
 
-      <div className={styles.container}>
-        {/* RESUME OFFER — shown when sessionStorage holds unfinished progress
-            from this tab (FR-STO-005). Resuming is opt-in: silently restoring
-            would strand anyone who deliberately wanted a clean run. */}
-        {canResume && (
-          <div className={styles.resumeBar} role="status">
-            <div className={styles.resumeCopy}>
-              <strong className={styles.resumeTitle}>Unfinished attempt found</strong>
-              <span className={styles.resumeText}>
-                You stopped at question {savedQuestionNumber} of {totalQuestions} in this tab.
-              </span>
+      <Chapter stop={stop} aria-label="Green tech challenge" className={styles.runChapter}>
+        <Bench className={styles.run}>
+          {/* RESUME OFFER — shown when sessionStorage holds unfinished progress
+              from this tab (FR-STO-005). Resuming is opt-in: silently restoring
+              would strand anyone who deliberately wanted a clean run. */}
+          {canResume && (
+            <div className={styles.resume} role="status">
+              <p className={styles.resumeCopy}>
+                <strong>Unfinished attempt found.</strong> You stopped at question{' '}
+                {savedQuestionNumber} of {totalQuestions} in this tab.
+              </p>
+              <div className={styles.resumeActions}>
+                <button type="button" className={styles.textButton} onClick={discardSavedProgress}>
+                  Start over
+                </button>
+                <button type="button" className={styles.textButton} onClick={resumeQuiz}>
+                  Resume
+                </button>
+              </div>
             </div>
-            <div className={styles.resumeActions}>
-              <button type="button" className={styles.resumeDismiss} onClick={discardSavedProgress}>
-                Start over
-              </button>
-              <button type="button" className={styles.resumeConfirm} onClick={resumeQuiz}>
-                Resume
-              </button>
+          )}
+
+          {/* ---- The world, and the reader's standing in it ---- */}
+          <aside className={styles.world}>
+            <WorldScene growth={growth} />
+
+            <div className={styles.standing}>
+              <Instrument ruled>The world you are raising</Instrument>
+              <p className={styles.standingScore} data-figure>
+                {score}
+                <span className={styles.standingDenom}>/ {totalQuestions}</span>
+              </p>
+              <p className={styles.standingNote}>
+                {score === 0
+                  ? 'Nothing is growing yet. Every right answer changes that.'
+                  : score === totalQuestions
+                    ? 'Everything that could grow, grew.'
+                    : 'It greens as you get them right.'}
+              </p>
             </div>
-          </div>
-        )}
+          </aside>
 
-        {/* PROGRESS METRIC BAR */}
-        <div className={styles.progressMeta}>
-          <span>
-            Question {questionNumber} of {totalQuestions}
-          </span>
-          <span className={styles.progressScore}>{score} correct</span>
-        </div>
-        <div
-          className={styles.progressTrack}
-          role="progressbar"
-          aria-label="Quiz progress"
-          aria-valuemin={1}
-          aria-valuemax={totalQuestions}
-          aria-valuenow={questionNumber}
-        >
-          <span className={styles.progressFill} style={{ width: `${progress}%` }} />
-        </div>
-
-        {/* QUESTION CARD (DOUBLE-BEZEL) */}
-        <section className={styles.questionShell} aria-labelledby="question-prompt">
-          <div className={styles.questionCore}>
+          {/* ---- The question ---- */}
+          <section className={styles.question} aria-labelledby="question-prompt">
             <div className={styles.questionMeta}>
-              <span className={`${styles.difficultyPill} ${diffStyle}`}>
-                {currentQuestion.difficulty}
+              <span>
+                Question {questionNumber} of {totalQuestions}
               </span>
-              <span className={styles.topicTag}>{currentQuestion.topic}</span>
+              <span className={styles.questionTags}>
+                {currentQuestion.difficulty} · {currentQuestion.topic}
+              </span>
             </div>
 
-            <h2 id="question-prompt" className={styles.questionPrompt}>
-              {currentQuestion.prompt}
-            </h2>
+            <div
+              className={styles.progressTrack}
+              role="progressbar"
+              aria-label="Quiz progress"
+              aria-valuemin={1}
+              aria-valuemax={totalQuestions}
+              aria-valuenow={questionNumber}
+            >
+              <span className={styles.progressFill} style={{ width: `${progress}%` }} />
+            </div>
 
-            {/* OPTION GRID */}
-            <div className={styles.optionGrid}>
+            <Stamped as="h2" scale="section" id="question-prompt" className={styles.prompt}>
+              {currentQuestion.prompt}
+            </Stamped>
+
+            {/* Options as a filing run: full-width rows opened one at a time,
+                not a grid of four boxes. */}
+            <ul className={styles.options}>
               {currentQuestion.options.map((option, optionIndex) => {
                 const isSelected = selectedAnswer === optionIndex;
                 const isCorrectOption = isAnswered && optionIndex === currentQuestion.answer;
                 const isWrongSelection = isAnswered && isSelected && !isCorrectOption;
 
                 return (
-                  <div key={option} className={styles.optionShell}>
+                  <li key={option}>
                     <button
                       className={[
-                        styles.optionButton,
-                        isSelected ? styles.selectedOption : '',
-                        isCorrectOption ? styles.correctOption : '',
-                        isWrongSelection ? styles.incorrectOption : '',
-                      ].join(' ')}
+                        styles.option,
+                        isSelected ? styles.optionSelected : '',
+                        isCorrectOption ? styles.optionCorrect : '',
+                        isWrongSelection ? styles.optionWrong : '',
+                      ]
+                        .filter(Boolean)
+                        .join(' ')}
                       type="button"
                       onClick={() => selectAnswer(optionIndex)}
                       disabled={isAnswered}
@@ -234,34 +311,24 @@ function QuizChallenge() {
                       </span>
                       <span>{option}</span>
                     </button>
-                  </div>
+                  </li>
                 );
               })}
-            </div>
+            </ul>
 
-            {/* FEEDBACK EXPLANATION BLOCK */}
             {isAnswered && (
               <div
                 className={[
-                  styles.feedbackBlock,
-                  selectedIsCorrect ? styles.correctFeedback : styles.incorrectFeedback,
+                  styles.feedback,
+                  selectedIsCorrect ? styles.feedbackCorrect : styles.feedbackWrong,
                 ].join(' ')}
                 role="status"
               >
-                <div className={styles.feedbackTitle}>
-                  {selectedIsCorrect ? (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  ) : (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  )}
+                <p className={styles.feedbackTitle}>
                   <span>{selectedIsCorrect ? 'Correct.' : 'Not quite.'}</span>
-                </div>
+                </p>
                 {!selectedIsCorrect && (
-                  <p className={styles.feedbackText} style={{ marginBottom: '0.4rem', fontWeight: 600 }}>
+                  <p className={styles.feedbackAnswer}>
                     The correct answer is{' '}
                     <strong>{currentQuestion.options[currentQuestion.answer]}</strong>.
                   </p>
@@ -270,28 +337,19 @@ function QuizChallenge() {
               </div>
             )}
 
-            {/* CARD FOOTER CTA */}
-            <div className={styles.cardFooter}>
-              <span className={styles.helperText}>
+            <div className={styles.runFooter}>
+              <Instrument>
                 {isAnswered ? 'Read the explanation before continuing.' : 'Choose one answer.'}
-              </span>
-              <button
-                className={styles.primaryButton}
-                type="button"
-                onClick={nextQuestion}
-                disabled={!isAnswered}
-              >
-                <span>{questionNumber === totalQuestions ? 'See results' : 'Next question'}</span>
-                <div className={styles.btnIconWrapper}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </div>
-              </button>
+              </Instrument>
+              {isAnswered && (
+                <Action onClick={nextQuestion}>
+                  {questionNumber === totalQuestions ? 'See results' : 'Next question'}
+                </Action>
+              )}
             </div>
-          </div>
-        </section>
-      </div>
+          </section>
+        </Bench>
+      </Chapter>
     </main>
   );
 }
