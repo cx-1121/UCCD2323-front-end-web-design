@@ -1,49 +1,33 @@
 /**
- * The storage boundary (architecture §1, boundary 1).
+ * Safe wrappers for localStorage and sessionStorage.
  *
- * `localStorage` and `sessionStorage` are hostile APIs: reading `window
- * .localStorage` at all throws in Safari private browsing and under a
- * `SecurityError` from a sandboxed iframe, and `setItem` throws
- * `QuotaExceededError` once the origin's budget is spent. A `try/catch`
- * scattered across every call site is impossible to keep consistent, so every
- * access in the app funnels through the two stores exported here.
- *
- * Failure policy (FR-STO-001): a read that cannot reach the store returns
- * `null`, a write that cannot reach it returns `false`. Nothing throws. Values
- * are additionally mirrored into an in-memory Map so that a session running
- * with storage disabled still behaves coherently within the page's lifetime —
- * it simply forgets everything on reload (NFR-008).
+ * These handle errors gracefully (e.g. Safari private mode throws,
+ * and setItem throws when storage is full). Falls back to in-memory
+ * storage when the real store is unavailable.
  */
 
 type StorageKind = 'local' | 'session';
 
-/** Public surface of a fault-tolerant store. */
+/** Public interface for a safe storage wrapper. */
 export interface SafeStore {
-  /** Reads a raw string. Returns `null` if absent or unreadable. */
+  /** Reads a raw string. Returns null if absent or unreadable. */
   get(key: string): string | null;
-  /** Writes a raw string. Returns `false` if the value could not be persisted. */
+  /** Writes a raw string. Returns false if it could not be saved. */
   set(key: string, value: string): boolean;
-  /** Deletes a key. Returns `false` if the removal could not be persisted. */
+  /** Deletes a key. Returns false if it could not be removed. */
   remove(key: string): boolean;
-  /** Reads and parses JSON. Returns `null` if absent, unreadable, or malformed. */
+  /** Reads and parses JSON. Returns null if absent or malformed. */
   getJSON<T>(key: string): T | null;
-  /** Serializes and writes JSON. Returns `false` if it could not be persisted. */
+  /** Serializes and writes JSON. Returns false if it could not be saved. */
   setJSON(key: string, value: unknown): boolean;
 }
 
-/**
- * Builds a fault-tolerant façade over one of the two web storage areas.
- *
- * The underlying store is resolved on every call rather than cached at module
- * load. Availability is not a constant — quota can be exhausted mid-session,
- * and a cached "unavailable" verdict from page load would permanently demote a
- * store that recovered.
- */
+/** Creates a safe wrapper around localStorage or sessionStorage. */
 function createSafeStore(kind: StorageKind): SafeStore {
-  /** Mirror of everything written, used when the real store is unreachable. */
+  /** In-memory fallback when the real store is unavailable. */
   const memory = new Map<string, string>();
 
-  /** One diagnostic per store per session; a warning on every keystroke is noise. */
+  /** Only warn once per store to avoid spam. */
   let hasWarned = false;
 
   function warnOnce(operation: string, error: unknown): void {
@@ -56,15 +40,10 @@ function createSafeStore(kind: StorageKind): SafeStore {
     );
   }
 
-  /** Throws if the store is unreachable — callers must wrap this. */
   function store(): Storage {
     return kind === 'local' ? window.localStorage : window.sessionStorage;
   }
 
-  // Declared as closure-scoped functions rather than object methods so they
-  // never depend on `this`. A caller writing `const { getJSON } = safeSession`
-  // would otherwise get a TypeError at runtime — an easy mistake to make and a
-  // hard one to read off a stack trace.
   function get(key: string): string | null {
     try {
       return store().getItem(key);
@@ -75,8 +54,6 @@ function createSafeStore(kind: StorageKind): SafeStore {
   }
 
   function set(key: string, value: string): boolean {
-    // Mirror first so the in-memory view is correct whether or not the
-    // persistent write lands.
     memory.set(key, value);
     try {
       store().setItem(key, value);
@@ -105,8 +82,6 @@ function createSafeStore(kind: StorageKind): SafeStore {
     try {
       return JSON.parse(raw) as T;
     } catch (error) {
-      // A corrupt entry is worse than no entry: it would fail again on every
-      // future read. Drop it and report a miss.
       warnOnce('getJSON', error);
       remove(key);
       return null;
@@ -117,7 +92,6 @@ function createSafeStore(kind: StorageKind): SafeStore {
     try {
       return set(key, JSON.stringify(value));
     } catch (error) {
-      // JSON.stringify throws on circular structures and BigInt values.
       warnOnce('setJSON', error);
       return false;
     }
@@ -126,8 +100,8 @@ function createSafeStore(kind: StorageKind): SafeStore {
   return { get, set, remove, getJSON, setJSON };
 }
 
-/** Persistent, origin-scoped storage. Survives tab close. */
+/** Persistent storage (survives tab close). */
 export const safeLocal: SafeStore = createSafeStore('local');
 
-/** Per-tab storage. Cleared when the tab closes — the right home for caches. */
+/** Per-tab storage (cleared when the tab closes). */
 export const safeSession: SafeStore = createSafeStore('session');

@@ -11,36 +11,20 @@ import type {
 } from './types';
 
 /**
- * Live carbon figures for the dashboard, from the World Bank WDI database.
+ * Live carbon figures for the dashboard, fetched from the World Bank WDI database.
  *
- * Three logical fetches replace the mock data that used to back these charts:
- *   1. eight sector series x ten years for the World  (trend + donut)
- *   2. total and per-capita CO₂ for ten emitters      (top emitters)
- *   3. three electricity-mix shares for five countries (mix comparison)
+ * Three groups of data:
+ *   1. Sector emissions for the World (trend chart + donut)
+ *   2. Total and per-capita CO₂ for top 10 emitters (bar chart)
+ *   3. Electricity mix shares for 5 countries (comparison chart)
  *
- * Each resolves to one request per indicator — thirteen in total, issued
- * concurrently — because only the per-indicator route is CORS-enabled. See
- * `worldBank.ts` for why the single-request batch endpoint is unusable here.
- * The day-long cache means a returning visitor pays none of it.
- *
- * A definitional note that belongs in code because it changes what the numbers
- * mean: `EN.GHG.CO2.*` is CO₂ **excluding land use (LULUCF)**, which runs
- * higher than the fossil-fuel-only figure often quoted for global emissions
- * (~39.6 Gt vs ~37 Gt for 2024). The UI cites the source so the two are not
- * silently conflated.
+ * Each indicator is fetched separately (the batch endpoint doesn't support CORS).
  */
 
 /** Emissions series are published ~2 years behind; ten years covers the chart. */
 const TREND_YEARS = Array.from({ length: 10 }, (_, i) => 2015 + i);
 
-/**
- * Same span as the sector trend, deliberately.
- *
- * The world per-capita series is pulled from this request, and its sparkline
- * sits beside the total-emissions sparkline in the KPI row — two charts over
- * different year ranges would invite a comparison that isn't valid. Widening
- * the range costs no extra request, only rows.
- */
+/** Same year range as the sector trend for consistency. */
 const EMITTER_YEARS = TREND_YEARS;
 
 /** Electricity mix lags further; reach back far enough to find a complete year. */
@@ -59,16 +43,8 @@ const MIX_NUCLEAR = 'EG.ELC.NUCL.ZS';
 const MIX_RENEWABLE = 'EG.ELC.RNEW.ZS';
 
 /**
- * Sector groups, in stacked order (first renders at the baseline).
- *
- * The World Bank publishes eight CO₂ sectors. Two pairs are merged: industrial
- * combustion with industrial processes (both read as "industry" to anyone
- * looking at a chart), and agriculture with waste, which are 0.36% and 0.03%
- * of the total — slivers too thin to see, let alone label.
- *
- * Colours were validated as a six-slot categorical palette in this exact
- * adjacency order (lightness band, chroma floor, CVD separation, normal-vision
- * floor, surface contrast — all pass).
+ * Sector groups for the stacked chart. The World Bank has 8 sectors but
+ * we merge some related ones (e.g. industrial combustion + processes = "Industry").
  */
 export const SECTOR_GROUPS: {
   key: string;
@@ -117,22 +93,13 @@ export const CARBON_CACHE_TTL_MS = 86_400_000;
 
 /* ── Bundled fallback ───────────────────────────────────────────────────── */
 
-/**
- * Real World Bank world totals, gigatonnes, 2015–2024.
- *
- * These are exact. The COVID dip at 2020 and the recovery above the 2019 peak
- * by 2021 are both in the real series, so the degraded chart tells the same
- * story as the live one.
- */
+/** Real World Bank world totals in gigatonnes, 2015–2024. */
 const FALLBACK_TOTAL_GT: [number, number][] = [
   [2015, 36.3], [2016, 36.4], [2017, 37.0], [2018, 37.9], [2019, 38.0],
   [2020, 36.2], [2021, 38.2], [2022, 38.5], [2023, 39.1], [2024, 39.6],
 ];
 
-/**
- * 2024 sector proportions, from the real readings
- * (15485.8 / 8299.2 / 9649.4 / 3253.8 / 2787.6 / 156.9 Mt of 39632.7).
- */
+/** 2024 sector proportions from the World Bank data. */
 const FALLBACK_SECTOR_SHARE: Record<string, number> = {
   power: 0.3907,
   transport: 0.2094,
@@ -142,15 +109,7 @@ const FALLBACK_SECTOR_SHARE: Record<string, number> = {
   other: 0.004,
 };
 
-/**
- * Bundled trend used when the upstream is unreachable.
- *
- * Each year's *total* is the real published figure; the split across sectors
- * holds the 2024 proportions constant, because storing ten years x six sectors
- * of hand-copied numbers invites exactly the drift this fallback exists to
- * avoid. The approximation is in the mix, never in the headline total — and the
- * UI flags the whole panel as bundled when this is what renders.
- */
+/** Builds a fallback trend when the API is unreachable. */
 function buildFallbackTrend(): SectorYear[] {
   return FALLBACK_TOTAL_GT.map(([year, totalGt]) => {
     const totalMt = totalGt * MT_PER_GT;
@@ -166,14 +125,7 @@ function buildFallbackTrend(): SectorYear[] {
   });
 }
 
-/**
- * World CO₂ per person, tonnes — the real World Bank series.
- *
- * Worth stating plainly because the chart it feeds says something the hand-made
- * predecessor did not: per-capita emissions have been flat for a decade, with a
- * COVID dip. Total emissions rose over the same period because population did.
- * The mock series this replaces drew a steady climb.
- */
+/** World CO₂ per person, tonnes — real World Bank data. */
 const FALLBACK_PER_CAPITA: YearValue[] = [
   { year: 2015, value: 4.7 },
   { year: 2016, value: 4.65 },
@@ -187,7 +139,7 @@ const FALLBACK_PER_CAPITA: YearValue[] = [
   { year: 2024, value: 4.69 },
 ];
 
-/** Rendered whenever live data is unavailable, with a DEGRADED badge. */
+/** Fallback data shown when the API is unavailable. */
 export const FALLBACK_CARBON: CarbonSnapshot = {
   dataYear: 2024,
   sectorTrend: buildFallbackTrend(),
@@ -294,13 +246,7 @@ function buildEmitters(
   return { rows: [], year: 0 };
 }
 
-/**
- * Extracts the world per-capita series, ascending by year.
- *
- * Read from the emitters response rather than its own request: that call
- * already asks for `EN.GHG.CO2.PC.CE.AR5`, so adding `WLD` to its country list
- * yields this for free.
- */
+/** Extracts the world per-capita series, sorted by year ascending. */
 function buildPerCapitaTrend(
   index: Map<string, Map<string, Map<number, number>>>,
 ): YearValue[] {
@@ -337,13 +283,10 @@ function buildEnergyMix(
 }
 
 /**
- * Fetches and assembles every live figure the dashboard needs.
+ * Fetches all carbon data the dashboard needs.
+ * All three requests run concurrently for faster loading.
  *
- * The three requests run concurrently — they are independent, and serialising
- * them would triple the worst-case wait against the 8 s per-request ceiling.
- *
- * @param force Bypasses the cache; wired to the panel's Refresh control.
- * @throws {ApiError} If any of the three requests fails or returns a bad shape.
+ * @param force Bypasses the cache (used by the Refresh button).
  */
 export async function getCarbonSnapshot(
   force = false,

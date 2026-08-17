@@ -3,18 +3,13 @@ import { getCookie, removeCookie, setCookie } from '../utils/cookies';
 import { CONSENT_COOKIE, CONSENT_MAX_AGE_DAYS } from '../utils/storageKeys';
 import { ConsentContext, type ConsentStatus, type ConsentValue } from './consentContext';
 
-/** Cookie value written on acceptance (FR-STO-004). */
+/** Cookie value for acceptance. */
 const CONSENT_GRANTED = 'granted';
 
-/** Cookie value written on refusal (FR-STO-004). */
+/** Cookie value for refusal. */
 const CONSENT_DENIED = 'denied';
 
-/**
- * Reads the persisted decision.
- *
- * Any value other than the two we write is treated as `'unset'` — a
- * hand-edited or truncated cookie must not be interpreted as consent.
- */
+/** Reads the saved consent decision from the cookie. */
 function readPersistedConsent(): ConsentStatus {
   const raw = getCookie(CONSENT_COOKIE);
 
@@ -24,24 +19,14 @@ function readPersistedConsent(): ConsentStatus {
 }
 
 /**
- * Supplies consent state to the tree and keeps it in sync with the cookie.
- *
- * The cookie is read once via lazy `useState` initialisation rather than in an
- * effect: an effect would render one frame with `'unset'`, flashing the consent
- * banner at visitors who already decided.
+ * Provides consent state to the component tree.
+ * Reads the cookie on mount and stays in sync with it.
  */
 export function ConsentProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<ConsentStatus>(readPersistedConsent);
 
-  /**
-   * Re-reads the cookie when the tab regains focus (SEC-M1-STORAGE-001).
-   *
-   * The in-memory status is a mirror, and a mirror can go stale: withdrawing
-   * consent in a second tab, or clearing the cookie in devtools, leaves this
-   * tab believing it may still load third-party scripts. There is no storage
-   * event for cookies, so focus is the reliable resync point. Withdrawal has to
-   * be as effective as granting, not merely as available.
-   */
+  // Re-read the cookie when the tab regains focus (in case user
+  // changed consent in another tab or cleared cookies in devtools)
   useEffect(() => {
     const resync = () => setStatus(readPersistedConsent());
     window.addEventListener('focus', resync);

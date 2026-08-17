@@ -78,7 +78,7 @@ function App() {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
         </Routes>
-        {/* Renders only until a consent decision exists (FR-STO-003). */}
+        {/* Cookie consent banner */}
         <CookieConsent />
         {isDebug && <DebugConsole />}
       </Router>

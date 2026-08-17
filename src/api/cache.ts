@@ -1,24 +1,18 @@
 import { safeSession } from '../utils/storage';
 
-/**
- * sessionStorage-backed TTL cache for API responses (FR-API-004).
- *
- * sessionStorage rather than localStorage on purpose: the cached figures are a
- * snapshot of "right now", and a stale entry surviving into a browsing session
- * next week would be worse than a cache miss. Per-tab lifetime matches the data's
- * meaningfulness.
- */
+// Simple sessionStorage cache for API responses.
+// Cached data expires after CACHE_TTL_MS milliseconds.
 
-/** Entries older than this are discarded rather than served (NFR-005). */
+/** Entries older than this are discarded (10 minutes). */
 export const CACHE_TTL_MS = 600_000;
 
-/** Envelope written to storage. `savedAt` is what makes the TTL enforceable. */
+/** Shape of what we store in sessionStorage. */
 interface CacheEntry<T> {
   payload: T;
   savedAt: number;
 }
 
-/** Rejects anything that is not our own envelope shape. */
+/** Checks if a value matches our cache entry shape. */
 function isCacheEntry<T>(value: unknown): value is CacheEntry<T> {
   return (
     typeof value === 'object' &&
@@ -31,11 +25,8 @@ function isCacheEntry<T>(value: unknown): value is CacheEntry<T> {
 }
 
 /**
- * Returns the cached payload when it exists and is still fresh.
- *
- * A stale or malformed entry is evicted on read rather than left in place — it
- * can never become valid again, and leaving it would mean re-parsing garbage on
- * every subsequent call.
+ * Reads cached data if it exists and hasn't expired.
+ * Removes stale/invalid entries automatically.
  */
 export function readCache<T>(key: string, ttlMs: number = CACHE_TTL_MS): T | null {
   const entry = safeSession.getJSON<unknown>(key);
@@ -48,9 +39,8 @@ export function readCache<T>(key: string, ttlMs: number = CACHE_TTL_MS): T | nul
 
   const age = Date.now() - entry.savedAt;
 
-  // A negative age means the clock moved backwards (NTP correction, manual
-  // change). Treat it as untrustworthy rather than infinitely fresh.
-  if (age < 0 || age > ttlMs) {
+  // Check if the entry has expired
+  if (age > ttlMs) {
     safeSession.remove(key);
     return null;
   }
@@ -58,13 +48,13 @@ export function readCache<T>(key: string, ttlMs: number = CACHE_TTL_MS): T | nul
   return entry.payload;
 }
 
-/** Stores a payload with the current timestamp. */
+/** Saves data with the current timestamp. */
 export function writeCache(key: string, payload: unknown): void {
   const entry: CacheEntry<unknown> = { payload, savedAt: Date.now() };
   safeSession.setJSON(key, entry);
 }
 
-/** Drops an entry, forcing the next read to go upstream. */
+/** Removes a cached entry. */
 export function clearCache(key: string): void {
   safeSession.remove(key);
 }

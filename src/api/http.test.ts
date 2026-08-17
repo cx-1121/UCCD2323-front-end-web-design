@@ -1,23 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-/**
- * Scripted jQuery double.
- *
- * `$.ajax` is replaced with a chainable stub whose behaviour is driven by a
- * queue: each entry describes what the next attempt does. That is what makes
- * the retry assertions meaningful — we can say "fail, fail, then succeed" and
- * count the attempts precisely.
- */
+// Mock jQuery $.ajax for testing
 type Scripted =
   | { ok: true; data: unknown }
   | { ok: false; status: number; statusText: string; textStatus: string };
 
 const script: Scripted[] = [];
 
-/** Typed so `ajaxMock.mock.calls[0][0]` is the options object, not `never`. */
 const ajaxMock = vi.fn<(options: Record<string, unknown>) => unknown>(() => {
-  // Once the queue runs out the last entry repeats, so "always fails" needs
-  // only a single entry.
   const step = script[Math.min(ajaxMock.mock.calls.length - 1, script.length - 1)];
 
   const chain = {
@@ -50,8 +40,7 @@ beforeEach(() => {
 });
 
 describe('toApiError', () => {
-  it('classifies a timeout from textStatus, not status', () => {
-    // A timeout and an offline failure both report status 0.
+  it('classifies a timeout correctly', () => {
     expect(toApiError({ status: 0, statusText: '' }, 'timeout')).toMatchObject({ kind: 'timeout' });
     expect(toApiError({ status: 0, statusText: '' }, 'error')).toMatchObject({ kind: 'network' });
   });
@@ -81,12 +70,11 @@ describe('isRetryable', () => {
 });
 
 describe('getJson', () => {
-  it('AC-API-001: issues the request through jQuery $.ajax', async () => {
+  it('issues the request through jQuery $.ajax', async () => {
     script.push({ ok: true, data: { hello: 'world' } });
 
     await getJson('https://example.test/data', { q: 1 });
 
-    // The transport is jQuery's $.ajax, not fetch or axios (FR-API-001).
     expect(ajaxMock).toHaveBeenCalledTimes(1);
     const options = ajaxMock.mock.calls[0][0] as unknown as Record<string, unknown>;
     expect(options.url).toBe('https://example.test/data');
@@ -101,13 +89,13 @@ describe('getJson', () => {
     await expect(getJson('https://example.test/data')).resolves.toEqual({ value: 42 });
   });
 
-  it('AC-API-002: rejects with an ApiError carrying kind "timeout"', async () => {
+  it('rejects with kind "timeout" on timeout', async () => {
     script.push({ ok: false, status: 0, statusText: '', textStatus: 'timeout' });
 
     await expect(getJson('https://example.test/slow')).rejects.toMatchObject({ kind: 'timeout' });
   });
 
-  it('AC-API-003: makes exactly 3 attempts on a persistent 500', async () => {
+  it('makes exactly 3 attempts on a persistent 500', async () => {
     script.push({ ok: false, status: 500, statusText: 'Server Error', textStatus: 'error' });
 
     await expect(getJson('https://example.test/boom')).rejects.toMatchObject({ kind: 'server' });
@@ -115,12 +103,11 @@ describe('getJson', () => {
     expect(ajaxMock).toHaveBeenCalledTimes(MAX_RETRIES + 1);
   });
 
-  it('AC-API-003: makes exactly 1 attempt on a 404', async () => {
+  it('makes exactly 1 attempt on a 404', async () => {
     script.push({ ok: false, status: 404, statusText: 'Not Found', textStatus: 'error' });
 
     await expect(getJson('https://example.test/missing')).rejects.toMatchObject({ kind: 'client' });
 
-    // Retrying a 404 only delays the fallback; the same request is rejected again.
     expect(ajaxMock).toHaveBeenCalledTimes(1);
   });
 
@@ -134,19 +121,18 @@ describe('getJson', () => {
     expect(ajaxMock).toHaveBeenCalledTimes(2);
   });
 
-  it('accepts a per-call timeout and retry budget for slow upstreams', async () => {
+  it('accepts a per-call timeout for slow APIs', async () => {
     script.push({ ok: false, status: 0, statusText: '', textStatus: 'timeout' });
 
     await expect(
       getJson('https://slow.test/data', {}, { timeoutMs: SLOW_REQUEST_TIMEOUT_MS, maxRetries: 1 }),
     ).rejects.toMatchObject({ kind: 'timeout' });
 
-    // A slow upstream is not a flaky one: fewer attempts, each given longer.
     expect(ajaxMock).toHaveBeenCalledTimes(2);
     expect((ajaxMock.mock.calls[0][0] as { timeout: number }).timeout).toBe(30_000);
   });
 
-  it('falls back to the default ceiling when no override is given', async () => {
+  it('uses the default timeout when no override is given', async () => {
     script.push({ ok: true, data: {} });
 
     await getJson('https://example.test/data');
@@ -154,7 +140,7 @@ describe('getJson', () => {
     expect((ajaxMock.mock.calls[0][0] as { timeout: number }).timeout).toBe(8000);
   });
 
-  it('never sends credentials to the public upstreams', async () => {
+  it('never sends credentials to the public APIs', async () => {
     script.push({ ok: true, data: {} });
 
     await getJson('https://example.test/data');

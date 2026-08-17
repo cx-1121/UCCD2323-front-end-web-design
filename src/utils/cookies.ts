@@ -1,27 +1,20 @@
 /**
- * The cookie boundary (architecture §1, boundary 1).
+ * Cookie utility functions.
  *
- * `document.cookie` is a string-concatenation API with sharp edges: reading it
- * yields every cookie for the origin joined by `'; '`, writing it appends or
- * replaces one entry, and deletion is expressed as a write with an expiry in
- * the past. Names and values must be percent-encoded or a value containing
- * `;` or `=` silently corrupts the whole jar.
- *
- * Every `document.cookie` access in the app goes through this module
- * (FR-STO-002). Nothing here throws — a browser with cookies disabled reads as
- * "no cookie present", which is the correct interpretation anyway.
+ * All cookie access in the app goes through this module.
+ * Names and values are percent-encoded to prevent corruption.
  */
 
-/** Milliseconds in a day, for translating the `days` option into an expiry. */
+/** Milliseconds in a day. */
 const MS_PER_DAY = 86_400_000;
 
-/** Seconds in a day, for the `Max-Age` attribute. */
+/** Seconds in a day. */
 const SECONDS_PER_DAY = 86_400;
 
-/** Default scope: the whole site, so a decision made on /quiz applies on /about. */
+/** Default path scope. */
 const DEFAULT_PATH = '/';
 
-/** Cross-site posture. `Lax` sends the cookie on top-level navigation only. */
+/** Default cross-site policy. */
 const DEFAULT_SAME_SITE: SameSitePolicy = 'Lax';
 
 export type SameSitePolicy = 'Strict' | 'Lax' | 'None';
@@ -33,20 +26,13 @@ export interface CookieOptions {
   path?: string;
   /** Cross-site sending policy. Defaults to `Lax`. */
   sameSite?: SameSitePolicy;
-  /**
-   * Restrict to HTTPS. Defaults to auto — on when the page is already HTTPS.
-   * Forcing `Secure` on a `http://localhost` dev server would make the cookie
-   * silently unwritable, which is exactly the kind of "works in prod, broken in
-   * dev" trap worth designing out.
-   */
+  /** Restrict to HTTPS. Defaults to auto-detect based on current protocol. */
   secure?: boolean;
 }
 
 /**
  * Reads a single cookie by name.
- *
- * @returns The decoded value, or `null` when the cookie is absent or cookies
- *          are unavailable.
+ * Returns the decoded value, or null if not found.
  */
 export function getCookie(name: string): string | null {
   try {
@@ -68,13 +54,7 @@ export function getCookie(name: string): string | null {
   }
 }
 
-/**
- * Writes a cookie.
- *
- * Emits both `Expires` and `Max-Age`: `Max-Age` is authoritative in every
- * modern browser, while `Expires` keeps the intent legible in devtools and
- * covers the rare client that ignores `Max-Age`.
- */
+/** Writes a cookie with optional expiry and security settings. */
 export function setCookie(name: string, value: string, options: CookieOptions = {}): void {
   const {
     days,
@@ -93,8 +73,6 @@ export function setCookie(name: string, value: string, options: CookieOptions = 
 
     segments.push(`samesite=${sameSite}`);
 
-    // SameSite=None is only honoured alongside Secure; browsers reject the pair
-    // otherwise, which would drop the cookie entirely.
     if (secure || sameSite === 'None') {
       segments.push('secure');
     }
@@ -105,12 +83,7 @@ export function setCookie(name: string, value: string, options: CookieOptions = 
   }
 }
 
-/**
- * Deletes a cookie by expiring it in the past.
- *
- * The `path` must match the one used at write time — a mismatch creates a
- * second, differently-scoped cookie instead of removing the original.
- */
+/** Deletes a cookie by setting its expiry to the past. */
 export function removeCookie(name: string, path: string = DEFAULT_PATH): void {
   try {
     document.cookie = [

@@ -1,24 +1,22 @@
 /**
- * Shared contracts for the network layer (architecture §6).
+ * Shared types for the API layer.
  *
- * `ApiError` is produced in exactly one place — `http.ts` — so that every
- * consumer downstream can branch on a single, closed set of failure kinds
- * instead of re-interpreting jQuery's `(jqXHR, textStatus, errorThrown)` triple
- * at each call site.
+ * ApiError is created in http.ts so that every caller can handle
+ * errors using a simple switch on the `kind` field.
  */
 
 export type ApiErrorKind =
-  /** The request exceeded REQUEST_TIMEOUT_MS. */
+  /** Request timed out. */
   | 'timeout'
-  /** No response reached us: offline, DNS failure, CORS rejection. */
+  /** No response - offline, DNS failure, or CORS rejection. */
   | 'network'
-  /** Upstream answered 5xx. Retryable. */
+  /** Server error (5xx). Can retry. */
   | 'server'
-  /** Upstream answered 4xx. Not retryable — retrying a 404 just wastes time. */
+  /** Client error (4xx). Don't retry. */
   | 'client'
-  /** A 200 whose body did not match the documented shape. */
+  /** Got 200 but the response body was unexpected. */
   | 'shape'
-  /** The request was cancelled by us. */
+  /** Request was cancelled. */
   | 'abort';
 
 export interface ApiError {
@@ -28,7 +26,7 @@ export interface ApiError {
   message: string;
 }
 
-/** Narrowing helper — `catch` binds `unknown`, and this keeps casts out of components. */
+/** Type guard to check if a caught error is an ApiError. */
 export function isApiError(value: unknown): value is ApiError {
   return (
     typeof value === 'object' &&
@@ -47,11 +45,8 @@ export interface RenewableSharePoint {
 }
 
 /**
- * The Dashboard's live panel model.
- *
- * Deliberately flat and already unit-converted: components should render this
- * directly without knowing that solar and wind come from one upstream and the
- * renewable series from another.
+ * The Dashboard's live energy panel data model.
+ * Already unit-converted so components can render it directly.
  */
 export interface LiveEnergySnapshot {
   solar: {
@@ -74,14 +69,13 @@ export interface LiveEnergySnapshot {
   fetchedAt: number;
 }
 
-/** Where the rendered snapshot came from — drives the panel's status badge. */
+/** Where the rendered snapshot came from. */
 export type SnapshotSource = 'live' | 'cache' | 'fallback';
 
 /* ── Carbon dashboard (World Bank) ──────────────────────────────────────── */
 
 /** One emitting sector's contribution in a single year. */
 export interface SectorValue {
-  /** Stable key matching the sector group definition. */
   key: string;
   label: string;
   color: string;
@@ -104,7 +98,7 @@ export interface YearValue {
 }
 
 export interface EmitterRow {
-  /** Two-letter code shown in the bar list. */
+  /** Two-letter country code. */
   code: string;
   name: string;
   /** Gigatonnes CO₂e per year. */
@@ -118,20 +112,14 @@ export interface EnergyMixRow {
   fossil: number;
   nuclear: number;
   renewables: number;
-  /**
-   * Unattributed remainder. The three World Bank shares sum to 97–100%, so a
-   * bar stacked from them alone silently falls short of full width. Carrying
-   * the gap explicitly is more honest than normalising it away.
-   */
+  /** Unattributed remainder (100% minus the three named shares). */
   other: number;
 }
 
 /**
- * Everything the three mock-backed dashboard sections need, from live data.
- *
- * Each block carries its own reference year: the World Bank publishes
- * emissions, electricity mix and population on different schedules, and a
- * single "as of" date across all three would be a lie about at least one.
+ * Everything the carbon dashboard sections need.
+ * Each block carries its own reference year since the World Bank
+ * publishes different indicators on different schedules.
  */
 export interface CarbonSnapshot {
   /** Latest year present in the sector series. */
@@ -139,12 +127,7 @@ export interface CarbonSnapshot {
   sectorTrend: SectorYear[];
   /** Annual total for `dataYear`, gigatonnes. */
   annualTotalGt: number;
-  /**
-   * World CO₂ per person, tonnes, by year.
-   *
-   * Fetched for the `WLD` aggregate inside the emitters request, which already
-   * asks for this indicator — so the KPI row costs no extra round trip.
-   */
+  /** World CO₂ per person, tonnes, by year. */
   perCapitaTrend: YearValue[];
   emitters: EmitterRow[];
   emittersYear: number;

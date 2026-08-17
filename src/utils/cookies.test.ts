@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { getCookie, removeCookie, setCookie } from './cookies';
 
-/** jsdom persists document.cookie across tests in a file; clear between cases. */
+/** Clear all cookies between test cases. */
 function clearAllCookies(): void {
   for (const entry of document.cookie.split('; ')) {
     const name = entry.split('=')[0];
@@ -14,7 +14,7 @@ function clearAllCookies(): void {
 describe('cookies', () => {
   afterEach(clearAllCookies);
 
-  it('AC-STO-002: writes a value, reads it back, and removes it', () => {
+  it('writes a value, reads it back, and removes it', () => {
     setCookie('k', 'v', { days: 1 });
     expect(getCookie('k')).toBe('v');
 
@@ -27,7 +27,6 @@ describe('cookies', () => {
   });
 
   it('percent-encodes values so separators cannot corrupt the jar', () => {
-    // A raw ';' would terminate the cookie and silently truncate the value.
     setCookie('tricky', 'a;b=c d', { days: 1 });
 
     expect(getCookie('tricky')).toBe('a;b=c d');
@@ -49,7 +48,6 @@ describe('cookies', () => {
   it('does not match a cookie whose name is a prefix of another', () => {
     setCookie('consent_extra', 'no', { days: 1 });
 
-    // Naive substring matching would return 'no' here.
     expect(getCookie('consent')).toBeNull();
   });
 

@@ -1,49 +1,22 @@
 import $ from 'jquery';
 import type { ApiError, ApiErrorKind } from './types';
 
-/**
- * The network boundary (architecture §1, boundary 2).
- *
- * Every upstream call in the app goes through `getJson` here, and it is built
- * on jQuery's `$.ajax` — not `fetch`, not `axios` (FR-API-001). `$.getJSON` is
- * jQuery's shorthand for this exact call with `dataType: 'json'`; a single
- * transport is used rather than mixing both so that timeout, retry and error
- * normalisation apply uniformly.
- *
- * Nothing above this module ever sees a `jqXHR`. jQuery reports failure as the
- * triple `(jqXHR, textStatus, errorThrown)`, where the interesting signal is
- * split across all three — `status === 0` for a CORS rejection, `textStatus ===
- * 'timeout'` for a timeout, `errorThrown` carrying a parser message. Collapsing
- * that into one `ApiError` here is what lets callers write a single switch.
- */
+// API helper - handles all HTTP requests using jQuery $.ajax
+// with timeout, retry, and error handling.
 
-/** Default ceiling per attempt (NFR-002). Suits fast, low-latency upstreams. */
+/** Default timeout per request (8 seconds). */
 export const REQUEST_TIMEOUT_MS = 8000;
 
-/**
- * Ceiling for upstreams that are simply slow rather than broken.
- *
- * The World Bank Indicators API is highly variable: the same request has been
- * measured at well under a second and at 28 s within one session. Against the
- * 8 s default every call timed out, retried twice, and degraded the whole
- * dashboard to bundled figures — a correct response arriving late was being
- * treated as a failure.
- */
+/** Longer timeout for slow APIs like World Bank (30 seconds). */
 export const SLOW_REQUEST_TIMEOUT_MS = 30_000;
 
-/** Retries *after* the first attempt, so 3 total attempts (FR-API-003). */
+/** Number of retries after the first attempt (3 total attempts). */
 export const MAX_RETRIES = 2;
 
-/**
- * Retry budget for slow upstreams.
- *
- * Deliberately lower than the default: when a timeout means "this service is
- * slow today" rather than "a packet was dropped", a third 30 s attempt costs
- * a minute and a half to learn nothing new.
- */
+/** Fewer retries for slow APIs since each attempt takes much longer. */
 export const SLOW_MAX_RETRIES = 1;
 
-/** Per-call overrides for upstreams that do not fit the defaults. */
+/** Per-call overrides for APIs that need different settings. */
 export interface RequestOptions {
   timeoutMs?: number;
   maxRetries?: number;
@@ -59,14 +32,10 @@ const HTTP_CLIENT_ERROR_FLOOR = 400;
 const HTTP_SERVER_ERROR_FLOOR = 500;
 
 /**
- * Translates jQuery's failure triple into one `ApiError`.
- *
- * Order matters: `textStatus` is checked before `status`, because a timeout and
- * an offline failure both surface as `status === 0` and only `textStatus` tells
- * them apart.
+ * Converts jQuery's failure info into an ApiError object.
  */
 export function toApiError(
-  jqXHR: Pick<JQuery.jqXHR, 'status' | 'statusText'>,
+  jqXHR: Pick<jQuery.jqXHR, 'status' | 'statusText'>,
   textStatus: string,
   errorThrown?: string,
 ): ApiError {
@@ -102,11 +71,8 @@ export function toApiError(
 }
 
 /**
- * Whether another attempt could plausibly succeed.
- *
- * 4xx means we asked wrongly — the same request will be rejected identically,
- * so retrying only delays the fallback. `shape` is deterministic for the same
- * reason. `abort` was our own decision.
+ * Checks if an error is worth retrying.
+ * 4xx errors won't change, so we only retry timeouts, network issues, and 5xx.
  */
 export function isRetryable(error: ApiError): boolean {
   return error.kind === 'timeout' || error.kind === 'network' || error.kind === 'server';
@@ -119,7 +85,7 @@ function delay(ms: number): Promise<void> {
   });
 }
 
-/** One `$.ajax` GET, normalised to a native promise. */
+/** One $.ajax GET request, wrapped in a Promise. */
 function requestOnce<T>(
   url: string,
   params: Record<string, string | number>,
@@ -132,8 +98,6 @@ function requestOnce<T>(
       data: params,
       dataType: 'json',
       timeout: timeoutMs,
-      // No credentials are ever sent: both upstreams are public and keyless,
-      // and withCredentials against a wildcard CORS origin is rejected anyway.
       xhrFields: { withCredentials: false },
     })
       .done((data: T) => resolve(data))
@@ -144,10 +108,10 @@ function requestOnce<T>(
 }
 
 /**
- * Issues a GET and returns parsed JSON, retrying transient failures with
- * exponential backoff (FR-API-002, FR-API-003).
+ * Makes a GET request and returns parsed JSON.
+ * Retries on transient failures with exponential backoff.
  *
- * @throws {ApiError} Always an `ApiError`, never a raw jqXHR.
+ * @throws {ApiError} Always throws an ApiError on failure.
  */
 export async function getJson<T>(
   url: string,
@@ -177,9 +141,8 @@ export async function getJson<T>(
         `[api] ${lastError.kind} on ${url} (attempt ${attempt + 1}/${maxRetries + 1}); retrying.`,
       );
 
-      // Full jitter on the backoff. Without it, every client that hit the same
-      // upstream outage retries in lockstep at exactly 500 ms and 1000 ms,
-      // re-converging on a service that is already struggling.
+      // Exponential backoff with some randomness to avoid all clients
+      // retrying at the exact same time
       const ceiling = RETRY_BASE_MS * 2 ** attempt;
       await delay(ceiling / 2 + Math.random() * (ceiling / 2));
     }

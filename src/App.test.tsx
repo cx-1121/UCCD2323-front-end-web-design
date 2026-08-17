@@ -3,11 +3,8 @@ import { render, screen } from '@testing-library/react';
 import App from './App';
 
 /**
- * M1 placeholder smoke test — confirms the static composition root mounts
- * without throwing and renders the landing page's own furniture. Full
- * per-component/hook unit-test coverage (mocking GSAP/ScrollTrigger, canvas,
- * etc.) is Milestone 3 (PRD §4/§6 M3 contract); this just proves the Vitest +
- * RTL harness works end-to-end for M1's static markup.
+ * Smoke test — confirms the app mounts without throwing
+ * and renders the landing page correctly.
  */
 describe('App', () => {
   it('renders the landing page furniture without throwing', () => {

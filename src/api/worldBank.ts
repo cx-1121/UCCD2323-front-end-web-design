@@ -4,27 +4,14 @@ import type { ApiError } from './types';
 /**
  * World Bank Indicators API client.
  *
- * **On why this is not the batch endpoint.** The `/v2/sources/{id}/country/…/
- * series/…/data` route answers many indicators in one request and looks like
- * the obvious choice — it returns 200 to curl and carries every cell we need.
- * It sends no `Access-Control-Allow-Origin` header, so a browser blocks it
- * outright. Only the classic `/v2/country/{c}/indicator/{i}` route is
- * CORS-enabled (verified 2026-08-12: `Access-Control-Allow-Origin: *`,
- * including for semicolon-joined country lists).
- *
- * So: one request per indicator, each covering every country and year at once,
- * issued concurrently and merged here. Callers see a single flat cell list and
- * do not need to know how many round trips produced it.
+ * Uses the classic per-indicator route because the batch endpoint
+ * doesn't support CORS in browsers. One request per indicator,
+ * all run concurrently.
  */
 
 const BASE_URL = 'https://api.worldbank.org/v2/country';
 
-/**
- * Rows requested beyond the exact country x year count.
- *
- * The API defaults to 50 rows and silently paginates past it, which downstream
- * would look like "the series stops in 2019" rather than a truncated response.
- */
+/** Request enough rows to avoid pagination. */
 const PAGE_HEADROOM = 50;
 
 /** One observation: a country/series/year triple and its value. */
@@ -43,13 +30,7 @@ interface RawRow {
   value: number | null;
 }
 
-/**
- * Validates the classic `[metadata, rows]` envelope.
- *
- * The World Bank answers a bad indicator with HTTP 200 and an XML error
- * document, and a bad parameter with 200 plus `[{message:[…]}]`, so status
- * alone proves nothing about the body.
- */
+/** Validates the World Bank's [metadata, rows] response format. */
 function isIndicatorResponse(value: unknown): value is [{ pages?: number }, RawRow[]] {
   if (!Array.isArray(value) || value.length < 2) return false;
   if (!Array.isArray(value[1])) return false;
@@ -125,17 +106,8 @@ async function fetchIndicator(
 }
 
 /**
- * Fetches every (country x series x year) combination.
- *
- * Indicators are requested concurrently — they are independent, and
- * serialising eight sector series would multiply the worst case by eight
- * against the 8 s per-request ceiling.
- *
- * Cells the World Bank has no figure for are dropped rather than returned as
- * nulls: a missing year in a trend is a gap to skip, not a zero to plot.
- *
- * @throws {ApiError} On transport failure, an unexpected envelope, or a
- *         truncated (multi-page) result for any indicator.
+ * Fetches data for all requested country/indicator/year combinations.
+ * Runs all indicator requests concurrently.
  */
 export async function fetchWorldBankSeries(
   countries: string[],
@@ -181,15 +153,8 @@ export function indexCells(
 }
 
 /**
- * Latest year for which *every* requested country/series pair reports.
- *
- * The electricity-mix indicators are the reason this exists: fossil and
- * nuclear currently run to 2023 while renewables stop at 2021, so taking each
- * series' own latest year would stack figures from different years into one
- * 100% bar. Computed rather than hardcoded so it self-corrects when the World
- * Bank publishes the next update.
- *
- * @returns The year, or `null` if no year is complete across the whole set.
+ * Finds the latest year where every country has data for every indicator.
+ * Returns null if no such year exists.
  */
 export function latestCommonYear(
   cells: WorldBankCell[],

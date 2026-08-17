@@ -3,7 +3,7 @@ import { loadExternalScript, resetLoadedScripts } from './loadExternalScript';
 
 const SRC = 'https://platform.twitter.com/widgets.js';
 
-/** Fires `load` on every script tag currently in the document. */
+/** Fires load or error on every script tag in the document. */
 function settleScripts(event: 'load' | 'error'): void {
   document.querySelectorAll('script').forEach((script) => {
     script.dispatchEvent(new Event(event));
@@ -25,12 +25,10 @@ afterEach(() => {
 });
 
 describe('loadExternalScript', () => {
-  it('AC-SOC-001: appends exactly one script for two concurrent calls', async () => {
+  it('appends exactly one script for two concurrent calls', async () => {
     const first = loadExternalScript(SRC);
     const second = loadExternalScript(SRC);
 
-    // React 18 StrictMode double-mounts, and the share surface appears on more
-    // than one route — without memoisation each would append its own tag.
     expect(scriptCount(SRC)).toBe(1);
 
     settleScripts('load');
@@ -67,18 +65,16 @@ describe('loadExternalScript', () => {
     expect(scriptCount(SRC)).toBe(0);
   });
 
-  it('NFR-003: rejects after the timeout when the script never settles', async () => {
+  it('rejects after the timeout when the script never loads', async () => {
     const load = loadExternalScript(SRC, 6000);
 
-    // An adblocker does not error the request, it stalls it — without the
-    // timeout the fallback UI would never render.
     await vi.advanceTimersByTimeAsync(6001);
 
     await expect(load).rejects.toThrow(/Timed out/);
     expect(scriptCount(SRC)).toBe(0);
   });
 
-  it('allows a retry after a failure rather than poisoning the URL', async () => {
+  it('allows a retry after a failure', async () => {
     const first = loadExternalScript(SRC);
     settleScripts('error');
     await expect(first).rejects.toThrow();

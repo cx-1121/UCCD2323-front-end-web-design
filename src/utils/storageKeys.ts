@@ -1,34 +1,28 @@
 /**
- * Frozen storage identifiers (architecture §6).
+ * Storage key constants.
  *
- * Every web-storage key and cookie name used anywhere in the app is declared
- * here. Call sites import these constants — a raw string literal naming a
- * storage key is a review failure, because a typo in one of two places is
- * silent data loss rather than a compile error.
- *
- * New keys are namespaced `refuture:<domain>:<name>:v<n>`. The three legacy
- * keys predate that convention and must keep their original names: renaming
- * them would strand the journey state of anyone who has already visited.
+ * Every storage key and cookie name used in the app is defined here.
+ * Using constants prevents typos from causing silent data loss.
  */
 
-/** Prefix for all keys introduced after the storage boundary was established. */
+/** Prefix for all keys. */
 const NAMESPACE = 'refuture';
 
-/* ── sessionStorage keys (per-tab, cleared when the tab closes) ─────────── */
+/* ── sessionStorage keys ────────────────────────────────────────────────── */
 
 /** In-progress quiz state, so a mid-quiz refresh can be resumed. */
 export const QUIZ_PROGRESS_KEY = `${NAMESPACE}:quiz:progress:v1`;
 
-/** TTL cache for the live energy API snapshot. */
+/** Cache for the live energy API snapshot. */
 export const ENERGY_CACHE_KEY = `${NAMESPACE}:cache:energy:v1`;
 
-/** TTL cache for the World Bank carbon snapshot (day-long TTL, yearly data). */
+/** Cache for the World Bank carbon snapshot (day-long TTL). */
 export const CARBON_CACHE_KEY = `${NAMESPACE}:cache:carbon:v1`;
 
 /** Emitters chart unit: absolute totals or per-capita. */
 export const DASHBOARD_EMITTERS_MODE_KEY = `${NAMESPACE}:dashboard:emitters-mode:v1`;
 
-/* ── localStorage keys (persist across sessions) ────────────────────────── */
+/* ── localStorage keys ──────────────────────────────────────────────────── */
 
 /** Set once the visitor has left the landing sequence for the main site. */
 export const HAS_CHOSEN_FUTURE_KEY = 'hasChosenFuture';
@@ -44,5 +38,5 @@ export const DEBUG_MODE_KEY = 'debugModeActive';
 /** Records the visitor's third-party cookie/plugin decision. */
 export const CONSENT_COOKIE = `${NAMESPACE}_consent`;
 
-/** Consent decisions are remembered for a year before we ask again. */
+/** Consent decisions are remembered for a year. */
 export const CONSENT_MAX_AGE_DAYS = 365;

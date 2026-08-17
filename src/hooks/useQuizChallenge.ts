@@ -10,13 +10,8 @@ export type QuizResponse = {
 };
 
 /**
- * Persisted shape (architecture §6).
- *
- * Only the answer indices are stored, never the question objects themselves.
- * Questions are answered strictly in order, so `answers[i]` always refers to
- * `quizQuestions[i]` — storing the full objects would bloat the entry and,
- * worse, resurrect stale question text if the question bank were edited between
- * the save and the resume.
+ * Shape of what we save to sessionStorage.
+ * Only answer indices are stored, not full question objects.
  */
 type PersistedQuizProgress = {
   currentIndex: number;
@@ -27,15 +22,7 @@ type PersistedQuizProgress = {
 
 const TOTAL_QUESTIONS = quizQuestions.length;
 
-/**
- * Validates a persisted snapshot before it is trusted (fail loudly at the
- * boundary). sessionStorage is user-writable, so a hand-edited entry must not
- * be able to drive the quiz into an impossible state.
- *
- * Beyond range checks this asserts the state machine's core invariant: the
- * number of recorded answers equals the current index, plus one if the current
- * question has been answered but not yet advanced past.
- */
+/** Validates saved progress before using it. */
 function isValidProgress(value: unknown): value is PersistedQuizProgress {
   if (typeof value !== 'object' || value === null) return false;
 
@@ -48,9 +35,7 @@ function isValidProgress(value: unknown): value is PersistedQuizProgress {
 
   if (!Array.isArray(answers) || answers.length > TOTAL_QUESTIONS) return false;
 
-  // Each answer is bounded by its own question's option count rather than a
-  // shared constant, so the check stays correct if a question ever carries a
-  // different number of options.
+  // Check each answer is within range for its question
   const everyAnswerInRange = answers.every(
     (answer, index) =>
       Number.isInteger(answer) && answer >= 0 && answer < quizQuestions[index].options.length,
@@ -69,7 +54,7 @@ function isValidProgress(value: unknown): value is PersistedQuizProgress {
   return answers.length === expectedAnswerCount;
 }
 
-/** Reads and validates the saved snapshot, discarding anything malformed. */
+/** Reads saved quiz progress from sessionStorage. */
 function readSavedProgress(): PersistedQuizProgress | null {
   const saved = safeSession.getJSON<unknown>(QUIZ_PROGRESS_KEY);
   if (saved === null) return null;
@@ -83,7 +68,7 @@ function readSavedProgress(): PersistedQuizProgress | null {
   return saved;
 }
 
-/** Rebuilds full responses from the stored answer indices. */
+/** Rebuilds full responses from stored answer indices. */
 function hydrateResponses(answers: number[]): QuizResponse[] {
   return answers.map((selectedAnswer, index) => {
     const question = quizQuestions[index];
@@ -101,13 +86,7 @@ export function useQuizChallenge() {
   const [responses, setResponses] = useState<QuizResponse[]>([]);
   const [isComplete, setIsComplete] = useState(false);
 
-  /**
-   * The snapshot found at mount, captured once (FR-STO-005).
-   *
-   * Read via lazy initialiser so it reflects the state of storage *before* this
-   * hook writes anything — reading it later would return our own pristine
-   * write-through and the resume offer would never appear.
-   */
+  /** Saved progress found on mount, if any. */
   const [savedProgress, setSavedProgress] = useState<PersistedQuizProgress | null>(
     readSavedProgress,
   );
@@ -119,27 +98,17 @@ export function useQuizChallenge() {
   const questionNumber = currentIndex + 1;
   const progress = (questionNumber / totalQuestions) * 100;
 
-  /** True when a resumable snapshot exists and the visitor has not acted on it. */
+  /** True when saved progress exists and the user hasn't acted on it yet. */
   const canResume = savedProgress !== null && responses.length === 0 && currentIndex === 0;
 
-  /**
-   * Mirrors live state into sessionStorage (FR-STO-005) and clears it on
-   * completion (FR-STO-006).
-   *
-   * A pristine quiz is never written: doing so would leave a zero-progress
-   * snapshot behind and offer "resume" to someone who has answered nothing.
-   * That `isPristine` guard is also what makes the restart and discard paths
-   * safe — both reset state to pristine, so the effect declines to re-write the
-   * key they just removed. An explicit suppression flag was tried here and
-   * removed: `discardSavedProgress` changes no dependency of this effect, so
-   * the flag stayed armed and swallowed the *next* real answer instead.
-   */
+  /** Save progress to sessionStorage whenever it changes. */
   useEffect(() => {
     if (isComplete) {
       safeSession.remove(QUIZ_PROGRESS_KEY);
       return;
     }
 
+    // Don't save a pristine quiz (no answers yet)
     const isPristine = responses.length === 0 && currentIndex === 0 && selectedAnswer === null;
     if (isPristine) return;
 
@@ -183,7 +152,7 @@ export function useQuizChallenge() {
     setSelectedAnswer(null);
   };
 
-  /** Restores the saved snapshot into live state (FR-STO-005). */
+  /** Restores saved progress into the quiz state. */
   const resumeQuiz = useCallback(() => {
     if (savedProgress === null) return;
 
@@ -194,13 +163,13 @@ export function useQuizChallenge() {
     setSavedProgress(null);
   }, [savedProgress]);
 
-  /** Dismisses the resume offer and drops the snapshot. */
+  /** Dismisses the resume offer and deletes saved progress. */
   const discardSavedProgress = useCallback(() => {
     safeSession.remove(QUIZ_PROGRESS_KEY);
     setSavedProgress(null);
   }, []);
 
-  /** Returns to a pristine quiz and clears persisted progress (FR-STO-006). */
+  /** Resets the quiz to the beginning. */
   const restartQuiz = useCallback(() => {
     safeSession.remove(QUIZ_PROGRESS_KEY);
     setCurrentIndex(0);

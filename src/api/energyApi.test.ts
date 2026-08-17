@@ -11,7 +11,7 @@ vi.mock('./http', () => ({
 
 const { fetchSolarWind, fetchRenewableTrend, getEnergySnapshot } = await import('./energyApi');
 
-/** A minimal well-formed Open-Meteo body. */
+/** A minimal valid Open-Meteo response. */
 const validForecast = {
   hourly: {
     time: ['2026-08-12T00:00', '2026-08-12T01:00'],
@@ -21,7 +21,7 @@ const validForecast = {
   hourly_units: { shortwave_radiation: 'W/m²', wind_speed_10m: 'km/h' },
 };
 
-/** A minimal well-formed World Bank body — note the nulls, which are normal. */
+/** A minimal valid World Bank response (note: nulls are normal). */
 const validTrend = [
   { page: 1 },
   [
@@ -37,14 +37,14 @@ beforeEach(() => {
   vi.spyOn(console, 'error').mockImplementation(() => {});
 });
 
-describe('fetchSolarWind — boundary validation', () => {
+describe('fetchSolarWind — validation', () => {
   it('returns the payload when the shape is valid', async () => {
     getJsonMock.mockResolvedValueOnce(validForecast);
 
     await expect(fetchSolarWind()).resolves.toMatchObject({ hourly: { time: expect.any(Array) } });
   });
 
-  it('AC-API-005: rejects with kind "shape" when hourly is missing', async () => {
+  it('rejects when hourly is missing', async () => {
     getJsonMock.mockResolvedValueOnce({ latitude: 3.1, longitude: 101.7 });
 
     await expect(fetchSolarWind()).rejects.toMatchObject({ kind: 'shape', status: 200 });
@@ -56,7 +56,6 @@ describe('fetchSolarWind — boundary validation', () => {
       hourly: { ...validForecast.hourly, wind_speed_10m: [4.7] },
     });
 
-    // A short series would silently misalign "current hour" readings.
     await expect(fetchSolarWind()).rejects.toMatchObject({ kind: 'shape' });
   });
 
@@ -66,7 +65,6 @@ describe('fetchSolarWind — boundary validation', () => {
       hourly: { ...validForecast.hourly, shortwave_radiation: [32, 'n/a'] },
     });
 
-    // One bad entry would turn Math.max into NaN and render "NaN W/m²".
     await expect(fetchSolarWind()).rejects.toMatchObject({ kind: 'shape' });
   });
 });
@@ -81,9 +79,7 @@ describe('fetchRenewableTrend', () => {
     ]);
   });
 
-  it('AC-API-005: rejects the World Bank error body served with HTTP 200', async () => {
-    // The World Bank reports bad requests as 200 + a message array, so a status
-    // check alone would let this through.
+  it('rejects the World Bank error body served with HTTP 200', async () => {
     getJsonMock.mockResolvedValueOnce([{ message: [{ key: 'Invalid value' }] }]);
 
     await expect(fetchRenewableTrend()).rejects.toMatchObject({ kind: 'shape' });
@@ -97,7 +93,7 @@ describe('fetchRenewableTrend', () => {
 });
 
 describe('getEnergySnapshot', () => {
-  it('assembles both upstreams into one snapshot and caches it', async () => {
+  it('assembles both API responses into one snapshot and caches it', async () => {
     getJsonMock.mockResolvedValueOnce(validForecast).mockResolvedValueOnce(validTrend);
 
     const { snapshot, source } = await getEnergySnapshot();
@@ -109,7 +105,7 @@ describe('getEnergySnapshot', () => {
     expect(sessionStorage.getItem(ENERGY_CACHE_KEY)).not.toBeNull();
   });
 
-  it('AC-API-004: serves a fresh cache entry without issuing a request', async () => {
+  it('serves a fresh cache entry without making requests', async () => {
     getJsonMock.mockResolvedValueOnce(validForecast).mockResolvedValueOnce(validTrend);
     await getEnergySnapshot();
     expect(getJsonMock).toHaveBeenCalledTimes(2);
@@ -133,14 +129,14 @@ describe('getEnergySnapshot', () => {
     expect(getJsonMock).toHaveBeenCalledTimes(2);
   });
 
-  it('AC-API-005: does not cache a shape-invalid response', async () => {
+  it('does not cache an invalid response', async () => {
     getJsonMock.mockResolvedValueOnce({ bad: true }).mockResolvedValueOnce(validTrend);
 
     await expect(getEnergySnapshot()).rejects.toMatchObject({ kind: 'shape' });
     expect(sessionStorage.getItem(ENERGY_CACHE_KEY)).toBeNull();
   });
 
-  it('propagates an upstream failure rather than caching a partial snapshot', async () => {
+  it('does not cache when the API is down', async () => {
     getJsonMock
       .mockRejectedValueOnce({ kind: 'server', status: 503, message: 'down' })
       .mockResolvedValueOnce(validTrend);
