@@ -18,7 +18,7 @@ export type CommitteeMember = {
 export const committee: CommitteeMember[] = [
   { role: 'President', name: 'CHIN JUNXI', focus: 'Direction and partnerships' },
   { role: 'Vice President', name: 'BEH YUAN WEN', focus: 'Programmes and events' },
-  { role: 'Technical Lead', name: 'CHOI HONG ER', focus: 'Builds, data and technology' },
+  { role: 'Technical Lead', name: 'CHOOI HONG ER', focus: 'Builds, data and technology' },
   { role: 'Outreach & Operations Lead', name: 'MEAH CHEE XIANG', focus: 'Budget, outreach and campus community' },
 ];
 

@@ -84,7 +84,7 @@ export const projectsData: Project[] = [
     contributors: [
       { name: 'CHIN JUNXI', role: 'System Architect & Firmware Lead' },
       { name: 'BEH YUAN WEN', role: 'Data Scientist & ML Engineer' },
-      { name: 'CHOI HONG ER', role: 'IoT Hardware Lead' },
+      { name: 'CHOOI HONG ER', role: 'IoT Hardware Lead' },
     ],
     githubUrl: 'https://github.com/example/campus-microgrid-twin',
     paperUrl: 'https://doi.org/10.1016/example.energy.2025.102',
@@ -114,7 +114,7 @@ export const projectsData: Project[] = [
     ],
     techStack: ['Carbon Fibre Fabrication', 'Custom PCB Design', 'SolidWorks / ANSYS', 'STM32 Embedded C'],
     contributors: [
-      { name: 'CHOI HONG ER', role: 'Mechanical & Chassis Lead' },
+      { name: 'CHOOI HONG ER', role: 'Mechanical & Chassis Lead' },
       { name: 'MEAH CHEE XIANG', role: 'Power Electronics & Battery Design' },
     ],
     githubUrl: 'https://github.com/example/helios-solar-car',
@@ -142,7 +142,7 @@ export const projectsData: Project[] = [
     techStack: ['YOLOv8 / TensorFlow Lite', 'Raspberry Pi 5 + Coral TPU', 'OpenCV', 'Pneumatics / Arduino'],
     contributors: [
       { name: 'BEH YUAN WEN', role: 'Computer Vision Engineer' },
-      { name: 'CHOI HONG ER', role: 'Embedded Systems Lead' },
+      { name: 'CHOOI HONG ER', role: 'Embedded Systems Lead' },
     ],
     githubUrl: 'https://github.com/example/ecovision-sorter',
   },
