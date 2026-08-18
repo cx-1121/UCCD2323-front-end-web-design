@@ -28,8 +28,15 @@
 /* ==========================================================================
    Opening
    ========================================================================== */
+/* The controls filter the records immediately below them, so this one
+   boundary is deliberately tighter than the chapter rhythm. At full rhythm
+   the tab row and the search sat ~290px above the first record, which reads
+   as two unrelated sections and breaks the cause-and-effect the controls
+   depend on — you change a tab and the thing that answers is off-screen.
+   Proximity is what says these belong together. */
 .open {
   padding-top: clamp(6rem, 15vh, 9rem);
+  padding-bottom: clamp(1.5rem, 3vw, 2.5rem);
   /* The search panel hangs out of this chapter's box. Every chapter sets
      `isolation: isolate`, so a z-index on the panel cannot escape into the
      stack the sections share, and the records chapter — later in the DOM,
@@ -126,6 +133,13 @@
 /* ==========================================================================
    The records
    ========================================================================== */
+
+/* The other half of the tightened boundary above. The chapter keeps its full
+   rhythm at the bottom, where it crosses into the milestones normally. */
+.recordsChapter {
+  padding-top: clamp(1.5rem, 3vw, 2.5rem);
+}
+
 .records {
   display: grid;
   gap: clamp(3.5rem, 9vw, 7rem);

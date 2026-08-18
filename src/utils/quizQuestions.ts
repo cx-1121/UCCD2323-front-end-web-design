@@ -69,18 +69,18 @@ export const quizQuestions: QuizQuestion[] = [
   {
     id: 5,
     difficulty: 'Medium',
-    topic: 'Electric vehicles',
+    topic: 'Campus microgrids',
     prompt:
-      'An electric vehicle has no tailpipe emissions. Which source can still cause lifecycle emissions?',
+      'What is a primary benefit of integrating solar PV with building microgrids on campus?',
     options: [
-      'The colour of the car',
-      'Electricity generation and battery production',
-      'The number of cup holders',
-      'Regenerative braking',
+      'It eliminates all need for energy monitoring',
+      'It balances local solar generation with building demand and shaves peak grid loads',
+      'It forces buildings to operate only when the sun is shining',
+      'It increases peak demand charges from the central grid',
     ],
     answer: 1,
     explanation:
-      'EVs avoid tailpipe pollution, but producing batteries and generating the electricity used for charging can create emissions. Cleaner grids reduce these impacts.',
+      'Campus microgrids combine onsite solar arrays with smart controls to balance building power demands, reduce expensive peak electricity charges, and improve local energy resilience.',
   },
   {
     id: 6,

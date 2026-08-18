@@ -146,7 +146,7 @@ export default function ProjectsPage() {
 
           <Settle index={3} onMount>
             <Prose>
-              From IoT microgrid digital twins to ultralight solar vehicles and AI waste
+              From IoT microgrid digital twins to ultralight solar prototypes and AI waste
               sorters — explore how student researchers and engineers turn green tech
               theories into campus-wide impact.
             </Prose>
@@ -188,7 +188,13 @@ export default function ProjectsPage() {
       {/* ==================================================================
           The records, alternating
           ================================================================== */}
-      <Chapter stop="daylight" from="firstlight" to="living" aria-label="Project records">
+      <Chapter
+        stop="daylight"
+        from="firstlight"
+        to="living"
+        aria-label="Project records"
+        className={styles.recordsChapter}
+      >
         <Bench>
           {filteredProjects.length === 0 ? (
             <div className={styles.empty}>

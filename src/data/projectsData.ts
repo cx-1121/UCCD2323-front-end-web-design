@@ -93,23 +93,23 @@ export const projectsData: Project[] = [
   {
     id: 'solar-car-helios',
     title: 'Helios-I Solar Racing Prototype',
-    tagline: 'Aerodynamic ultralight EV powered by high-efficiency solar cells.',
+    tagline: 'Aerodynamic ultralight prototype powered by high-efficiency solar cells.',
     category: 'Competitions & Hackathons',
     status: 'Completed',
     year: '2024',
     featured: true,
     bentoSpan: 'tall',
     summary:
-      'Designed and fabricated an ultralight carbon-fibre solar electric vehicle competing in national eco-marathon challenges.',
+      'Designed and fabricated an ultralight carbon-fibre solar prototype competing in national eco-marathon challenges.',
     fullDescription:
-      'Helios-I represents a multi-disciplinary engineering endeavor combining carbon-fibre monocoque construction, custom MPPT solar charge controllers, and custom regenerative braking algorithms. The vehicle achieved top-tier energy efficiency per kilometer in the 2024 University Eco-Drive Competition.',
+      'Helios-I represents a multi-disciplinary engineering endeavor combining carbon-fibre monocoque construction, custom MPPT solar charge controllers, and custom regenerative power algorithms. The prototype achieved top-tier energy efficiency per kilometer in the 2024 University Eco-Drive Competition.',
     problemStatement:
-      'Traditional electric vehicles rely on static grid charging, missing opportunities for onboard solar harvesting and light-weighting optimization.',
+      'Conventional mobility designs rely on heavy batteries and static grid charging, missing opportunities for onboard solar harvesting and extreme light-weighting.',
     solutionDetails:
       'Integrated 4.2m² of 24.5% efficiency monocrystalline solar cells with custom-designed synchronous boost MPPT modules and custom motor driver firmware.',
     impactMetrics: [
       { label: 'Peak Efficiency', value: '92.4', unit: 'km/kWh' },
-      { label: 'Vehicle Weight', value: '148', unit: 'kg' },
+      { label: 'Chassis Weight', value: '148', unit: 'kg' },
       { label: 'Competition Rank', value: '2nd', unit: 'Place' },
     ],
     techStack: ['Carbon Fibre Fabrication', 'Custom PCB Design', 'SolidWorks / ANSYS', 'STM32 Embedded C'],
