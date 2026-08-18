@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 750">
+<rect x="0" y="0" width="800" height="750" fill="#ffffff"/>
+<rect x="0" y="0" width="800" height="104" fill="#ffffff"/>
+<rect x="24" y="24" width="120" height="40" rx="6" fill="#ffffff" stroke="#2f6f52" stroke-width="1.5"/>
+<text x="84" y="49" text-anchor="middle" font-size="12" font-weight="bold" fill="#2f6f52" font-family="Arial, Helvetica, sans-serif">RE:FUTURE</text>
+<rect x="316" y="40" width="80" height="24" rx="12" fill="#ffffff" stroke="#2f6f52" stroke-width="1.2"/>
+<text x="356" y="56" text-anchor="middle" font-size="10" fill="#2f6f52" font-family="Arial, Helvetica, sans-serif">Home</text>
+<rect x="408" y="40" width="80" height="24" rx="12" fill="#ffffff" stroke="#2f6f52" stroke-width="1.2"/>
+<text x="448" y="56" text-anchor="middle" font-size="10" fill="#2f6f52" font-family="Arial, Helvetica, sans-serif">Explore</text>
+<rect x="500" y="40" width="80" height="24" rx="12" fill="#ffffff" stroke="#2f6f52" stroke-width="1.2"/>
+<text x="540" y="56" text-anchor="middle" font-size="10" fill="#2f6f52" font-family="Arial, Helvetica, sans-serif">Projects</text>
+<rect x="592" y="40" width="80" height="24" rx="12" fill="#2f6f52" stroke="#2f6f52" stroke-width="1.2"/>
+<text x="632" y="56" text-anchor="middle" font-size="10" fill="#ffffff" font-family="Arial, Helvetica, sans-serif">Dashboard</text>
+<rect x="684" y="40" width="80" height="24" rx="12" fill="#ffffff" stroke="#2f6f52" stroke-width="1.2"/>
+<text x="724" y="56" text-anchor="middle" font-size="10" fill="#2f6f52" font-family="Arial, Helvetica, sans-serif">About</text>
+<line x1="0" y1="104" x2="800" y2="104" stroke="#d9ded9" stroke-width="1"/>
+<rect x="24" y="94" width="752" height="60" rx="8" fill="#eef0ee" stroke="#9aa79c" stroke-width="1.5"/>
+<text x="36" y="114" font-size="13" font-weight="bold" fill="#1f2a24" font-family="Arial, Helvetica, sans-serif">Carbon-budget hero</text>
+<text x="36" y="132" font-size="11" fill="#4a564e" font-family="Arial, Helvetica, sans-serif">"6.3 years left" at current emission rate, against the IPCC AR6 1.5°C remaining budget (250 Gt</text>
+<rect x="24" y="168" width="752" height="66" rx="8" fill="#f5f3ee" stroke="#8a6b2f" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="36" y="188" font-size="13" font-weight="bold" fill="#1f2a24" font-family="Arial, Helvetica, sans-serif">Headline metric cards (4)</text>
+<text x="36" y="206" font-size="11" fill="#4a564e" font-family="Arial, Helvetica, sans-serif">Annual global CO2, year-over-year change, per-capita average, 1.5°C budget remaining — each with</text>
+<text x="764" y="224" text-anchor="end" font-size="11" fill="#8a6b2f" font-family="Arial, Helvetica, sans-serif">card repeats &#215; 4</text>
+<rect x="24" y="248" width="752" height="90" rx="8" fill="#eef0ee" stroke="#9aa79c" stroke-width="1.5"/>
+<text x="36" y="268" font-size="13" font-weight="bold" fill="#1f2a24" font-family="Arial, Helvetica, sans-serif">Emissions-by-sector area chart</text>
+<text x="36" y="286" font-size="11" fill="#4a564e" font-family="Arial, Helvetica, sans-serif">2015–2024 stacked area (Power/Transport/Industry/Buildings/Fugitive/Other), World Bank; COVID</text>
+<text x="36" y="300" font-size="11" fill="#4a564e" font-family="Arial, Helvetica, sans-serif">dip annotated.</text>
+<rect x="24" y="352" width="752" height="56" rx="8" fill="#eef0ee" stroke="#9aa79c" stroke-width="1.5"/>
+<text x="36" y="372" font-size="13" font-weight="bold" fill="#1f2a24" font-family="Arial, Helvetica, sans-serif">Sector breakdown (current year)</text>
+<text x="36" y="390" font-size="11" fill="#4a564e" font-family="Arial, Helvetica, sans-serif">Power 39.1% / Transport 20.9% / Industry 24.3% / Buildings 8.2% / Fugitive 7% / Other 0.4%.</text>
+<rect x="24" y="422" width="752" height="74" rx="8" fill="#eef0ee" stroke="#9aa79c" stroke-width="1.5"/>
+<text x="36" y="442" font-size="13" font-weight="bold" fill="#1f2a24" font-family="Arial, Helvetica, sans-serif">Top emitters — total vs per-capita toggle</text>
+<text x="36" y="460" font-size="11" fill="#4a564e" font-family="Arial, Helvetica, sans-serif">Ranked bars for 10 economies; toggle switches the sort/scale between totals and per-person.</text>
+<rect x="24" y="510" width="752" height="70" rx="8" fill="#eef0ee" stroke="#9aa79c" stroke-width="1.5"/>
+<text x="36" y="530" font-size="13" font-weight="bold" fill="#1f2a24" font-family="Arial, Helvetica, sans-serif">Electricity-mix comparison (5 countries)</text>
+<text x="36" y="548" font-size="11" fill="#4a564e" font-family="Arial, Helvetica, sans-serif">Stacked fossil/nuclear/renewables/other bars for China, USA, India, Germany, Brazil.</text>
+<rect x="24" y="594" width="752" height="78" rx="8" fill="#f5f3ee" stroke="#8a6b2f" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="36" y="614" font-size="13" font-weight="bold" fill="#1f2a24" font-family="Arial, Helvetica, sans-serif">Live conditions panel</text>
+<text x="36" y="632" font-size="11" fill="#4a564e" font-family="Arial, Helvetica, sans-serif">Fetched now (not annual): solar irradiance, wind speed for Kuala Lumpur via Open-Meteo; Malaysia</text>
+<text x="36" y="646" font-size="11" fill="#4a564e" font-family="Arial, Helvetica, sans-serif">renewable share via World Bank — jQuery $.ajax, cached to sessionStorage.</text>
+<line x1="0" y1="710" x2="800" y2="710" stroke="#d9ded9" stroke-width="1"/>
+<text x="400" y="734" text-anchor="middle" font-size="10" fill="#8a958e" font-family="Arial, Helvetica, sans-serif">Green Tech Club &#183; Built for a grid that outlives us</text>
+</svg>

@@ -1,0 +1,369 @@
+/* Search control.
+
+   Built as paper, not as a dropdown. The suggestion list holds content, so by
+   the Square Paper Rule it is an artifact and takes no radius — the rounded
+   tile is reserved for the debug console, which is the one thing in the build
+   that is deliberately not paper. Only the controls are pills.
+
+   The writing area follows the documented field: a ruled bottom edge over a
+   4% tint of the ground's own ink, so it is unmistakably the line you write
+   on, deepening to 6% under focus.
+
+   Colours come from the chapter token contract (--ground / --object / --ink /
+   --rule / --accent), so the field re-inks itself at every stop on the ladder
+   without a second palette here.
+
+   Logical properties throughout, so an RTL locale mirrors the glyph, the
+   clear control and the panel without a second stylesheet. */
+
+.root {
+  position: relative;
+  max-width: 100%;
+}
+
+/* ---- The writing area ---- */
+.field {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding-inline: 0.25rem;
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
+  border-bottom: 1px solid var(--rule);
+  transition:
+    background-color 300ms var(--ease-glide),
+    border-color 300ms var(--ease-glide);
+}
+
+.field:focus-within {
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+  border-bottom-color: var(--living);
+}
+
+.input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.6875rem 0.5rem;
+  font-family: var(--typed);
+  /* The 16px floor. Below 1rem iOS zooms the page on focus and strands the
+     reader in a field they have to pinch back out of. */
+  font-size: 1rem;
+  color: var(--ink);
+  background: none;
+  border: 0;
+}
+
+.input::placeholder {
+  color: var(--ink-faint);
+}
+
+.input:focus {
+  outline: none;
+}
+
+/* The native affordance duplicates our own clear control, and cannot be
+   styled to match it. */
+.input::-webkit-search-cancel-button,
+.input::-webkit-search-decoration {
+  appearance: none;
+}
+
+/* ---- Controls. Pills, because a control belongs to the site rather than to
+        the paper it sits on. 2.5rem square clears the 40px touch floor. ---- */
+.leading,
+.clear {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--ink-faint);
+  background: none;
+  border: 0;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  transition: color 240ms var(--ease-glide);
+}
+
+.leading:hover,
+.clear:hover {
+  color: var(--ink);
+}
+
+/* The dedicated submit. Icon-only and unruled at rest — the filled hover is
+   what marks it as the action. The border stays declared as transparent
+   rather than removed, so it does not reflow by a pixel against the filled
+   state beside it. */
+.submit {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-inline-start: 0.25rem;
+  color: var(--ink);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  transition:
+    color 240ms var(--ease-glide),
+    background-color 240ms var(--ease-glide),
+    border-color 240ms var(--ease-glide);
+}
+
+.submit:hover {
+  color: #f4f8f5;
+  background: var(--living-ink);
+  border-color: var(--living-ink);
+}
+
+/* The same travel the Action button's glyph makes, so the control belongs to
+   the same family rather than inventing its own motion. */
+.submit:hover .glyph {
+  transform: translate3d(2px, -2px, 0);
+}
+
+.submit .glyph {
+  transition: transform 240ms var(--ease-snap);
+}
+
+.submit:active {
+  transform: scale(0.98);
+}
+
+/* Every control keeps a visible ring; the field's own tint shift is never the
+   only signal that focus landed. */
+.leading:focus-visible,
+.clear:focus-visible,
+.submit:focus-visible,
+.rowRemove:focus-visible,
+.panelAction:focus-visible {
+  outline: 2px solid var(--living);
+  outline-offset: 3px;
+}
+
+.glyph {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.glyphSmall {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 1.5px solid var(--rule);
+  border-top-color: var(--living);
+  border-radius: 50%;
+  animation: searchSpin 700ms linear infinite;
+}
+
+@keyframes searchSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.limit {
+  margin-top: 0.375rem;
+  font-family: var(--typed);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  color: var(--ink-faint);
+}
+
+/* ---- The panel. A slip laid over the page: square, one cut edge, one long
+        shadow tinted to the ground rather than black. ---- */
+.panel {
+  position: absolute;
+  inset-inline: 0;
+  top: calc(100% + 0.375rem);
+  z-index: 40;
+
+  background: var(--object);
+  border: 1px solid var(--object-edge);
+  box-shadow:
+    0 44px 74px -44px rgba(42, 33, 24, 0.5),
+    0 3px 10px -6px rgba(42, 33, 24, 0.26);
+
+  animation: searchPanelIn 260ms var(--ease-glide) both;
+}
+
+@keyframes searchPanelIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -0.375rem, 0);
+  }
+}
+
+/* A typed column head, a hairline and space — the system's way of grouping
+   without spending a container on it. */
+.panelHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.875rem 1rem 0.625rem;
+  border-bottom: 1px solid var(--object-edge);
+}
+
+.panelTitle {
+  font-family: var(--typed);
+  font-size: 0.625rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--object-faint);
+}
+
+.panelAction {
+  padding: 0.25rem 0.5rem;
+  font-family: var(--stamped);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+  background: none;
+  border: 0;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+}
+
+.panelAction:hover {
+  background: rgba(31, 163, 99, 0.12);
+}
+
+.list {
+  max-height: 19rem;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+}
+
+.rowShell {
+  display: flex;
+  align-items: center;
+  border-top: 1px solid color-mix(in srgb, var(--object-edge) 55%, transparent);
+}
+
+.rowShell:first-child {
+  border-top: 0;
+}
+
+/* Two lines, not two columns. The field is 18rem on desktop, so a category
+   set beside the title takes a third of the row and truncates the one string
+   the visitor is actually reading. Stacked, the title gets the full measure
+   at every width and the category reads as what it is — a locator under the
+   record, not a competing label. */
+.row {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: grid;
+  gap: 0.1875rem;
+  padding: 0.6875rem 1rem;
+  cursor: pointer;
+  transition: background-color 200ms var(--ease-glide);
+}
+
+/* Hover and the keyboard cursor are one state, so they cannot drift apart. */
+.rowActive {
+  background: rgba(31, 163, 99, 0.1);
+}
+
+.rowLabel {
+  min-width: 0;
+  overflow: hidden;
+  font-family: var(--set);
+  font-size: 0.9375rem;
+  line-height: 1.35;
+  color: var(--object-ink);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Weight and colour both carry the hit — never colour alone. */
+.mark {
+  font-weight: 700;
+  color: var(--accent-ink);
+  background: none;
+}
+
+.rowHint {
+  min-width: 0;
+  overflow: hidden;
+  font-family: var(--typed);
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--object-faint);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rowAll {
+  font-family: var(--stamped);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+}
+
+.rowRemove {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-inline-end: 0.5rem;
+  color: var(--object-faint);
+  background: none;
+  border: 0;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  transition: color 200ms var(--ease-glide);
+}
+
+.rowRemove:hover {
+  color: var(--object-ink);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The submit used to stand down here, because a text pill crowded the rule at
+   phone width. As a 2.5rem glyph it costs almost nothing, so the third way in
+   survives on the device where Enter is hardest to reach. */
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+
+  .row,
+  .field,
+  .submit,
+  .submit .glyph {
+    transition: none;
+  }
+
+  .submit:active,
+  .submit:hover .glyph {
+    transform: none;
+  }
+
+  .spinner {
+    animation-duration: 2s;
+  }
+}

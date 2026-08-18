@@ -1,29 +1,95 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { projectsData } from '../data/projectsData';
 import type { Project, ProjectCategory } from '../data/projectsData';
+import { scoreFields } from '../utils/fuzzySearch';
 
 export function useProjects() {
   const [activeCategory, setActiveCategory] = useState<ProjectCategory>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
-  const filteredProjects = useMemo(() => {
-    return projectsData.filter((project) => {
-      const matchesCategory =
-        activeCategory === 'All' || project.category === activeCategory;
+  const { filteredProjects, matchCount, isShowingSuggestions } = useMemo(() => {
+    const inCategory = projectsData.filter(
+      (project) => activeCategory === 'All' || project.category === activeCategory
+    );
 
-      const query = searchQuery.trim().toLowerCase();
-      if (!query) return matchesCategory;
+    const query = searchQuery.trim();
+    if (!query) {
+      return {
+        filteredProjects: inCategory,
+        matchCount: inCategory.length,
+        isShowingSuggestions: false,
+      };
+    }
 
-      const matchesSearch =
-        project.title.toLowerCase().includes(query) ||
-        project.tagline.toLowerCase().includes(query) ||
-        project.summary.toLowerCase().includes(query) ||
-        project.techStack.some((tech) => tech.toLowerCase().includes(query));
+    // Ranked, typo-tolerant search: "sloar" still finds solar projects, and
+    // the closest matches (title hits) sort ahead of looser ones (tech-stack
+    // or summary hits) instead of just preserving catalogue order.
+    const scored = inCategory
+      .map((project) => ({
+        project,
+        score: scoreFields(
+          [
+            { text: project.title, weight: 5 },
+            { text: project.tagline, weight: 3 },
+            { text: project.category, weight: 2 },
+            { text: project.techStack.join(' '), weight: 3 },
+            { text: project.summary, weight: 1.5 },
+          ],
+          query
+        ),
+      }))
+      .filter(({ score }) => score > 0);
 
-      return matchesCategory && matchesSearch;
-    });
+    // A query nothing resembles is a dead end if the grid just empties. The
+    // page still shows records — but as explicitly labelled recommendations,
+    // not as though they were hits, which would misreport the search.
+    if (scored.length === 0) {
+      return {
+        filteredProjects: inCategory,
+        matchCount: 0,
+        isShowingSuggestions: true,
+      };
+    }
+
+    scored.sort((a, b) => b.score - a.score);
+    return {
+      filteredProjects: scored.map(({ project }) => project),
+      matchCount: scored.length,
+      isShowingSuggestions: false,
+    };
   }, [activeCategory, searchQuery]);
+
+  /**
+   * Suggestion rows for the search panel. Titles only: a suggestion the
+   * visitor picks becomes the next query, so it has to be something that
+   * searches well on its own.
+   */
+  const getSearchSuggestions = useCallback((draft: string) => {
+    const query = draft.trim();
+    if (!query) return [];
+
+    return projectsData
+      .map((project) => ({
+        project,
+        score: scoreFields(
+          [
+            { text: project.title, weight: 5 },
+            { text: project.techStack.join(' '), weight: 3 },
+            { text: project.category, weight: 2 },
+            { text: project.tagline, weight: 1.5 },
+          ],
+          query
+        ),
+      }))
+      .filter(({ score }) => score > 0)
+      .sort((a, b) => b.score - a.score)
+      .map(({ project }) => ({
+        id: project.id,
+        label: project.title,
+        hint: project.category,
+      }));
+  }, []);
 
   /**
    * Re-entry choreography for the grid. Keyed off the resolved result set, not
@@ -53,26 +119,11 @@ export function useProjects() {
 
   const openProjectDetail = useCallback((project: Project) => {
     setSelectedProject(project);
-    document.body.style.overflow = 'hidden';
   }, []);
 
   const closeProjectDetail = useCallback(() => {
     setSelectedProject(null);
-    document.body.style.overflow = '';
   }, []);
-
-  // Handle ESC key to close modal
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && selectedProject) {
-        closeProjectDetail();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [selectedProject, closeProjectDetail]);
 
   const resetFilters = useCallback(() => {
     setActiveCategory('All');
@@ -88,6 +139,9 @@ export function useProjects() {
     openProjectDetail,
     closeProjectDetail,
     filteredProjects,
+    matchCount,
+    isShowingSuggestions,
+    getSearchSuggestions,
     totalProjectsCount: projectsData.length,
     resetFilters,
     gridEpoch,

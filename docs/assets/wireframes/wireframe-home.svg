@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 736">
+<rect x="0" y="0" width="800" height="736" fill="#ffffff"/>
+<rect x="0" y="0" width="800" height="104" fill="#ffffff"/>
+<rect x="24" y="24" width="120" height="40" rx="6" fill="#ffffff" stroke="#2f6f52" stroke-width="1.5"/>
+<text x="84" y="49" text-anchor="middle" font-size="12" font-weight="bold" fill="#2f6f52" font-family="Arial, Helvetica, sans-serif">RE:FUTURE</text>
+<rect x="316" y="40" width="80" height="24" rx="12" fill="#2f6f52" stroke="#2f6f52" stroke-width="1.2"/>
+<text x="356" y="56" text-anchor="middle" font-size="10" fill="#ffffff" font-family="Arial, Helvetica, sans-serif">Home</text>
+<rect x="408" y="40" width="80" height="24" rx="12" fill="#ffffff" stroke="#2f6f52" stroke-width="1.2"/>
+<text x="448" y="56" text-anchor="middle" font-size="10" fill="#2f6f52" font-family="Arial, Helvetica, sans-serif">Explore</text>
+<rect x="500" y="40" width="80" height="24" rx="12" fill="#ffffff" stroke="#2f6f52" stroke-width="1.2"/>
+<text x="540" y="56" text-anchor="middle" font-size="10" fill="#2f6f52" font-family="Arial, Helvetica, sans-serif">Projects</text>
+<rect x="592" y="40" width="80" height="24" rx="12" fill="#ffffff" stroke="#2f6f52" stroke-width="1.2"/>
+<text x="632" y="56" text-anchor="middle" font-size="10" fill="#2f6f52" font-family="Arial, Helvetica, sans-serif">Dashboard</text>
+<rect x="684" y="40" width="80" height="24" rx="12" fill="#ffffff" stroke="#2f6f52" stroke-width="1.2"/>
+<text x="724" y="56" text-anchor="middle" font-size="10" fill="#2f6f52" font-family="Arial, Helvetica, sans-serif">About</text>
+<line x1="0" y1="104" x2="800" y2="104" stroke="#d9ded9" stroke-width="1"/>
+<rect x="24" y="94" width="752" height="78" rx="8" fill="#eef0ee" stroke="#9aa79c" stroke-width="1.5"/>
+<text x="36" y="114" font-size="13" font-weight="bold" fill="#1f2a24" font-family="Arial, Helvetica, sans-serif">Hero narrative</text>
+<text x="36" y="132" font-size="11" fill="#4a564e" font-family="Arial, Helvetica, sans-serif">"You came through the smoke." Intro copy + "START EXPLORING" / "REPLAY THE DESCENT" buttons.</text>
+<rect x="24" y="186" width="752" height="64" rx="8" fill="#f5f3ee" stroke="#8a6b2f" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="36" y="206" font-size="13" font-weight="bold" fill="#1f2a24" font-family="Arial, Helvetica, sans-serif">Live headline stats (3 cards)</text>
+<text x="36" y="224" font-size="11" fill="#4a564e" font-family="Arial, Helvetica, sans-serif">39.6 Gt CO2/yr, 4.7 t/person, 10 tracked economies — each sourced "World Bank 2024".</text>
+<text x="764" y="240" text-anchor="end" font-size="11" fill="#8a6b2f" font-family="Arial, Helvetica, sans-serif">card repeats &#215; 3</text>
+<rect x="24" y="264" width="752" height="64" rx="8" fill="#e7efe9" stroke="#2f6f52" stroke-width="1.5"/>
+<text x="36" y="284" font-size="13" font-weight="bold" fill="#1f2a24" font-family="Arial, Helvetica, sans-serif">Electricity mix mini-chart</text>
+<text x="36" y="302" font-size="11" fill="#4a564e" font-family="Arial, Helvetica, sans-serif">Five-country fossil-share bars (China/USA/India/Germany/Brazil) + "OPEN THE LIVE DASHBOARD" CTA.</text>
+<rect x="24" y="342" width="752" height="78" rx="8" fill="#eef0ee" stroke="#9aa79c" stroke-width="1.5"/>
+<text x="36" y="362" font-size="13" font-weight="bold" fill="#1f2a24" font-family="Arial, Helvetica, sans-serif">Herbarium panel — "GTC 0891, Superseded"</text>
+<text x="36" y="380" font-size="11" fill="#4a564e" font-family="Arial, Helvetica, sans-serif">"The cost of progress" narrative on fossil history, with 3 annotation notes (det. i/ii/iii).</text>
+<rect x="24" y="434" width="752" height="70" rx="8" fill="#f5f3ee" stroke="#8a6b2f" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="36" y="454" font-size="13" font-weight="bold" fill="#1f2a24" font-family="Arial, Helvetica, sans-serif">Five energy source cards</text>
+<text x="36" y="472" font-size="11" fill="#4a564e" font-family="Arial, Helvetica, sans-serif">Solar / Wind / Hydro / Biomass / Geothermal — one-line mechanism each + "EXPLORE ALL FIVE" CTA.</text>
+<text x="764" y="494" text-anchor="end" font-size="11" fill="#8a6b2f" font-family="Arial, Helvetica, sans-serif">card repeats &#215; 5</text>
+<rect x="24" y="518" width="752" height="66" rx="8" fill="#f5f3ee" stroke="#8a6b2f" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="36" y="538" font-size="13" font-weight="bold" fill="#1f2a24" font-family="Arial, Helvetica, sans-serif">Working method (3 cards)</text>
+<text x="36" y="556" font-size="11" fill="#4a564e" font-family="Arial, Helvetica, sans-serif">Research / Community / Innovation — method + output per card.</text>
+<text x="764" y="574" text-anchor="end" font-size="11" fill="#8a6b2f" font-family="Arial, Helvetica, sans-serif">card repeats &#215; 3</text>
+<rect x="24" y="598" width="752" height="60" rx="8" fill="#e7efe9" stroke="#2f6f52" stroke-width="1.5"/>
+<text x="36" y="618" font-size="13" font-weight="bold" fill="#1f2a24" font-family="Arial, Helvetica, sans-serif">Closing CTA band (3 cards)</text>
+<text x="36" y="636" font-size="11" fill="#4a564e" font-family="Arial, Helvetica, sans-serif">Join the Club / Who We Are / Collaborate or Sponsor.</text>
+<line x1="0" y1="696" x2="800" y2="696" stroke="#d9ded9" stroke-width="1"/>
+<text x="400" y="720" text-anchor="middle" font-size="10" fill="#8a958e" font-family="Arial, Helvetica, sans-serif">Green Tech Club &#183; Built for a grid that outlives us</text>
+</svg>

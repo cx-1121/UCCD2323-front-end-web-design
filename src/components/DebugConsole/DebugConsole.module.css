@@ -598,6 +598,17 @@
     left: 1rem;
     right: 1rem;
     align-items: stretch;
+    /* The wrapper now spans the full width so the open panel can too, but it
+       is otherwise empty space around the trigger puck — without this it
+       sits above everything else fixed to the viewport (SEC-M1: it silently
+       ate taps on the cookie banner's Accept button on narrow screens). Only
+       the trigger and the panel need to receive pointer events back. */
+    pointer-events: none;
+  }
+
+  .trigger,
+  .shell {
+    pointer-events: auto;
   }
 
   .shell {

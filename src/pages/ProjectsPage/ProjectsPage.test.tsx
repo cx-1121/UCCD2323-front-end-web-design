@@ -36,11 +36,51 @@ describe('ProjectsPage', () => {
     const user = userEvent.setup();
     renderProjects();
 
-    const searchInput = screen.getByPlaceholderText('Search projects, technologies...');
+    const searchInput = screen.getByRole('combobox', { name: 'Search projects' });
     await user.type(searchInput, 'Helios');
+    // The field commits on Enter rather than waiting out its debounce.
+    await user.keyboard('{Escape}{Enter}');
 
     expect(screen.getByRole('heading', { name: 'Helios-I Solar Racing Prototype' })).toBeInTheDocument();
     expect(screen.queryAllByRole('heading', { name: 'Campus Microgrid Digital Twin' })).toHaveLength(0);
+  });
+
+  it('offers suggestions, recent searches, and a clear control', async () => {
+    const user = userEvent.setup();
+    renderProjects();
+
+    const searchInput = screen.getByRole('combobox', { name: 'Search projects' });
+    await user.type(searchInput, 'Helios');
+
+    // Suggestions are announced as a listbox and pick up the typed fragment.
+    const option = await screen.findByRole('option', { name: /Helios-I Solar Racing Prototype/ });
+    await user.click(option);
+
+    expect(searchInput).toHaveValue('Helios-I Solar Racing Prototype');
+
+    // Clearing empties the field but leaves focus in it.
+    await user.click(screen.getByRole('button', { name: 'Clear search' }));
+    expect(searchInput).toHaveValue('');
+    expect(searchInput).toHaveFocus();
+
+    // The committed term was kept as history and is offered back.
+    expect(
+      await screen.findByRole('option', { name: 'Helios-I Solar Racing Prototype' })
+    ).toBeInTheDocument();
+  });
+
+  it('labels the fallback list when nothing matches', async () => {
+    const user = userEvent.setup();
+    renderProjects();
+
+    const searchInput = screen.getByRole('combobox', { name: 'Search projects' });
+    await user.type(searchInput, 'zzqqxw');
+    await user.keyboard('{Enter}');
+
+    expect(screen.getByText(/No record matches/)).toBeInTheDocument();
+    // Records still render — but as an explicit recommendation, not as hits.
+    expect(screen.getAllByRole('heading', { name: 'Campus Microgrid Digital Twin' }).length)
+      .toBeGreaterThan(0);
   });
 
   it('opens and closes project detail modal', async () => {

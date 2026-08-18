@@ -36,6 +36,21 @@
   padding-block: clamp(4.5rem, 12vh, 9rem);
 }
 
+/* Phone. Chapter rhythm is authored for a tall desktop column, where 12vh of
+   air above and below reads as a room the content stands in. On a phone the
+   two paddings meet across a boundary and stack: a closing chapter used to
+   open 288px — a third of a 812px screen — below the section it follows, and
+   the reader thumbed past an empty screen to reach the next heading.
+
+   Same reasoning as the blend's own 21vh/13vh step: this padding paints
+   nothing, so every viewport-unit of it on a small screen is dead air. The
+   rhythm is kept proportional, not deleted. */
+@media (max-width: 48rem) {
+  .chapter {
+    padding-block: clamp(2.5rem, 7vh, 4rem);
+  }
+}
+
 /* A chapter that opens the page owns the full viewport and has nothing above
    it to blend out of. */
 .chapterOpening {

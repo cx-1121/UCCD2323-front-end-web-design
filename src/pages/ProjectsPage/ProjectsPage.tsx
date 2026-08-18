@@ -14,6 +14,7 @@ import {
   Typed,
 } from '../../components/accession/Accession';
 import { useSettle } from '../../components/accession/useSettle';
+import SearchField from '../../components/SearchField/SearchField';
 import { CloseGlyph } from '../../components/icons';
 import { useProjects } from '../../hooks/useProjects';
 import { useBodyBackground } from '../../hooks/useBodyBackground';
@@ -82,6 +83,9 @@ export default function ProjectsPage() {
     openProjectDetail,
     closeProjectDetail,
     filteredProjects,
+    matchCount,
+    isShowingSuggestions,
+    getSearchSuggestions,
     totalProjectsCount,
     resetFilters,
   } = useProjects();
@@ -170,13 +174,11 @@ export default function ProjectsPage() {
             </div>
 
             <div className={styles.search}>
-              <input
-                type="search"
-                className={styles.searchInput}
-                placeholder="Search projects, technologies..."
+              <SearchField
                 value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                aria-label="Search projects"
+                onSearch={setSearchQuery}
+                getSuggestions={getSearchSuggestions}
+                resultCount={matchCount}
               />
             </div>
           </Settle>
@@ -202,7 +204,26 @@ export default function ProjectsPage() {
               </Action>
             </div>
           ) : (
-            <ol className={styles.records}>
+            <>
+              {/* Nothing matched, so what follows is a recommendation, and
+                  has to say so — an unlabelled full list would read as
+                  results the search never actually found. */}
+              {isShowingSuggestions && (
+                <div className={styles.noMatch}>
+                  <Stamped as="p" scale="section">
+                    No record matches “{searchQuery.trim()}”
+                  </Stamped>
+                  <Prose>
+                    Nothing in the accession answers that. These are the club&apos;s
+                    records in this category — try one of them, or clear the search.
+                  </Prose>
+                  <Action onClick={resetFilters} ghost>
+                    Clear filters
+                  </Action>
+                </div>
+              )}
+
+              <ol className={styles.records}>
               {filteredProjects.map((project, index) => (
                 <li key={project.id}>
                   <Settle
@@ -275,8 +296,9 @@ export default function ProjectsPage() {
                     </div>
                   </Settle>
                 </li>
-              ))}
-            </ol>
+                ))}
+              </ol>
+            </>
           )}
         </Bench>
       </Chapter>

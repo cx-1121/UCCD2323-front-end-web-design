@@ -33,6 +33,9 @@ export const REVISIT_ATTEMPTS_KEY = 'attemptsToReturnToPast';
 /** Local-only debug console toggle. */
 export const DEBUG_MODE_KEY = 'debugModeActive';
 
+/** Recent project-search terms (device-local, not account-synced). */
+export const PROJECT_SEARCH_HISTORY_KEY = `${NAMESPACE}:search-history:projects:v1`;
+
 /* ── Cookie names ───────────────────────────────────────────────────────── */
 
 /** Records the visitor's third-party cookie/plugin decision. */

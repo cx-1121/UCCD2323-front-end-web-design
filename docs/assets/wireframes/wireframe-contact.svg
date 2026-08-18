@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 504">
+<rect x="0" y="0" width="800" height="504" fill="#ffffff"/>
+<rect x="0" y="0" width="800" height="104" fill="#ffffff"/>
+<rect x="24" y="24" width="120" height="40" rx="6" fill="#ffffff" stroke="#2f6f52" stroke-width="1.5"/>
+<text x="84" y="49" text-anchor="middle" font-size="12" font-weight="bold" fill="#2f6f52" font-family="Arial, Helvetica, sans-serif">RE:FUTURE</text>
+<rect x="316" y="40" width="80" height="24" rx="12" fill="#ffffff" stroke="#2f6f52" stroke-width="1.2"/>
+<text x="356" y="56" text-anchor="middle" font-size="10" fill="#2f6f52" font-family="Arial, Helvetica, sans-serif">Home</text>
+<rect x="408" y="40" width="80" height="24" rx="12" fill="#ffffff" stroke="#2f6f52" stroke-width="1.2"/>
+<text x="448" y="56" text-anchor="middle" font-size="10" fill="#2f6f52" font-family="Arial, Helvetica, sans-serif">Explore</text>
+<rect x="500" y="40" width="80" height="24" rx="12" fill="#ffffff" stroke="#2f6f52" stroke-width="1.2"/>
+<text x="540" y="56" text-anchor="middle" font-size="10" fill="#2f6f52" font-family="Arial, Helvetica, sans-serif">Projects</text>
+<rect x="592" y="40" width="80" height="24" rx="12" fill="#ffffff" stroke="#2f6f52" stroke-width="1.2"/>
+<text x="632" y="56" text-anchor="middle" font-size="10" fill="#2f6f52" font-family="Arial, Helvetica, sans-serif">Dashboard</text>
+<rect x="684" y="40" width="80" height="24" rx="12" fill="#ffffff" stroke="#2f6f52" stroke-width="1.2"/>
+<text x="724" y="56" text-anchor="middle" font-size="10" fill="#2f6f52" font-family="Arial, Helvetica, sans-serif">About</text>
+<line x1="0" y1="104" x2="800" y2="104" stroke="#d9ded9" stroke-width="1"/>
+<rect x="24" y="94" width="752" height="56" rx="8" fill="#eef0ee" stroke="#9aa79c" stroke-width="1.5"/>
+<text x="36" y="114" font-size="13" font-weight="bold" fill="#1f2a24" font-family="Arial, Helvetica, sans-serif">Hero</text>
+<text x="36" y="132" font-size="11" fill="#4a564e" font-family="Arial, Helvetica, sans-serif">"Open a record" — explains the form hands off to the visitor's own mail client (no backend mail</text>
+<rect x="24" y="164" width="752" height="90" rx="8" fill="#f5f3ee" stroke="#8a6b2f" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="36" y="184" font-size="13" font-weight="bold" fill="#1f2a24" font-family="Arial, Helvetica, sans-serif">Enquiry form</text>
+<text x="36" y="202" font-size="11" fill="#4a564e" font-family="Arial, Helvetica, sans-serif">Name, Email, Message fields + "COMPOSE THE MESSAGE" button (builds a mailto: link).</text>
+<rect x="24" y="268" width="752" height="74" rx="8" fill="#f5f3ee" stroke="#8a6b2f" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="36" y="288" font-size="13" font-weight="bold" fill="#1f2a24" font-family="Arial, Helvetica, sans-serif">Direct contact panel</text>
+<text x="36" y="306" font-size="11" fill="#4a564e" font-family="Arial, Helvetica, sans-serif">Email, Instagram, LinkedIn handles + campus room + open hours (Wed &amp; Fri, 2–6pm).</text>
+<rect x="24" y="356" width="752" height="70" rx="8" fill="#e7efe9" stroke="#2f6f52" stroke-width="1.5"/>
+<text x="36" y="376" font-size="13" font-weight="bold" fill="#1f2a24" font-family="Arial, Helvetica, sans-serif">Three ways to support</text>
+<text x="36" y="394" font-size="11" fill="#4a564e" font-family="Arial, Helvetica, sans-serif">Join the Club / Collaborate / Sponsor — each opens a pre-filled mailto: link.</text>
+<text x="764" y="416" text-anchor="end" font-size="11" fill="#8a6b2f" font-family="Arial, Helvetica, sans-serif">card repeats &#215; 3</text>
+<line x1="0" y1="464" x2="800" y2="464" stroke="#d9ded9" stroke-width="1"/>
+<text x="400" y="488" text-anchor="middle" font-size="10" fill="#8a958e" font-family="Arial, Helvetica, sans-serif">Green Tech Club &#183; Built for a grid that outlives us</text>
+</svg>

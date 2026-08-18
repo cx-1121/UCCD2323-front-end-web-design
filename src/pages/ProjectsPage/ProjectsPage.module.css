@@ -30,6 +30,13 @@
    ========================================================================== */
 .open {
   padding-top: clamp(6rem, 15vh, 9rem);
+  /* The search panel hangs out of this chapter's box. Every chapter sets
+     `isolation: isolate`, so a z-index on the panel cannot escape into the
+     stack the sections share, and the records chapter — later in the DOM,
+     with an opaque ground — painted straight over the suggestions. The
+     opening chapter is lifted as a whole instead. The section boxes do not
+     overlap, so nothing about the edge blends changes. */
+  z-index: 3;
 }
 
 .openStack {
@@ -99,28 +106,21 @@
 
 .search {
   max-width: 26rem;
+  /* The suggestion panel is absolutely positioned out of this box; the
+     controls row must not clip it. */
+  position: relative;
+  z-index: 2;
 }
 
-/* One rule, not a boxed field. */
-.searchInput {
-  width: 100%;
-  padding: 0.5rem 0 0.5rem 0;
-  font-family: var(--typed);
-  font-size: 0.9375rem;
-  color: var(--ink);
-  background: none;
-  border: 0;
+/* Search failed. Set apart from the records below it by a rule, so the
+   recommendation is visibly a different claim than a result. */
+.noMatch {
+  display: grid;
+  justify-items: start;
+  gap: 0.75rem;
+  padding-bottom: clamp(2rem, 5vw, 3rem);
+  margin-bottom: clamp(2rem, 5vw, 3rem);
   border-bottom: 1px solid var(--rule);
-  transition: border-color 300ms var(--ease-glide);
-}
-
-.searchInput::placeholder {
-  color: var(--ink-faint);
-}
-
-.searchInput:focus {
-  outline: none;
-  border-bottom-color: var(--living);
 }
 
 /* ==========================================================================
@@ -278,6 +278,29 @@
 .closeStack {
   display: grid;
   gap: clamp(2rem, 5vw, 3rem);
+}
+
+/* Phone: the milestones close the page, so the trailing air is the last thing
+   the reader thumbs through before the footer. It is scaled with the chapter
+   rhythm above rather than left at desktop scale. */
+@media (max-width: 48rem) {
+  .open {
+    padding-top: clamp(3.5rem, 9vh, 5rem);
+  }
+
+  .close {
+    padding-bottom: clamp(2.5rem, 7vh, 4rem);
+  }
+
+  .closeStack {
+    gap: clamp(1.5rem, 4vw, 2rem);
+  }
+
+  /* The record run is spaced for full-width alternating plates; on one column
+     that separation reads as a gap between pages rather than between records. */
+  .records {
+    gap: clamp(2.75rem, 7vw, 4rem);
+  }
 }
 
 .milestones {

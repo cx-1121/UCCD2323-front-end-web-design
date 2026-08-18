@@ -1,0 +1,8 @@
+Shared style used across wireframe-*.svg in this folder:
+- viewBox 800 x (page height), white background
+- header bar 800x56: wordmark box + nav pill row (Home / Explore / Projects / Dashboard / About)
+- grey rectangles (#eef0ee, stroke #9aa79c) = layout blocks; label = section name; sub-label = real copy/content summary taken from the live site
+- dashed rectangles = repeating card pattern (only one card drawn, captioned "x N" for the repeat count)
+- solid rounded pill = button / call-to-action
+- footer bar 800x40
+These are low-fidelity structural wireframes (greyscale, no colour/typography treatment) - see Chapter 3.3 for the visual-design (mockup) description in prose.

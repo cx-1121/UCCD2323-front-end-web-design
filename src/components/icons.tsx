@@ -223,6 +223,15 @@ function CloseGlyph(props: GlyphProps) {
   );
 }
 
+function SearchGlyph(props: GlyphProps) {
+  return (
+    <svg {...base} {...props}>
+      <circle cx="10.5" cy="10.5" r="7" />
+      <path d="M20.5 20.5 15.8 15.8" />
+    </svg>
+  );
+}
+
 function ArrowGlyph(props: GlyphProps) {
   return (
     <svg {...base} {...props}>
@@ -257,4 +266,5 @@ export {
   ExternalGlyph,
   CloseGlyph,
   ArrowGlyph,
+  SearchGlyph,
 };
