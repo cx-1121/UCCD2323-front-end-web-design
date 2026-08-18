@@ -88,6 +88,7 @@ export default function ProjectsPage() {
     getSearchSuggestions,
     totalProjectsCount,
     resetFilters,
+    gridEpoch,
   } = useProjects();
 
   const pageRef = useSettle<HTMLElement>();
@@ -229,7 +230,7 @@ export default function ProjectsPage() {
                 </div>
               )}
 
-              <ol className={styles.records}>
+              <ol key={gridEpoch} className={styles.records}>
               {filteredProjects.map((project, index) => (
                 <li key={project.id}>
                   <Settle
